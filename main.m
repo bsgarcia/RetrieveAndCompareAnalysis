@@ -1,7 +1,7 @@
 clear all
 %------------------------------------------------------------------------
-data = load('data/first_88');
-data = data.learningdatarandc88(:, :);
+data = load('data/full');
+data = data.full(:, :);
 
 %----------------------------------
 %sem = @(x) std(x)./sqrt(size(data,2));
@@ -44,9 +44,9 @@ idx.cont2 = 15;
 
 corr_catch = extract_catch_trials(data, sub_ids, idx);
 [cho1, out1, corr1, con1, rew] = extract_learning_data(...
-    data, ncond, nsession, sub_ids, idx);
+    data, ncond, nsession, sub_ids, idx, corr_catch);
 [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
-    data, sub_ids, idx, 0);
+    data, sub_ids, idx, 0, corr_catch);
 
 % Split depending on optimism tendency
 % -----------------------------------------------------------------------
@@ -54,6 +54,7 @@ data = load('data/fit/online_exp');
 parameters = data.data('parameters');
 delta_alpha = parameters(:, 2, 2) - parameters(:, 3, 2);
 [sorted, idx_order] = sort(delta_alpha);
+idx_order = idx_order(1:size(cho, 1));
 cho = cho(idx_order, :);
 p2 = p2(idx_order, :);
 cont1 = cont1(idx_order, :);
@@ -66,13 +67,13 @@ for con = 1:4
     end
 end
 
-figure
-bar(psym);
-ylabel('P(outcome=1)')
-xlabel('Conditions')
-legend('Option 1', 'Option 2')
-ylim([0, 1.0]);
-    
+% figure
+% bar(psym);
+% ylabel('P(outcome=1)')
+% xlabel('Conditions')
+% legend('Option 1', 'Option 2')
+% ylim([0, 1.0]);
+%     
 %------------------------------------------------------------------------
 % Compute corr choice rate
 %------------------------------------------------------------------------
@@ -122,7 +123,7 @@ end
 pcue = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 cont = unique(cont1);
 plearn = zeros(length(pcue), length(cont));
-for i = 1:size(corr, 1)
+for i = 1:size(cho, 1)
     for j = 1:length(pcue)
         for k = 1:length(cont)
             temp = cho(i, logical((p2(i, :) == pcue(j)) .* (cont1(i, :) == cont(k))));
@@ -135,7 +136,7 @@ end
 
 titles = {'Low \Delta\alpha', 'High \Delta\alpha'};
 tt = 0;
-for k = {1:45, 46:90}
+for k = {1:size(cho, 1)}
     tt = tt + 1;
     k = k{:};
     prop = zeros(length(cont), length(pcue));
@@ -147,7 +148,7 @@ for k = {1:45, 46:90}
        end
     end
    
-    X = repmat(pcue, 45, 1);
+    X = repmat(pcue, size(cho, 1), 1);
     pp = zeros(length(cont), length(pcue));
     for i = 1:length(cont)
         Y = plearn(k, :, i);
@@ -214,12 +215,14 @@ pirateplot(...
 
 %set(ha(1:4),'XTickLabel',''); set(ha,'YTickLabel','')
 
-function [cho, out, corr, con, rew] = extract_learning_data(data, ncond, nsession, sub_ids, idx)
+function [cho, out, corr, con, rew] = extract_learning_data(data, ncond, nsession, sub_ids, idx, corr_catch)
 i = 1;
+j = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
     mask_sub = data(:,1) == sub;
     if ismember(sum(data(:, 1) == sub), [255, 285])
+        if mean(corr_catch{j, 1}) > .9
             %mask_cond = data(:, idx.cond) == cond;
             mask_sess = ismember(data(:, idx.sess), [0]);
             mask_eli = data(:, idx.elic) == -1;
@@ -240,6 +243,8 @@ for id = 1:length(sub_ids)
 %         if sum(corr(i, :)) > 90
              i = i+1;
 %         end
+        end
+        j = j + 1;
     end
 end
 end
@@ -269,12 +274,14 @@ end
 end
 
 function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
-    extract_elicitation_data(data, sub_ids, idx, eli)
+    extract_elicitation_data(data, sub_ids, idx, eli, corr_catch)
 i = 1;
+j = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
     if ismember(sum(data(:, 1) == sub), [255, 285])
-        
+                if mean(corr_catch{j, 1}) > .9
+
         mask_eli = data(:, idx.elic) == eli;
         mask_sub = data(:, idx.sub) == sub;
         mask_catch = data(:, idx.catch) == 0;
@@ -318,7 +325,8 @@ for id = 1:length(sub_ids)
 %         if sum(corr(i, :)) > 40
          i = i + 1;
 %         end
-        
+                end
+                j = j + 1;
     end
 end
 end

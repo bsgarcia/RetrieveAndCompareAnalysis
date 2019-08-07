@@ -22,9 +22,9 @@ addpath './data'
 % --------------------------------------------------------------------
 [data, ncond, nsession, sub_ids, idx] = get_parameters();
 
-% corr_catch = extract_catch_trials(data, sub_ids, idx);
+corr_catch = extract_catch_trials(data, sub_ids, idx);
 [cho, out, con, corr, rew] = get_learning_data(...
-    data, ncond, nsession, sub_ids, idx);
+    data, ncond, nsession, sub_ids, idx, corr_catch);
 
 % --------------------------------------------------------------------
 % Modifiable variables
@@ -32,7 +32,9 @@ addpath './data'
 whichmodel = [1, 2, 5, 6, 7];
 % --------------------------------------------------------------------
 
-%% Run
+
+% --------------------------------------------------------------------
+% Run
 % --------------------------------------------------------------------
 nmodel = length(whichmodel);
 subjecttot = size(cho, 1);
@@ -59,8 +61,9 @@ end
 
 %parametersfitbarplot(parameters, nmodel, whichmodel, models) 
 
-%% Plots
-% % --------------------------------------------------------------------
+% --------------------------------------------------------------------
+% Plots
+% --------------------------------------------------------------------
 figure
 params = {...
     [2],...
@@ -69,19 +72,21 @@ params = {...
     [2, 4],...% 4
     [2, 5],...% 5
     [2, 5, 6],...% 6
-    [2, 3, 5, 6],... % 7
+    [2, 3, 5],... % 7
     [2, 3, 5, 6] % 8
 };
-alternatives = whichmodel(2:end-1);
+alternatives = whichmodel(2:end);
 j = 0;
 for i = alternatives
     j = j +1; 
-    subplot(2, 3, j)
-    barplot_param_comparison(parameters, params{i}, i, paramlabels, models, 0.5);
-
+    subplot(2, 4, j)
+    barplot_param_comparison(...
+        parameters, params{i}, i, paramlabels, models, 0.5);
 end
 
-% -------------- Params ----------------------------------------------- % 
+% --------------------------------------------------------------------
+% Parameters
+% --------------------------------------------------------------------
 bias1 = (parameters(:, 2, 2) - parameters(:, 3, 2))./...
     (parameters(:, 2, 2) + parameters(:, 3, 2)) ;
 %bias2 = (parameters(:, 2, 3) - parameters(:, 3, 3)) ./...
