@@ -1,11 +1,14 @@
 clear all
 %------------------------------------------------------------------------
-data = load('data/blockfirst');
-data = data.blockfirst(:, :);
-
+data = load('data/block50first');
+data = data.block50first(:, :);
 %----------------------------------
 %sem = @(x) std(x)./sqrt(size(data,2));
 
+% Set parameters
+%------------------------------------------------------------------------
+catch_threshold = 0.95;
+allowed_nb_of_rows = [258, 288, 255, 285];
 
 
 % get parameters
@@ -18,7 +21,7 @@ sim = 1;
 choice = 2;
 
 %------------------------------------------------------------------------
-% Define idx columns
+% Define columns idx
 %------------------------------------------------------------------------
 idx.rtime = 6;
 idx.cond = 13;
@@ -40,14 +43,24 @@ idx.plot = 29;
 idx.cont1 = 14;
 idx.cont2 = 15;
 %idx.prolific = 2;
+
+%------------------------------------------------------------------------
+% Exclude subjects and retrieve data 
 %------------------------------------------------------------------------
 
-corr_catch = extract_catch_trials(data, sub_ids, idx);
-[cho1, out1, corr1, con1, rew] = extract_learning_data(...
-    data, ncond, nsession, sub_ids, idx, corr_catch);
-[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
-    data, sub_ids, idx, 0, corr_catch);
+[sub_ids, corr_catch] = exclude_subjects(data, sub_ids, idx,...
+    catch_threshold, allowed_nb_of_rows);
 
+fprintf('N = %d \n', length(sub_ids));
+fprintf('Catch threshold = %.1f \n', catch_threshold);
+
+[cho1, out1, corr1, con1, rew] = extract_learning_data(...
+    data, sub_ids, idx);
+
+[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
+    data, sub_ids, idx, 0);
+
+%------------------------------------------------------------------------
 % Split depending on optimism tendency
 % -----------------------------------------------------------------------
 % data = load('data/fit/online_exp');
@@ -59,29 +72,29 @@ corr_catch = extract_catch_trials(data, sub_ids, idx);
 % p2 = p2(idx_order, :);
 % cont1 = cont1(idx_order, :);
 
-% psym = zeros(4, 2);
-% for con = 1:4
-%     for c = 1:2
-%         temp = out1(logical((con1 == con) .* (cho1 == c))) == 1;
-%         psym(con , c) = mean(temp);
-%     end
-% end
+psym = zeros(4, 2);
+for con = 1:4
+    for c = 1:2
+        temp = out1(logical((con1 == con) .* (cho1 == c))) == 1;
+        psym(con , c) = mean(temp);
+    end
+end
 % 
-% psym = zeros(8);
-% i = 1;
-% for cont = numel(unique(cont1))
-%         temp = out2(cont1 == );
-%         psym(i) = mean(temp);
-%         i = i + 1;
-% end
-% 
-% figure
-% bar(psym);
-% ylabel('P(outcome=1)')
-% xlabel('Conditions')
-% legend('Option 1', 'Option 2')
-% ylim([0, 1.0]);
-% return 
+% % psym = zeros(8);
+% % i = 1;
+% % for cont = numel(unique(cont1))
+% %         temp = out2(cont1 == );
+% %         psym(i) = mean(temp);
+% %         i = i + 1;
+% % end
+% % 
+figure
+bar(psym);
+ylabel('P(outcome=1)')
+xlabel('Conditions')
+legend('Option 1', 'Option 2')
+ylim([0, 1.0]);
+
 %------------------------------------------------------------------------
 % Compute corr choice rate
 %------------------------------------------------------------------------
@@ -97,10 +110,33 @@ for sub = 1:size(corr1, 1)
 end
 
 %------------------------------------------------------------------------
+% Correlate corr choice rate vs quest
+% -----------------------------------------------------------------------
+quest_data = load('data/questionnaire_full');
+quest_data = quest_data.questionnairedatarandc;
+
+for i = 1:length(sub_ids)
+    sub = sub_ids(i);
+    mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
+    mask_sub = arrayfun(@(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)), quest_data{:, 'sub_id'});
+    crt_scores(i) = sum(...
+        quest_data{logical(mask_quest .* mask_sub), 'val'});
+end
+figure
+scatterCorr(...
+    mean(corr_rate, [2, 3])',...
+    crt_scores,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
+    [0.4660    0.6740    0.1880],...
+    0.6,...
+    2,...
+    1);
+ylabel('CRT Score');
+xlabel('Correct choice rate');
+%------------------------------------------------------------------------
 % PLOT
 %------------------------------------------------------------------------
 %i = 1;
-titles = {'-0.8 vs 0.8', '-0.6 vs 0.6', '-0.4 vs 0.4', '-0.2 vs 0.2'};
+titles = {'0.9 vs 0.1', '0.8 vs 0.2', '0.7 vs 0.3', '0.6 vs 0.4'};
 figure;
 for cond = 1:4
     subplot(1, 4, cond)
@@ -140,9 +176,11 @@ for i = 1:size(cho, 1)
     end
 end
 
-
 % titles = {'Low \Delta\alpha', 'High \Delta\alpha'};
 % tt = 0;
+% ----------------------------------------------------------------------
+% PLOT P(learnt value) vs Described Cue
+% ------------------------------------------------------------------------
 for k = {1:size(cho, 1)}
     %tt = tt + 1;
     k = k{:};
@@ -159,7 +197,6 @@ for k = {1:size(cho, 1)}
     pp = zeros(length(cont), length(pcue));
     for i = 1:length(cont)
         Y = plearn(k, :, i);
-        disp(i);
         %     [B,dev,stats] = mnrfit(X, Y);
         %     pp(i, :) = mnrval(B, plearn(:, :, i));
         [logitCoef,dev] = glmfit(...
@@ -170,7 +207,6 @@ for k = {1:size(cho, 1)}
 
     figure
     pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
-%     suptitle(titles{tt});
 
     for i = 1:length(cont)
         subplot(4, 2, i)
@@ -178,7 +214,14 @@ for k = {1:size(cho, 1)}
             pcue,  pp(i, :),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
             'Color', [0.4660    0.6740    0.1880] ...
             );
-        ind_point = interp1(lin.YData, lin.XData, 0.5);
+        try
+            ind_point = interp1(lin.YData, lin.XData, 0.5);
+            hold on
+            scatter(ind_point, 0.5, 'MarkerFaceColor', 'r');
+
+        catch
+            disp('Problem when representing intersection point');
+        end
         if mod(i, 2) ~= 0
             ylabel('P(choose learnt value)');
         end
@@ -187,13 +230,11 @@ for k = {1:size(cho, 1)}
         end
         hold on
         scatter(pcue, prop(i, :), 'MarkerEdgeColor', [0.4660    0.6740    0.1880]);
-        scatter(ind_point, 0.5, 'MarkerFaceColor', 'r');
 
         plot(ones(10)*pwin(i), linspace(0.1, 0.9, 10), 'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 0.6);
-        %[xi,yi] = polyxpoly(ones(10)*pwin(i),linspace(0.1, 0.9, 10),pcue,  pp(i, :));
-        %scatter(xi, yi, 'Color', 'r');
+       
         if i < 6
-        text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
+            text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
         else
 
             text(pwin(i)-0.30, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
@@ -205,64 +246,68 @@ for k = {1:size(cho, 1)}
     end
 end
 
+
+% ----------------------------------------------------------------------
+% Plot violins
+% ------------------------------------------------------------------------
 [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
-    data, sub_ids, idx, 2, corr_catch);
+    data, sub_ids, idx, 2);
+
 i = 1;
 for p = pwin
-    mn(i, :) = cho(p1(:, :) == p);
+    mn(i, :) = cho(p1(:, :) == p)./100;
     i = i + 1;
 end
-
 
 figure
 pirateplot(...
     mn, rand(8, 3),...
-    -0.8, 100.8, 20, 'Slider choices' , 'P(win of learnt value)',...
-    'Choice (% of odds reward is +1)', pwin)
+    -0.1, 1.1, 20, 'Slider choices' , 'P(win of learnt value)',...
+    'Estimated probability', pwin...
+);
 
-%set(ha(1:4),'XTickLabel',''); set(ha,'YTickLabel','')
 
-function [cho, out, corr, con, rew] = extract_learning_data(data, ncond, nsession, sub_ids, idx, corr_catch)
-i = 1;
-%j = 1;
-for id = 1:length(sub_ids)
-    sub = sub_ids(id);
-    mask_sub = data(:,1) == sub;
-    if ismember(sum(data(:, 1) == sub), [258, 288]) %255, 285, 
- %       if mean(corr_catch{j, 1}) > .9
-            %mask_cond = data(:, idx.cond) == cond;
-            mask_sess = ismember(data(:, idx.sess), [0]);
-            mask_eli = data(:, idx.elic) == -1;
-            mask = logical(mask_sub .* mask_sess .* mask_eli);
-            [noneed, trialorder] = sort(data(mask, idx.trial_idx));
-            tempcho = data(mask, idx.cho);
-            cho(i, :) = tempcho(trialorder);
-            tempout = data(mask, idx.out);
-            out(i, :) = tempout(trialorder);
-            tempcorr = data(mask, idx.corr);
-            corr(i, :) = tempcorr(trialorder);
-            temprew = data(mask, idx.rew);
-            rew(i, :) = temprew(trialorder);
-            tempcon = data(mask, idx.cond);
-            con(i, :) = tempcon(trialorder) + 1;
-%             temp_prolid = str2num(data(mask, idx.prolific));
-%             prolid(i, :) = temp_prolid(trialorder);
-%         if sum(corr(i, :)) > 90
-             i = i+1;
-%         end
-  %      end
-        %j = j + 1;
-    end
-end
-end
+% ----------------------------------------------------------------------
+% FUNCTION SECTIONw
+% ------------------------------------------------------------------------
 
-function [corr_catch] = extract_catch_trials(data, sub_ids, idx)
+function [cho, out, corr, con, rew] = extract_learning_data(data, sub_ids, idx)
 i = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
-    if ismember(sum(data(:, 1) == sub), [258, 288]) %255, 285, 
-        for eli = [0, 2]
-            
+    mask_sub = data(:, idx.sub) == sub;
+    mask_sess = ismember(data(:, idx.sess), [0]);
+    mask_eli = data(:, idx.elic) == -1;
+    mask = logical(mask_sub .* mask_sess .* mask_eli);
+    
+    [noneed, trialorder] = sort(data(mask, idx.trial_idx));
+    
+    tempcho = data(mask, idx.cho);
+    cho(i, :) = tempcho(trialorder);
+    
+    tempout = data(mask, idx.out);
+    out(i, :) = tempout(trialorder);
+    tempcorr = data(mask, idx.corr);
+    
+    corr(i, :) = tempcorr(trialorder);
+    temprew = data(mask, idx.rew);
+    
+    rew(i, :) = temprew(trialorder);
+    
+    tempcon = data(mask, idx.cond);
+    con(i, :) = tempcon(trialorder) + 1;
+    
+    i = i + 1;
+end
+end
+
+function [to_keep, corr_catch] = exclude_subjects(data, sub_ids, idx, catch_threshold, allowed_nb_of_rows)
+to_keep = [];
+i = 1;
+for id = 1:length(sub_ids)
+    sub = sub_ids(id);
+    if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows) %255, 285, 
+        for eli = [0, 2]          
             mask_eli = data(:, idx.elic) == eli;
             if eli == 0
                 eli = 1;
@@ -275,66 +320,83 @@ for id = 1:length(sub_ids)
             temp_corr = data(mask, idx.corr);
             corr_catch{i, eli} = temp_corr(trialorder);
         end
+             
+        if mean(corr_catch{i}) >= catch_threshold
+            to_keep(length(to_keep) + 1) = sub;
+        end
         i = i + 1;
+        
     end
 end
+%data = data(ismember(data(:, idx.sub), to_keep), :);
 end
+
+
+% function [to_exclude] = exclude_from_catch_trials(corr_catch, catch_threshold)
+% to_exclude = [];
+% for i = 1:size([corr_catch{:, 1}], 1)
+%     if mean(corr_catch{i}, 'all') < catch_threshold
+%         to_exclude(length(to_exclude) + 1) = i;
+%     end
+% end
+% end
+% 
+% 
+% function [to_exclude] = exclude_from_number_of_rows(data, sub_ids, idx, allowed_nb_of_rows)
+% to_exclude = [];
+% for id = 1:length(sub_ids)
+%     sub = sub_ids(id);
+%     if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows)
+%         to_exclude(length(to_exclude) + 1) = 
+% 
 
 function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
-    extract_elicitation_data(data, sub_ids, idx, eli, corr_catch)
+    extract_elicitation_data(data, sub_ids, idx, eli)
 i = 1;
-%j = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
-    if ismember(sum(data(:, 1) == sub), [258, 288]) %255, 285, 
-                %if mean(corr_catch{j, 1}) > .9
-
-        mask_eli = data(:, idx.elic) == eli;
-        mask_sub = data(:, idx.sub) == sub;
-        mask_catch = data(:, idx.catch) == 0;
-        mask_sess = ismember(data(:, idx.sess), [0]);
-        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
-        
-        [noneed, trialorder] = sort(data(mask, idx.trial_idx));
-        
-        temp_corr = data(mask, idx.corr);
-        corr(i, :) = temp_corr(trialorder);
-        
-        temp_cho = data(mask, idx.cho);
-        cho(i, :) = temp_cho(trialorder);
-        
-        temp_out = data(mask, idx.out);
-        out(i, :) = temp_out(trialorder);
-        
-        temp_ev1 = data(mask, idx.ev1);
-        ev1(i, :) = temp_ev1(trialorder);
-        
-        temp_catch = data(mask, idx.catch);
-        ctch(i, :) = temp_catch(trialorder);
-        
-        temp_cont1 = data(mask, idx.cont1);
-        cont1(i, :) = temp_cont1(trialorder);
-        
-        temp_ev2 = data(mask, idx.ev2);
-        ev2(i, :) = temp_ev2(trialorder);
-        
-        temp_cont2 = data(mask, idx.cont2);
-        cont2(i, :) = temp_cont2(trialorder);
-        
-        temp_p1 = data(mask, idx.p1);
-        p1(i, :) = temp_p1(trialorder);
-        
-        temp_p2 = data(mask, idx.p2);
-        p2(i, :) = temp_p2(trialorder);
-        
-%         temp_prolid = str2num(data(mask, idx.prolific));
-%         prolid(i, :) = temp_prolid(trialorder);
-%         if sum(corr(i, :)) > 40
-         i = i + 1;
-%         end
-                %end
-              %  j = j + 1;
-    end
+    
+    mask_eli = data(:, idx.elic) == eli;
+    mask_sub = data(:, idx.sub) == sub;
+    mask_catch = data(:, idx.catch) == 0;
+    mask_sess = ismember(data(:, idx.sess), [0]);
+    mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
+    
+    [noneed, trialorder] = sort(data(mask, idx.trial_idx));
+    
+    temp_corr = data(mask, idx.corr);
+    corr(i, :) = temp_corr(trialorder);
+    
+    temp_cho = data(mask, idx.cho);
+    cho(i, :) = temp_cho(trialorder);
+    
+    temp_out = data(mask, idx.out);
+    out(i, :) = temp_out(trialorder);
+    
+    temp_ev1 = data(mask, idx.ev1);
+    ev1(i, :) = temp_ev1(trialorder);
+    
+    temp_catch = data(mask, idx.catch);
+    ctch(i, :) = temp_catch(trialorder);
+    
+    temp_cont1 = data(mask, idx.cont1);
+    cont1(i, :) = temp_cont1(trialorder);
+    
+    temp_ev2 = data(mask, idx.ev2);
+    ev2(i, :) = temp_ev2(trialorder);
+    
+    temp_cont2 = data(mask, idx.cont2);
+    cont2(i, :) = temp_cont2(trialorder);
+    
+    temp_p1 = data(mask, idx.p1);
+    p1(i, :) = temp_p1(trialorder);
+    
+    temp_p2 = data(mask, idx.p2);
+    p2(i, :) = temp_p2(trialorder);
+    
+    
+    i = i + 1;
+    
 end
 end
 
