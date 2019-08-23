@@ -1,13 +1,22 @@
 clear all
+
 %------------------------------------------------------------------------
-data = load('data/block50first');
-data = data.block50first(:, :);
+data_filename = 'data/blockfull';
+quest_filename = 'data/questionnaire_block';
+
+%------------------------------------------------------------------------
+data = load(data_filename);
+if strcmp(data_filename, 'data/blockfull')
+    data = data.blockfull;
+else
+    data = data.full;
+end
 %----------------------------------
 %sem = @(x) std(x)./sqrt(size(data,2));
 
 % Set parameters
 %------------------------------------------------------------------------
-catch_threshold = 0.95;
+catch_threshold = 1;
 allowed_nb_of_rows = [258, 288, 255, 285];
 
 
@@ -52,7 +61,7 @@ idx.cont2 = 15;
     catch_threshold, allowed_nb_of_rows);
 
 fprintf('N = %d \n', length(sub_ids));
-fprintf('Catch threshold = %.1f \n', catch_threshold);
+fprintf('Catch threshold = %.2f \n', catch_threshold);
 
 [cho1, out1, corr1, con1, rew] = extract_learning_data(...
     data, sub_ids, idx);
@@ -60,6 +69,19 @@ fprintf('Catch threshold = %.1f \n', catch_threshold);
 [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
     data, sub_ids, idx, 0);
 
+% psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+% for i = 1:length(psym)
+%     for sub = 1:size(corr, 1)
+%         X(i, sub) = mean(corr(sub, p1(sub, :) == psym(i)));
+%     end
+% end
+% figure
+% pirateplot(...
+%      X, rand(length(psym), 3),...
+%     -0.1, 1.1, 20, 'Slider choices' , 'P(win of learnt value)',...
+%     'Correct choice', psym...
+% );
+% return 
 %------------------------------------------------------------------------
 % Split depending on optimism tendency
 % -----------------------------------------------------------------------
@@ -71,50 +93,62 @@ fprintf('Catch threshold = %.1f \n', catch_threshold);
 % cho = cho(idx_order, :);
 % p2 = p2(idx_order, :);
 % cont1 = cont1(idx_order, :);
-
-psym = zeros(4, 2);
-for con = 1:4
-    for c = 1:2
-        temp = out1(logical((con1 == con) .* (cho1 == c))) == 1;
-        psym(con , c) = mean(temp);
-    end
-end
 % 
-% % psym = zeros(8);
-% % i = 1;
-% % for cont = numel(unique(cont1))
-% %         temp = out2(cont1 == );
-% %         psym(i) = mean(temp);
-% %         i = i + 1;
-% % end
+% psym = zeros(4, 2);
+% for con = 1:4
+%     for c = 1:2
+%         temp = out1(logical((con1 == con) .* (cho1 == c))) == 1;
+%         psym(con , c) = mean(temp);
+%     end
+% end
 % % 
-figure
-bar(psym);
-ylabel('P(outcome=1)')
-xlabel('Conditions')
-legend('Option 1', 'Option 2')
-ylim([0, 1.0]);
+% % % psym = zeros(8);
+% % % i = 1;
+% % % for cont = numel(unique(cont1))
+% % %         temp = out2(cont1 == );
+% % %         psym(i) = mean(temp);
+% % %         i = i + 1;
+% % % end
+% % % 
+% figure
+% bar(psym);
+% ylabel('P(outcome=1)')
+% xlabel('Conditions')
+% legend('Option 1', 'Option 2')
+% ylim([0, 1.0]);
 
 %------------------------------------------------------------------------
-% Compute corr choice rate
+% Compute corr choice rate learning
 %------------------------------------------------------------------------
-corr_rate = zeros(size(corr1, 1), 30, 4);
+corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
 
 for sub = 1:size(corr1, 1)
-    for t = 1:30
+    for t = 1:size(corr1, 2)/4
         for j = 1:4
             d = corr1(sub, con1(sub, :) == j);
-            corr_rate(sub, t, j) = mean(d(1:t));
+            corr_rate_learning(sub, t, j) = mean(d(1:t));
         end
     end
 end
-
 %------------------------------------------------------------------------
+% Compute corr choice rate elicitation
+%------------------------------------------------------------------------
+corr_rate_elicitation = zeros(size(corr, 1), 1);
+
+for sub = 1:size(corr, 1)
+    mask_equal_ev = ev1(sub, :) ~= ev2(sub, :);
+    d = corr(sub, mask_equal_ev);
+    corr_rate_elicitation(sub) = mean(d);
+end
+% ------------------------------------------------------------------------
 % Correlate corr choice rate vs quest
 % -----------------------------------------------------------------------
-quest_data = load('data/questionnaire_full');
-quest_data = quest_data.questionnairedatarandc;
-
+quest_data = load(quest_filename);
+if strcmp(quest_filename, 'data/questionnaire_block')
+    quest_data = quest_data.questionnaireblock;
+else
+    quest_data = quest_data.questionnairedatarandc;
+end
 for i = 1:length(sub_ids)
     sub = sub_ids(i);
     mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
@@ -122,16 +156,47 @@ for i = 1:length(sub_ids)
     crt_scores(i) = sum(...
         quest_data{logical(mask_quest .* mask_sub), 'val'});
 end
+%------------------------------------------------------------------------
+% Plot correlations 
+% -----------------------------------------------------------------------
+% LEARNING PHASE
+% -----------------------------------------------------------------------
 figure
 scatterCorr(...
-    mean(corr_rate, [2, 3])',...
-    crt_scores,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
+    mean(corr_rate_learning, [2, 3])',...
+    crt_scores./14,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
     [0.4660    0.6740    0.1880],...
-    0.6,...
+    0.5,...
     2,...
     1);
 ylabel('CRT Score');
-xlabel('Correct choice rate');
+xlabel('Correct choice rate learning');
+%------------------------------------------------------------------------
+% ELICITATION PHASE
+% -----------------------------------------------------------------------
+figure
+scatterCorr(...
+    corr_rate_elicitation',...
+    crt_scores./14,...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('CRT Score');
+xlabel('Correct choice rate elicitation');
+%------------------------------------------------------------------------
+% ELICITATION VS LEARNING 
+% -----------------------------------------------------------------------
+figure
+scatterCorr(...
+    corr_rate_elicitation',...
+    mean(corr_rate_learning, [2, 3])',...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('Correct choice rate learning');
+xlabel('Correct choice rate elicitation');
 %------------------------------------------------------------------------
 % PLOT
 %------------------------------------------------------------------------
@@ -142,7 +207,7 @@ for cond = 1:4
     subplot(1, 4, cond)
 
     reversalplot(...
-        corr_rate(:, :, cond)',...
+        corr_rate_learning(:, :, cond)',...
         [],...
         [],...
         ones(3) * 0.5,...
@@ -165,12 +230,13 @@ end
 % Compute for each symbol p of chosing depending on described cue value
 % ------------------------------------------------------------------------
 pcue = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-cont = unique(cont1);
-plearn = zeros(length(pcue), length(cont));
+psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+plearn = zeros(size(cho, 1), length(pcue), length(psym));
 for i = 1:size(cho, 1)
     for j = 1:length(pcue)
-        for k = 1:length(cont)
-            temp = cho(i, logical((p2(i, :) == pcue(j)) .* (cont1(i, :) == cont(k))));
+        for k = 1:length(psym)
+            temp = cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
+            
             plearn(i, j, k) = temp == 1;
         end
     end
@@ -184,18 +250,18 @@ end
 for k = {1:size(cho, 1)}
     %tt = tt + 1;
     k = k{:};
-    prop = zeros(length(cont), length(pcue));
+    prop = zeros(length(psym), length(pcue));
     for j = 1:length(pcue)
-        for l = 1:length(cont)
+        for l = 1:length(psym)
            temp1 = cho(k, :);
-           temp = temp1(logical((p2(k, :) == pcue(j)) .* (cont1(k, :) == cont(l))));
+           temp = temp1(logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
            prop(l, j) = mean(temp == 1);
        end
     end
    
     X = repmat(pcue, size(cho, 1), 1);
-    pp = zeros(length(cont), length(pcue));
-    for i = 1:length(cont)
+    pp = zeros(length(psym), length(pcue));
+    for i = 1:length(psym)
         Y = plearn(k, :, i);
         %     [B,dev,stats] = mnrfit(X, Y);
         %     pp(i, :) = mnrval(B, plearn(:, :, i));
@@ -208,7 +274,7 @@ for k = {1:size(cho, 1)}
     figure
     pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
 
-    for i = 1:length(cont)
+    for i = 1:length(psym)
         subplot(4, 2, i)
         lin = plot(...
             pcue,  pp(i, :),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
@@ -249,9 +315,9 @@ end
 
 % ----------------------------------------------------------------------
 % Plot violins
-% ------------------------------------------------------------------------
+% % ------------------------------------------------------------------------
 [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
-    data, sub_ids, idx, 2);
+    data, sub_ids, idx, 2, corr);
 
 i = 1;
 for p = pwin
@@ -268,7 +334,7 @@ pirateplot(...
 
 
 % ----------------------------------------------------------------------
-% FUNCTION SECTIONw
+% FUNCTION SECTION
 % ------------------------------------------------------------------------
 
 function [cho, out, corr, con, rew] = extract_learning_data(data, sub_ids, idx)
@@ -351,7 +417,7 @@ end
 % 
 
 function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
-    extract_elicitation_data(data, sub_ids, idx, eli)
+    extract_elicitation_data(data, sub_ids, idx, eli, old_corr)
 i = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
@@ -394,9 +460,17 @@ for id = 1:length(sub_ids)
     temp_p2 = data(mask, idx.p2);
     p2(i, :) = temp_p2(trialorder);
     
-    
+%     if ~(exist('old_corr'))
+%     if mean(corr(i, :)) > 0.85;
+%         i = i + 1;
+%     end
+%     else 
+%        if mean(old_corr(i, :)) > 0.85;
+%            i = i +1;
+%        end
+%     end
+%     
     i = i + 1;
-    
 end
 end
 

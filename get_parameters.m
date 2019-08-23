@@ -1,6 +1,5 @@
 function [data, ncond, nsession, sub_ids, idx] = get_parameters()
-    data = load('data/first_88');
-    data = data.learningdatarandc88(:, :);
+    data = load('data/blockfull');
 
     % get parameters
     %------------------------------------------------------------------------

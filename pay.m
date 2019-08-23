@@ -9,8 +9,8 @@ old_sub_ids = unique(old_data{:, 'VarName2'});
 % sub_ids = unique(data{:, 'prolific'});
 % disp(sub_ids);
 % return
-data = load('zouleba');
-data = data.zouleba;
+data = load('data/block501_pay');
+data = data.block501;
 sub_ids = unique(data{:, 'prolific'});
 
 extract_learning_data(data, old_sub_ids, sub_ids);
@@ -21,7 +21,7 @@ i = 1;
 for id = 1:length(sub_ids)
     sub = sub_ids(id);
     mask_sub = data{:, 'prolific'} == sub;
-        if ismember(sum(mask_sub), [258, 288, 259])
+        if ismember(sum(mask_sub), [258, 288, 259, 28])
                 %mask_cond = data(:, idx.cond) == cond;
                 mask_sess = ismember(data{:, 'VarName21'}, [0]);
                 %mask_eli = data(:, idx.elic) == -1;
@@ -33,10 +33,12 @@ for id = 1:length(sub_ids)
                 %disp(i);
                 %disp(sum(data{mask, 'out'}, 'all'));
                 %disp(i);
+        
             i = i+1;
         else
             disp(sum(mask_sub));
-            disp(sub);
+            fprintf('%s,%.2f \n', sub, 2.5+sum(data{mask, 'out'}, 'all')* (2.5/98));
         end
+
 end
 end

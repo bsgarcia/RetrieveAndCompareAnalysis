@@ -4,7 +4,7 @@ function [cho, out, con, corr, rew] = get_learning_data(data, ncond, nsession, s
     for id = 1:length(sub_ids)
         sub = sub_ids(id);
         mask_sub = data(:,1) == sub;
-        if ismember(sum(data(:,1) == sub), [255, 285])
+        if ismember(sum(data(:,1) == sub), [258, 288])
             if mean(corr_catch{j, 1}) > .9
             %for cond = 0:ncond 
                 % = data(:, idx.cond) == cond;
