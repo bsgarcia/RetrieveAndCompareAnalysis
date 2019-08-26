@@ -1,5 +1,5 @@
 % --------------------------------------------------------------------
-% This function find the best fitting model/parameters               
+% This function finds the best fitting model/parameters               
 % --------------------------------------------------------------------
 % 1: basic df=2
 % 2: asymmetric neutral df=3
@@ -16,21 +16,42 @@ clear all
 
 addpath './fit'
 addpath './data'
+addpath './'
 
 % --------------------------------------------------------------------
 % Load experiment data
 % --------------------------------------------------------------------
-[data, ncond, nsession, sub_ids, idx] = get_parameters();
+filename = 'data/blockfull';
+[data, ncond, nsession, sub_ids, idx] = DataExtraction.get_parameters(filename);
 
-corr_catch = extract_catch_trials(data, sub_ids, idx);
-[cho, out, con, corr, rew] = get_learning_data(...
-    data, ncond, nsession, sub_ids, idx, corr_catch);
+% --------------------------------------------------------------------
+% Set exclusion criteria
+% --------------------------------------------------------------------
+catch_threshold = 1.;
+n_best_sub = 23;
+allowed_nb_of_rows = [258, 288, 255, 285];
+
+%------------------------------------------------------------------------
+% Exclude subjects and retrieve data 
+%------------------------------------------------------------------------
+[sub_ids, corr_catch] = DataExtraction.exclude_subjects(data, sub_ids, idx,...
+    catch_threshold, n_best_sub, allowed_nb_of_rows);
+
+fprintf('N = %d \n', length(sub_ids));
+fprintf('Catch threshold = %.2f \n', catch_threshold);
+
+[cho1, out1, corr1, con1, rew] = ...
+    DataExtraction.extract_learning_data(...
+    data, sub_ids, idx);
+
+[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
+    DataExtraction.extract_elicitation_data(...
+    data, sub_ids, idx, 0);
 
 % --------------------------------------------------------------------
 % Modifiable variables
 % --------------------------------------------------------------------
 whichmodel = [1, 2, 5, 6, 7];
-% --------------------------------------------------------------------
 
 
 % --------------------------------------------------------------------
@@ -355,86 +376,7 @@ function barplot_param_comparison(parameters, param_idx, model_idx, labels, mode
         %set(ax, 'bof', 'off');
         %set(ax2, 'ytick', []);
         box off
-%         ax1 = gca;
-%         ax2 = axes('Position', get(ax1, 'Position'), 'FontSize', 10,...
-%            'Color','None','XColor','k','YColor','k', 'LineWidth', 1,...
-%            'XAxisLocation','top', 'XTick', [],... 
-%            'YAxisLocation','right', 'YTick', []);
-%         linkaxes([ax1, ax2])
-        box off
-%         ax1 = gca;
-%         %set(ax1, 'XColor', 'r', 'YColor', 'r'); 
-%         hold(ax1, 'all');  %   <--------------------------------
-%         ax2 = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
-%         'YAxisLocation','right','Color','none','XColor','k','YColor','k');
-%         hold(ax2, 'all');  %   <--------------------------------
-%         X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
-%         scatter(...
-%             X,...
-%             y1,...
-%             'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.5, 'MarkerEdgeAlpha', 1,...
-%             'MarkerFaceColor', [107/255 220/255 103/255], 'MarkerEdgeColor', [107/255 220/255 103/255]);
-%         s = scatter(...
-%             X + 1,...
-%             y2,...
-%             'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.5, 'MarkerEdgeAlpha', 1,...
-%             'MarkerFaceColor', [107/255 214/255 103/255], 'MarkerEdgeColor', [107/255 214/255 103/255]);
-%         set(gca, 'xtick', []);
-%         set(gca, 'box', 'off');
-%         set(ax1, 'box', 'off');
-%         set(ax2, 'ytick', []);
-%         box off
     end
     uistack(e, 'top');
     box off;
 end
-
-function [cho, out, con] = getdata(file)
-    data = load(file);
-    data = data.learningdata(:, 1:18);
-    ncond = max(data(:, 13));
-    nsession = max(data(:, 18)) -1 ;
-    sub_ids = unique(data(:, 2));
-    i = 1;
-    k = 1;
-    tmaxsession = 60;
-    for id = 1:length(sub_ids)
-        sub = sub_ids(id);
-        mask_sub = data(:, 2) == sub;
-        if ismember(sum(mask_sub), [213, 228])
-            t = 1;
-            for sess = 0:nsession
-                mask_sess = data(:, 18) == sess;
-                mask = logical(mask_sub .* mask_sess);
-                [noneed, trialorder] = sort(data(mask, 12));
-
-                tempcho = data(mask, 9); 
-                tempcho = tempcho(trialorder);
-                tempout = data(mask, 7); 
-                tempout = tempout(trialorder);
-                tempcon = data(mask, 13);
-                tempcon = tempcon(trialorder);
-
-                for j = 1:tmaxsession
-
-                    cho{i}(t) = tempcho(j);
-                    out{i}(t) = tempout(j);
-                    con{i}(t) = tempcon(j) + 1;
-
-                    t = t + 1;
-                end
-            end
-            if length(cho{i}) ~= 180
-                error('No good length');
-            end
-%             if (sum(out{i}(:)) < 4)
-%                 best_ids(k) = i;
-%                 k = k + 1;
-%             end
-            i = i + 1;
-        end 
-    end
-end
-
-
-

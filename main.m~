@@ -17,6 +17,8 @@ end
 % Set parameters
 %------------------------------------------------------------------------
 catch_threshold = 1;
+%corr_threshold = 0.85;
+n_best_sub = 30;
 allowed_nb_of_rows = [258, 288, 255, 285];
 
 
@@ -58,7 +60,7 @@ idx.cont2 = 15;
 %------------------------------------------------------------------------
 
 [sub_ids, corr_catch] = exclude_subjects(data, sub_ids, idx,...
-    catch_threshold, allowed_nb_of_rows);
+    catch_threshold, n_best_sub, allowed_nb_of_rows);
 
 fprintf('N = %d \n', length(sub_ids));
 fprintf('Catch threshold = %.2f \n', catch_threshold);
@@ -130,61 +132,73 @@ for sub = 1:size(corr1, 1)
         end
     end
 end
-% %------------------------------------------------------------------------
-% % Compute corr choice rate elicitation
-% %------------------------------------------------------------------------
-% corr_rate_elicitation = zeros(size(corr, 1), 1);
-% 
-% for sub = 1:size(corr, 1)
-%     mask_equal_ev = ev1(sub, :) ~= ev2(sub, :);
-%     d = corr(sub, mask_equal_ev);
-%     corr_rate_elicitation(sub) = mean(d);
-% end
-% % ------------------------------------------------------------------------
-% % Correlate corr choice rate vs quest
-% % -----------------------------------------------------------------------
-% quest_data = load(quest_filename);
-% if strcmp(quest_filename, 'data/questionnaire_block')
-%     quest_data = quest_data.questionnaireblock;
-% else
-%     quest_data = quest_data.questionnairedatarandc;
-% end
-% for i = 1:length(sub_ids)
-%     sub = sub_ids(i);
-%     mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
-%     mask_sub = arrayfun(@(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)), quest_data{:, 'sub_id'});
-%     crt_scores(i) = sum(...
-%         quest_data{logical(mask_quest .* mask_sub), 'val'});
-% end
-% %------------------------------------------------------------------------
-% % Plot correlations 
-% % -----------------------------------------------------------------------
-% % LEARNING PHASE
-% % -----------------------------------------------------------------------
-% figure
-% scatterCorr(...
-%     mean(corr_rate_learning, [2, 3])',...
-%     crt_scores./14,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
-%     [0.4660    0.6740    0.1880],...
-%     0.5,...
-%     2,...
-%     1);
-% ylabel('CRT Score');
-% xlabel('Correct choice rate learning');
-% %------------------------------------------------------------------------
-% % ELICITATION PHASE
-% % -----------------------------------------------------------------------
-% figure
-% scatterCorr(...
-%     corr_rate_elicitation',...
-%     crt_scores./14,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
-%     [0.4660    0.6740    0.1880],...
-%     0.5,...
-%     2,...
-%     1);
-% ylabel('CRT Score');
-% xlabel('Correct choice rate elicitation');
+%------------------------------------------------------------------------
+% Compute corr choice rate elicitation
+%------------------------------------------------------------------------
+corr_rate_elicitation = zeros(size(corr, 1), 1);
 
+for sub = 1:size(corr, 1)
+    mask_equal_ev = ev1(sub, :) ~= ev2(sub, :);
+    d = corr(sub, mask_equal_ev);
+    corr_rate_elicitation(sub) = mean(d);
+end
+% ------------------------------------------------------------------------
+% Correlate corr choice rate vs quest
+% -----------------------------------------------------------------------
+quest_data = load(quest_filename);
+if strcmp(quest_filename, 'data/questionnaire_block')
+    quest_data = quest_data.questionnaireblock;
+else
+    quest_data = quest_data.questionnairedatarandc;
+end
+for i = 1:length(sub_ids)
+    sub = sub_ids(i);
+    mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
+    mask_sub = arrayfun(@(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)), quest_data{:, 'sub_id'});
+    crt_scores(i) = sum(...
+        quest_data{logical(mask_quest .* mask_sub), 'val'});
+end
+%------------------------------------------------------------------------
+% Plot correlations 
+% -----------------------------------------------------------------------
+% LEARNING PHASE
+% -----------------------------------------------------------------------
+figure
+scatterCorr(...
+    mean(corr_rate_learning, [2, 3])',...
+    crt_scores./14,...%arrayfun(@(x) mean(corr_catch{x}), 1:length(sub_ids)),...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('CRT Score');
+xlabel('Correct choice rate learning');
+%------------------------------------------------------------------------
+% ELICITATION PHASE
+% -----------------------------------------------------------------------
+figure
+scatterCorr(...
+    corr_rate_elicitation',...
+    crt_scores./14,...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('CRT Score');
+xlabel('Correct choice rate elicitation');
+%------------------------------------------------------------------------
+% ELICITATION VS LEARNING 
+% -----------------------------------------------------------------------
+figure
+scatterCorr(...
+    corr_rate_elicitation',...
+    mean(corr_rate_learning, [2, 3])',...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('Correct choice rate learning');
+xlabel('Correct choice rate elicitation');
 %------------------------------------------------------------------------
 % PLOT
 %------------------------------------------------------------------------
@@ -253,9 +267,9 @@ for k = {1:size(cho, 1)}
         Y = plearn(k, :, i);
         %     [B,dev,stats] = mnrfit(X, Y);
         %     pp(i, :) = mnrval(B, plearn(:, :, i));
-        [logitCoef,dev] = glmfit(...
+        [logitCoef, dev] = glmfit(...
             reshape(X, [], 1), reshape(plearn(k, :, i), [], 1), 'binomial','logit');
-        pp(i, :) = glmval(logitCoef,pcue','logit');
+        pp(i, :) = glmval(logitCoef, pcue', 'logit');
     end
 
 
@@ -271,7 +285,7 @@ for k = {1:size(cho, 1)}
         try
             ind_point = interp1(lin.YData, lin.XData, 0.5);
             hold on
-            scatter(ind_point, 0.5, 'MarkerFaceColor', 'r');
+            scatter(ind_point, 0.5, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
 
         catch
             disp('Problem when representing intersection point');
@@ -283,7 +297,10 @@ for k = {1:size(cho, 1)}
             xlabel('Described cue win probability');
         end
         hold on
-        scatter(pcue, prop(i, :), 'MarkerEdgeColor', [0.4660    0.6740    0.1880]);
+        scatter(pcue, prop(i, :),...
+            'MarkerEdgeColor', 'w',...
+            'MarkerFaceColor', [0.4660    0.6740    0.1880]);
+%             'MarkerFaceAlpĥa', 0.8);
 
         plot(ones(10)*pwin(i), linspace(0.1, 0.9, 10), 'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 0.6);
        
@@ -305,7 +322,7 @@ end
 % Plot violins
 % % ------------------------------------------------------------------------
 [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = extract_elicitation_data(...
-    data, sub_ids, idx, 2);
+    data, sub_ids, idx, 2, corr);
 
 i = 1;
 for p = pwin
@@ -355,7 +372,8 @@ for id = 1:length(sub_ids)
 end
 end
 
-function [to_keep, corr_catch] = exclude_subjects(data, sub_ids, idx, catch_threshold, allowed_nb_of_rows)
+function [to_keep, corr_catch] = exclude_subjects(data, sub_ids, idx,...
+    catch_threshold, corr_threshold, allowed_nb_of_rows)
 to_keep = [];
 i = 1;
 for id = 1:length(sub_ids)
@@ -368,21 +386,30 @@ for id = 1:length(sub_ids)
             end
             mask_sub = data(:, idx.sub) == sub;
             mask_catch = data(:, idx.catch) == 1;
+            mask_no_catch = data(:, idx.catch) == 0;
             mask_sess = ismember(data(:, idx.sess), [0]);
             mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
             [noneed, trialorder] = sort(data(mask, idx.trial_idx));
             temp_corr = data(mask, idx.corr);
             corr_catch{i, eli} = temp_corr(trialorder);
         end
-             
-        if mean(corr_catch{i}) >= catch_threshold
+        
+        if mean(corr_catch{i}) >= catch_threshold) 
             to_keep(length(to_keep) + 1) = sub;
+            
         end
         i = i + 1;
         
     end
+    
 end
-%data = data(ismember(data(:, idx.sub), to_keep), :);
+for j = 1:length(to_keep)
+    mask_sub = data(:, idx.sub) == to_keep(j);
+    mask_eli = data(:, idx.elic) == 0;
+    mask_corr = logical(mask_sub .* mask_sess .* mask_eli .* mask_no_catch);
+    corr(j) = mean(data(mask_corr, idx.corr));
+end
+[throw, sorted_array
 end
 
 
@@ -447,12 +474,9 @@ for id = 1:length(sub_ids)
     
     temp_p2 = data(mask, idx.p2);
     p2(i, :) = temp_p2(trialorder);
+      
     
-    if ~(exist(
-    if mean(corr(i, :)) > 0.85;
-        i = i + 1;
-    end
-    
+    i = i + 1;
 end
 end
 
