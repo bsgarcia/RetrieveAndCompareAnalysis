@@ -53,7 +53,8 @@ function lik = getll(params, s, a, r, ev, phase, map, model)
         case 9
             % innovation variance
             sig_xi = params(7);
-dro            sig_eps = params(8);
+            % noise variance--------------------------------------------------------------------
+            sig_eps = params(8);
     end
 
     % initial previous aice

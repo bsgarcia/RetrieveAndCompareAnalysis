@@ -1,19 +1,17 @@
-function lpp = getlpp(params, s, a, r, model)
+function lpp = getlpp(params, s, a, r, ev, phase, map, model)
 
     addpath './'
-
+    
     p = getp(model, params);
    
     p = -sum(p);
 
-    l = getll(params, s, a, r, model);
-
+    l = getll(params, s, a, r, ev, phase, map, model);
     lpp = p + l;
 end
 
 
 function p = getp(model, params)
-
     %% log prior of parameters
     beta1 = params(1); % choice temphiature
     alpha1 = params(2); % policy or factual learning rate
@@ -29,7 +27,7 @@ function p = getp(model, params)
     palpha1 = log(betapdf(alpha1, 1.1, 1.1));
     palpha2 = log(betapdf(alpha2, 1.1, 1.1));
     ppri = log(unifpdf(pri, -1, 1));
-    pphi = log(unifpdf(phi, -2, 2));
+    pphi = log(unifpdf(phi, -5, 5));
     ptau = log((unifpdf(tau, 0, 1)));
     psig_xi = log(unifpdf(sig_xi, 0, 1));
     psig_eps = log(unifpdf(sig_eps, 0, 1));

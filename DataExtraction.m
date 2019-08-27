@@ -2,7 +2,7 @@ classdef DataExtraction
     methods (Static)
         function [data, ncond, nsession, sub_ids, idx] = get_parameters(filename)
             data = load(filename);
-            if strcmp(filename, 'blockfull')
+            if strcmp(filename, 'data/blockfull')
                 data = data.blockfull;
             else
                 data = data.full;

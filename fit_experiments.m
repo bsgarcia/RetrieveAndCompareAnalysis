@@ -10,7 +10,6 @@
 % 7: full df=5
 % 8: Bayesian df=3
 % --------------------------------------------------------------------
-
 close all
 clear all
 
@@ -21,14 +20,19 @@ addpath './'
 % --------------------------------------------------------------------
 % Load experiment data
 % --------------------------------------------------------------------
-filename = 'data/blockfull';
-[data, ncond, nsession, sub_ids, idx] = DataExtraction.get_parameters(filename);
+folder = 'data/';
+data_filename = 'interleavedfull';
+fit_folder = 'data/fit/';
+fit_filename = 'interleaved';
+
+[data, ncond, nsession, sub_ids, idx] = DataExtraction.get_parameters(...
+    sprintf('%s%s', folder, data_filename));
 
 % --------------------------------------------------------------------
 % Set exclusion criteria
 % --------------------------------------------------------------------
 catch_threshold = 1.;
-n_best_sub = 23;
+n_best_sub = 0;
 allowed_nb_of_rows = [258, 288, 255, 285];
 
 %------------------------------------------------------------------------
@@ -40,19 +44,28 @@ allowed_nb_of_rows = [258, 288, 255, 285];
 fprintf('N = %d \n', length(sub_ids));
 fprintf('Catch threshold = %.2f \n', catch_threshold);
 
-[cho1, out1, corr1, con1, rew] = ...
+[cho1, out1, corr1, con1] = ...
     DataExtraction.extract_learning_data(...
     data, sub_ids, idx);
 
-[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
+[corr2, cho2, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
     DataExtraction.extract_elicitation_data(...
     data, sub_ids, idx, 0);
+
+% concat
+cho = horzcat(cho1, cho2);
+con = horzcat(con1, cont1);
+phase = vertcat(ones(size(con1, 2), 1), ones(size(cont1, 2), 1) .* 2);
+out = out1;
+ev = horzcat(ones(size(con1)) .* -1, ev2);
+
+% mapping cont/con
+map = [2 4 6 8 -1 7 5 3 1];
 
 % --------------------------------------------------------------------
 % Modifiable variables
 % --------------------------------------------------------------------
 whichmodel = [1, 2, 5, 6, 7];
-
 
 % --------------------------------------------------------------------
 % Run
@@ -70,20 +83,21 @@ paramlabels = {
 nparam = length(paramlabels);
 
 try
-    data = load('data/fit/online_exp');
+    data = load(sprintf('%s%s', fit_folder, fit_filename));
     lpp = data.data('lpp');
     parameters = data.data('parameters');  %% Optimization parameters 
     ll = data.data('ll');
     hessian = data.data('hessian');
 catch
-    runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out);
+    runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out, ev,...
+        phase, map, fit_folder, fit_filename);
 end
 
 
 %parametersfitbarplot(parameters, nmodel, whichmodel, models) 
 
 % --------------------------------------------------------------------
-% Plots
+% Plots Param and Model Comparison
 % --------------------------------------------------------------------
 figure
 params = {...
@@ -106,7 +120,7 @@ for i = alternatives
 end
 
 % --------------------------------------------------------------------
-% Parameters
+% Parameters correlations
 % --------------------------------------------------------------------
 bias1 = (parameters(:, 2, 2) - parameters(:, 3, 2))./...
     (parameters(:, 2, 2) + parameters(:, 3, 2)) ;
@@ -130,27 +144,10 @@ xlabel( '\alpha+ > \alpha-', 'FontSize', 20);
 ylabel('\phi x \tau', 'FontSize', 20);
 title('')
 set(gca, 'Fontsize', 30);
-% scatterCorr(bias1, prior, color, 0.5, 2, 1);
-% xlabel('\alpha+ > \alpha-', 'FontSize', 20);
-% ylabel('\omega', 'FontSize', 20);
-% title('')
-% set(gca, 'Fontsize', 30);
-%subplot(2, 3, 6)
-
-%figure
-%violinplot([parameters(:, 2, 2), parameters(:, 2, 3)],...
-%    {'\alpha+', '\alpha-'});
-
-
-% figure
-% llasy = abs(ll(:, 2) - ll(:, 1)); %./ (ll(:, 2) + ll(:, 1)); 
-% llper = abs(ll(:, 5) - ll(:, 1)); %./ (ll(:, 5) + ll(:, 1)); 
-% scatterCorr(llasy, llper, color, 0.5, 2, 1);
-
-%error('ssssssssss');
 
 % --------------------------------------------------------------------
-
+% Compute information criteria
+% --------------------------------------------------------------------
 i = 0;
 nfpm = [2, 3, 3, 3, 4, 5, 7, 4];
 
@@ -171,14 +168,13 @@ end
 %VBA_groupBMC(-aic');
 VBA_groupBMC(-me');
 
-%VBA_groupBMC(-bic'./2);
 
-
-
-%% Functions
 % --------------------------------------------------------------------
+% Functions
+% --------------------------------------------------------------------
+function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out,...
+    ev, phase, map, folder, fit_filename)
 
-function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out)
     parameters = zeros(subjecttot, nparam, nmodel);
     ll = zeros(subjecttot, nmodel);
     lpp = zeros(subjecttot, nmodel);
@@ -203,6 +199,7 @@ function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out)
             );
         
         for model = whichmodel
+           
             [
                 p,...
                 l,...
@@ -211,12 +208,20 @@ function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out)
                 lmbda,...
                 grad,...
                 hess,...
-                ] = fmincon(...
-                @(x) getlpp(x, con(nsub, :), cho(nsub, :), out(nsub, :), model),...
+            ] = fmincon(...
+                @(x) getlpp(...
+                    x,...
+                    con(nsub, :),...
+                    cho(nsub, :),... 
+                    out(nsub, :),...
+                    ev(nsub, :),...
+                    phase,...
+                    map,...
+                    model),...
                 [1, .5, .5, 0, 0, .5, .15, .15],...
                 [], [], [], [],...
-                [0, 0, 0, -1, -2,  0, 0, 0],...
-                [Inf, 1, 1, 1, 2, 1, 1, 1],...
+                [0, 0, 0, -1, -5,  0, 0, 0],...
+                [Inf, 1, 1, 1, 5, 1, 1, 1],...
                 [],...
                 options...
                 );
@@ -232,24 +237,35 @@ function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out)
                 rep1,...
                 grad1,...
                 hess1,...
-                ] = fmincon(...
-                @(x) getll(x, con(nsub, :), cho(nsub, :), out(nsub, :), model),...
+            ] = fmincon(...
+                @(x) getll(...
+                    x,...
+                    con(nsub, :),...
+                    cho(nsub, :),... 
+                    out(nsub, :),...
+                    ev(nsub, :),...
+                    phase,...
+                    map,...
+                    model),...
                 [1, .5, .5, 0, 0, .5, .15, .15],...
                 [], [], [], [],...
-                [0, 0, 0, -1, -2,  0, 0, 0],...
-                [Inf, 1, 1, 1, 2, 1, 1, 1],...
+                [0, 0, 0, -1, -5,  0, 0, 0],...
+                [Inf, 1, 1, 1, 5, 1, 1, 1],...
                 [],...
                 options...
                 );
             ll(nsub, model) = l1;
+
         end
     end
-    %%Save the data
-    data = containers.Map({'parameters', 'lpp' 'll', 'hessian'}, {parameters, lpp, ll, hessian});
-    save('data/fit/online_exp', 'data');
+    %% Save the data
+    data = containers.Map({'parameters', 'lpp' 'll', 'hessian'},...
+        {parameters, lpp, ll, hessian});
+    save(sprintf('%s%s', folder, fit_filename), 'data');
     close(w);
-   
+    
 end
+
 % --------------------------------------------------------------------
 function parametersfitbarplot(parameters, nmodel, whichmodel, models) 
     % %% to correct
