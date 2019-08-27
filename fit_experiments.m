@@ -21,9 +21,9 @@ addpath './'
 % Load experiment data
 % --------------------------------------------------------------------
 folder = 'data/';
-data_filename = 'interleavedfull';
+data_filename = 'blockfull';
 fit_folder = 'data/fit/';
-fit_filename = 'interleaved';
+fit_filename = 'block';
 
 [data, ncond, nsession, sub_ids, idx] = DataExtraction.get_parameters(...
     sprintf('%s%s', folder, data_filename));
