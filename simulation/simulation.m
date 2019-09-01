@@ -6,7 +6,7 @@ function data = simulation(fit_params, sim_params)
     models = sim_params.models;
     
     % Get simulation parameters
-    % ---------------------------------------------------------------------
+    % ---------------------------------
     % total agent = nagent * nsub
     nagent = sim_params.nagent;
     tmax = sim_params.tmax;
@@ -15,6 +15,8 @@ function data = simulation(fit_params, sim_params)
     phase = sim_params.phase;
     sym = sim_params.sym;
     ev = sim_params.ev;
+    p1 = sim_params.p1;
+    p2 = sim_params.p2;
     
     % rewards for each timestep
     r = sim_params.r;
@@ -104,12 +106,20 @@ function data = simulation(fit_params, sim_params)
                         c2 = [r{t}{1 + (a(t) == 1)}] .* [p{t}{1 + (a(t) == 1)}];
                         
                         correct(t) = sum(c1) > sum(c2);
+                        
+                        % update values
+                        % update choice trace
+                        if ismember(model, [5, 6, 7, 8])
+                            % if model has only phi (5, 7)
+                            % then tau = 1
+                            taus = [params(6) 1];
+                            c = updatechoicetrace(s, a, c, t, taus(1 + ((model==5) + (model==7))));
+                        end
 
                     else 
-                        t = t - 120;
                         flat1 = reshape(Q', [], 1);
-                        V1 = flat1(sym(t));
-                        V2 = s(t);
+                        V1 = flat1(sym(t-120));
+                        V2 = ev(t-120);
                         softmaxp(t, :) = softmaxfn([V1, V2] .* params(1));
                         
                         a(t) = randsample(...
@@ -118,17 +128,16 @@ function data = simulation(fit_params, sim_params)
                             true,...% replacement
                             softmaxp(t, :)... % probabilities
                         );
-                    end
-                   
                     
-                    % update values
-                        % update choice trace
-                    if ismember(model, [5, 6, 7, 8])
-                        % if model has only phi (5, 7)
-                        % then tau = 1
-                        taus = [params(6) 1];
-                        c = updatechoicetrace(s, a, c, t, taus(1 + ((model==5) + (model==7))));
+                        % Expected utility of symbol option
+                        c1 = sum([r{t}] .* [p{t}]);
+                        % Expected utility of lottery option
+                        c2 = V2;
+                        C = [c1, c2];
+                        correct(t) =  C(a(t)) >= C(1 + (a(t) == 1));
+                        
                     end
+
                     
                 end
                 
@@ -137,9 +146,13 @@ function data = simulation(fit_params, sim_params)
                 data{i}(:, 3, model) = s;
                 data{i}(:, 4, model) = softmaxp(:, 2);
                 data{i}(:, 5, model) = correct;
-                data{i}(:, 6, model) = qvalues(:, 2);
+                data{i}(1:8, 6, model) = reshape(Q', [], 1);
                 data{i}(:, 7, model) = deltaq;
-            
+                data{i}(end-numel(p1)+1:end, 8, model) = p1;
+                data{i}(end-numel(p1)+1:end, 9, model) = p2;
+                data{i}(end-numel(p1)+1:end, 10, model) = ev;
+                data{i}(:, 11, model) = phase;
+                
                 % flush data
                 clear a;
                 clear out;

@@ -21,11 +21,11 @@ addpath './'
 % Load experiment data
 % --------------------------------------------------------------------
 folder = 'data/';
-data_filename = 'blockfull';
+data_filename = 'interleavedfull';
 fit_folder = 'data/fit/';
-fit_filename = 'block';
+fit_filename = 'interleaved';
 
-[data, ncond, nsession, sub_ids, idx] = DataExtraction.get_parameters(...
+[data,  sub_ids, idx] = DataExtraction.get_data(...
     sprintf('%s%s', folder, data_filename));
 
 % --------------------------------------------------------------------
@@ -154,7 +154,7 @@ nfpm = [2, 3, 3, 3, 4, 5, 7, 4];
 for n = whichmodel
     i = i + 1;
    % bic(1:85, i) = -2 * -ll(:, n) + nfpm(n) * log(96);
-    bic(:, i) = -2 * -ll(:, n) + nfpm(n) * log(120);
+    bic(:, i) = -2 * -ll(:, n) + nfpm(n) * log(208);
     aic(:, i)= -2 * -ll(:, n)...
             + 2*nfpm(n);
     me(:, i) = -lpp(:, n) + (nfpm(n)/2)*log(2*pi) - (1/2)*log(...
@@ -385,7 +385,7 @@ function barplot_param_comparison(parameters, param_idx, model_idx, labels, mode
             y(i, :),...
              'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.5, 'MarkerEdgeAlpha', 1,...
              'MarkerFaceColor', [107/255 220/255 103/255],...
-             'MarkerEdgeColor', [107/255 220/255 103/255]);
+             'MarkerEdgeColor', 'w');
         set(gca, 'xtick', []);
         set(gca, 'box', 'off');
         set(ax(i), 'box', 'off');

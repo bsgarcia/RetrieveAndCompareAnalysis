@@ -53,7 +53,6 @@ function lik = getll(params, s, a, r, ev, phase, map, model)
         case 9
             % innovation variance
             sig_xi = params(7);
-            % noise variance--------------------------------------------------------------------
             sig_eps = params(8);
     end
 
@@ -70,12 +69,7 @@ function lik = getll(params, s, a, r, ev, phase, map, model)
     
     for t = 1:length(a)
         
-        if not(ismember(a(t), [1, 2, 1.5]))
-            error('choice = %d', a(t));
-        end
-            
-        if a(t) ~= 1.5 % if a choice was performed in time at the first level
-            
+      
             if ismember(model, 1:7); V = Q(:, :, :); else; V = mu(:, :, :); end 
             
             if phase(t) == 1
@@ -117,12 +111,11 @@ function lik = getll(params, s, a, r, ev, phase, map, model)
                         error('Model does not exists');
                 end
             end
-        end
-        c = updatechoicetrace(s, a, c, t, tau);
+            c = updatechoicetrace(s, a, c, t, tau);
         
-        preva(s(t)) = a(t);  % save the choice
+            preva(s(t)) = a(t);  % save the choice
                              % for the next round (perseverations)
-    end
+  
     %save(Qfilename, Q);
     lik = -lik; % LL vector taking into account both the likelihood
 end
