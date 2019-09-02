@@ -4,7 +4,7 @@ clear all
 addpath './'
 
 %------------------------------------------------------------------------
-name = 'interleaved';
+name = 'block';
 folder = 'data/';
 data_filename = sprintf('%sfull',name);
 fit_folder = 'data/fit/';
@@ -38,7 +38,8 @@ choice = 2;
 [sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
     data, sub_ids, exp, catch_threshold, n_best_sub, allowed_nb_of_rows);
 
-fprintf('N = %d \n', length(sub_ids));
+nsub = length(sub_ids);
+fprintf('N = %d \n', nsub);
 fprintf('Catch threshold = %.2f \n', catch_threshold);
 
 [cho1, out1, corr1, con1, rew] = DataExtraction.extract_learning_data(...
@@ -80,17 +81,77 @@ for sub = 1:size(corr1, 1)
     end
 end
 
-
 %------------------------------------------------------------------------
-% Compute corr choice rate elicitation
+% Compute corr choice rate learning
 %------------------------------------------------------------------------
-corr_rate_elicitation = zeros(size(corr, 1), 1);
+corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
 
-for sub = 1:size(corr, 1)
-    mask_equal_ev = ev1(sub, :) ~= ev2(sub, :);
-    d = corr(sub, mask_equal_ev);
-    corr_rate_elicitation(sub) = mean(d);
+for sub = 1:size(corr1, 1)
+    for t = 1:size(corr1, 2)/4
+        for j = 1:4
+            d = corr1(sub, con1(sub, :) == j);
+            corr_rate_learning(sub, t, j) = mean(d(1:t));
+            
+            corr_rate(sub, t, j) = d(t);
+        end
+    end
 end
+
+%------------------------------------------------------------------------
+% Compute sampling
+%------------------------------------------------------------------------
+sampling = zeros(nsub, 8);
+for sub = 1:nsub
+    i = 1;
+    for cond = 1:4
+        for c = 1:2
+            choice_frequency(sub, i) = ...
+                mean(logical((cho1(sub, :) == c) .* (con1(sub, :) == cond)));
+            sampling(sub, i) = ...
+                mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+            i = i + 1;
+        end
+    end
+end
+[ev, evorder] = sort([0.8, -0.8, 0.6, -0.6, 0.4, -0.4, 0.2, -0.2]);
+
+colors = [0.3963    0.2461    0.3405;...
+    1 0 0;...
+    0.7875    0.1482    0.8380;...
+    0.4417    0.4798    0.7708;...
+    0.5992    0.6598    0.1701;...
+    0.7089    0.3476    0.0876;...
+    0.2952    0.3013    0.3569;...
+    0.1533    0.4964    0.2730];
+
+figure('Renderer', 'painters', 'Position', [326,296,1064,691])
+skylineplot(...
+    choice_frequency(:, evorder)', colors,...
+    -0.02, .272, 13, '' , 'Expected Utility',...
+    'choice frequency', ev...
+);
+
+figure('Renderer', 'painters', 'Position', [326,296,1064,691])
+skylinemedianplot(...
+    sampling(:, evorder)', colors,...
+    -1.08, 1.08, 13, '' , 'Expected Utility',...
+    'Average outcome', ev...
+);
+yline(0, 'LineStyle', ':');
+
+
+figure('Renderer', 'painters', 'Position', [326,296,1064,691])
+j = 1;
+for i = evorder
+    subplot(2, 4, j)
+    histogram(sampling(:, i), 10, 'EdgeColor', 'w', 'FaceColor', colors(j, :));
+    xlim([-1.08, 1.08]);
+    ylim([-0.08, 45.08]);
+    title(ev(j));
+    j = j + 1;
+end
+return
+
 % ------------------------------------------------------------------------
 % Correlate corr choice rate vs quest
 % -----------------------------------------------------------------------
@@ -283,7 +344,7 @@ for k = {1:nsub_divided, nsub_divided:nsub, 1:nsub}
         text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r');
 
     end
-    saveas(gcf, sprintf('fig/exp/%s/explicite_implicite.png', name));
+    saveas(gcf, sprintf('fig/exp/%s/explicite_implicite%d.png', name, tt));
 
 end
 

@@ -21,9 +21,9 @@ addpath './'
 % Load experiment data
 % --------------------------------------------------------------------
 folder = 'data/';
-data_filename = 'blockfull';
+data_filename = 'interleavedfull';
 fit_folder = 'data/fit/';
-fit_filename = 'block';
+fit_filename = 'interleaved';
 
 [data, sub_ids, idx] = DataExtraction.get_data(...
     sprintf('%s%s', folder, data_filename));
@@ -99,7 +99,8 @@ end
 % --------------------------------------------------------------------
 % Plots Param and Model Comparison
 % --------------------------------------------------------------------
-figure
+figure('Renderer', 'painters', 'Position', [181,187,1465,852])
+
 params = {...
     [2],...
     [2, 3],... %2
@@ -144,6 +145,7 @@ set(gca, 'Fontsize', 30);
 % ylabel('\phi x \tau', 'FontSize', 20);
 % title('')
 % set(gca, 'Fontsize', 30);
+saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
 
 % --------------------------------------------------------------------
 % Compute information criteria
@@ -165,8 +167,14 @@ end
 % figure
 % bar(mean(aic, 1));
 % ylabel('AIC');
-%VBA_groupBMC(-aic');
+VBA_groupBMC(-aic');
+saveas(gcf, sprintf('fig/fit/%s/aic.png', fit_filename));
+
+VBA_groupBMC(-me');
+saveas(gcf, sprintf('fig/fit/%s/me.png', fit_filename));
+
 VBA_groupBMC(-bic');
+saveas(gcf, sprintf('fig/fit/%s/bic.png', fit_filename));
 
 
 % --------------------------------------------------------------------
