@@ -3,12 +3,14 @@ clear all
 
 addpath './'
 
-%------------------------------------------------------------------------
+% -----------------------------------------------------------------------
 
 folder = 'data/sim/';
 data_filename = 'interleaved';
+fit_folder = 'data/fit/';
+fit_filename = data_filename;
 
-%------------------------------------------------------------------------
+% -----------------------------------------------------------------------
 
 [data, sub_ids, exp, sim] = DataExtraction.get_data(...
     sprintf('%s%s', folder, data_filename));
@@ -38,15 +40,32 @@ if n_best ~= 0
     end 
     cho = cho(end-n_best:end, :, :); 
 end
-nsub = size(cho, 1);
 
+% -----------------------------------------------------------------------
+% Split depending on optimism tendency
+% -----------------------------------------------------------------------
+data2 = load(sprintf('%s%s', fit_folder, fit_filename));
+parameters = data2.data('parameters');
+delta_alpha = parameters(:, 2, 2) - parameters(:, 3, 2);
+[sorted, idx_order] = sort(delta_alpha);
+
+idx_order = idx_order(1:size(cho, 1));
+
+cho(:, 2, :) = cho(idx_order, 2, :);
+p2(:, 2, :) = p2(idx_order, 2, :);
+p1(:, 2, :) = p1(idx_order, 2, :);
+% -----------------------------------------------------------------------
+
+nsub = size(cho, 1);
 q = q(:, :, 1:8);
+
 for i = 1:size(q, 1)
     for j = 1:size(q, 2)
         ev1(i, j, 1:8) = [.8, -.8, .6, -.6, .4, -.4, .2, -.2];
     end
 end
 [throw, idx_ev] = sort(ev1(1, 1, :));
+
 %------------------------------------------------------------------------
 % Plot correlations 
 % -----------------------------------------------------------------------
@@ -56,18 +75,21 @@ for i = whichmodel
         mnsub(i, j) = mean(q(:, i, j));
     end
 end
+
 for i = whichmodel
+    
     X = reshape(ev1(:, i, :), [], 1);
     Y = reshape(q(:, i, :), [], 1);
     
     colors = [0.3963    0.2461    0.3405;...
-    1 0 0;...
-    0.7875    0.1482    0.8380;...
-    0.4417    0.4798    0.7708;...
-    0.5992    0.6598    0.1701;...
-    0.7089    0.3476    0.0876;...
-    0.2952    0.3013    0.3569;...
-    0.1533    0.4964    0.2730];
+        1 0 0;...
+        0.7875    0.1482    0.8380;...
+        0.4417    0.4798    0.7708;...
+        0.5992    0.6598    0.1701;...
+        0.7089    0.3476    0.0876;...
+        0.2952    0.3013    0.3569;...
+        0.1533    0.4964    0.2730];
+
     figure('Renderer', 'painters', 'Position', [326,296,1064,691])
     skylineplot(...
         reshape(q(:, i, idx_ev), [nsub, 8])',...
@@ -77,6 +99,9 @@ for i = whichmodel
         'Expected Utility',...
         'Q',...
         unique(X));
+    yline(0, 'LineStyle', ':');
+    saveas(gcf, sprintf('fig/sim/%s/Q_EU_%d.png', data_filename, i));
+
 end
 
 
@@ -108,8 +133,9 @@ i = 1;
 
 for m = whichmodel
     
-    figure;
-    
+    figure('Renderer', 'painters', 'Position', [42,124,2320,900]);
+    suptitle(models{m});
+
     for cond = 1:4
         
         subplot(1, 4, cond)
@@ -136,8 +162,10 @@ for m = whichmodel
             xLabel,...
             yLabel);
         
-        title(models{m});
+        saveas(gcf, sprintf('fig/sim/%s/learning_%d.png', data_filename, i));
+
         i = i + 1;
+
     end
 end
 
@@ -172,15 +200,99 @@ for m = whichmodel
 end
 
 
-% titles = {'Low \Delta\alpha', 'High \Delta\alpha'};
-% tt = 0;
+titles = {'Low \Delta\alpha', 'High \Delta\alpha', 'All'};
+tt = 0;
+nsub_divided = ceil(nsub/2);
 % ----------------------------------------------------------------------
+% PLOT P(learnt value) vs Described Cue
+% ------------------------------------------------------------------------
+for k = {1:nsub_divided, nsub_divided:nsub, 1:nsub}
+    k = k{:};
+    tt = tt + 1;
+
+    for m = [2]
+        
+        prop = zeros(length(psym), length(pcue));
+        for j = 1:length(pcue)
+            for l = 1:length(psym)
+               prop(l, j) = mean(plearn(m, k, j, l));
+           end
+        end
+
+        X = repmat(pcue, length(k), 1);
+        pp = zeros(5, length(psym), length(pcue));
+        for i = 1:length(psym)
+            [logitCoef, dev] = glmfit(...
+                reshape(X, [], 1), reshape(plearn(m, k, :, i), [], 1), 'binomial','logit');
+            pp(m, i, :) = glmval(logitCoef, pcue', 'logit');
+        end
+
+    figure('Renderer', 'painters', 'Position', [961, 1, 960, 1090])
+    suptitle(titles{tt});
+    pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+
+    for i = 1:length(psym)
+        
+        subplot(4, 2, i)
+        lin1 = plot(...
+            linspace(0, 1, 12), ones(12)*0.5, 'LineStyle', ':', 'Color', [0, 0, 0]);
+        
+        hold on
+        lin2 = plot(...
+            ones(10)*pwin(i),...
+            linspace(0.1, 0.9, 10),...
+            'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 0.6);
+        
+        hold on
+        lin3 = plot(...
+            pcue, reshape(pp(m, i, :), [], 1),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
+            'Color', [0.4660    0.6740    0.1880] ...
+            );
+        
+        hold on
+        sc1 = scatter(pcue, prop(i, :),...
+            'MarkerEdgeColor', 'w',...
+            'MarkerFaceColor', [0.4660    0.6740    0.1880]);
+        s.MarkerFaceAlpha = 0.7;
+        
+        hold on 
+        ind_point = interp1(lin3.YData, lin3.XData, 0.5);
+        sc2 = scatter(ind_point, 0.5, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
+       
+        if mod(i, 2) ~= 0
+            ylabel('P(choose learnt value)');
+        end
+        if ismember(i, [7, 8])
+            xlabel('Described cue win probability');
+        end
+       
+        if i < 6
+            text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
+        else
+
+            text(pwin(i)-0.30, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
+        end
+
+        ylim([-0.08, 1.08]);
+        xlim([-0.08, 1.08]);
+       
+        text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r');
+
+    end
+    
+    saveas(gcf, sprintf('fig/sim/%s/explicite_implicite_asymetry.png', data_filename));
+    
+    end
+end
+
+
+% ------------------------------------------------------------------------
 % PLOT P(learnt value) vs Described Cue
 % ------------------------------------------------------------------------
 for k = {1:nsub}
     k = k{:};
 
-    for m = whichmodel
+    for m = [1 5 6 7]
         
         prop = zeros(length(psym), length(pcue));
         for j = 1:length(pcue)
@@ -200,53 +312,58 @@ for k = {1:nsub}
             pp(m, i, :) = glmval(logitCoef, pcue', 'logit');
         end
 
-        figure
-        %text(0.5, 0,  models{m}, 'FontSize', 14', 'FontWeight', 'Bold', ...
-        %    'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Bottom' ) ;
-        pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+    figure('Renderer', 'painters', 'Position', [961, 1, 960, 1090])
+    suptitle(models{m});
+    pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
 
-        for i = 1:length(psym)
-            subplot(4, 2, i)
-            %suptitle(models{m});
-
-            lin = plot(...
-                pcue,  reshape(pp(m, i, :), [], 1)',... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
-                'Color', [0.4660    0.6740    0.1880] ...
-                );
-            ind_point = interp1(lin.YData, lin.XData, 0.5);
-            hold on
-            scatter(ind_point, 0.5, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
-
-            if mod(i, 2) ~= 0
-                ylabel('P(choose learnt value)');
-            end
-            if ismember(i, [7, 8])
-                xlabel('Described cue win probability');
-            end
-            hold on
-            scatter(pcue, prop(i, :),...
-                'MarkerEdgeColor', 'w',...
-                'MarkerFaceColor', [0.4660    0.6740    0.1880]);
-    %             'MarkerFaceAlpĥa', 0.8);
-
-            plot(...
-                ones(10)*pwin(i),...
-                linspace(0.1, 0.9, 10),...
-                'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 0.6);
-
-            if i < 6
-                text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
-            else
-
-                text(pwin(i)-0.30, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
-            end
-
-            plot(linspace(0, 1, 12), ones(12)*0.5, 'LineStyle', ':', 'Color', [0, 0, 0]);
-            ylim([-0.08, 1.08]);
-            xlim([-0.08, 1.08]);
-            
+    for i = 1:length(psym)
+        
+        subplot(4, 2, i)
+        lin1 = plot(...
+            linspace(0, 1, 12), ones(12)*0.5, 'LineStyle', ':', 'Color', [0, 0, 0]);
+        
+        hold on
+        lin2 = plot(...
+            ones(10)*pwin(i),...
+            linspace(0.1, 0.9, 10),...
+            'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 0.6);
+        
+        hold on
+        lin3 = plot(...
+            pcue,  reshape(pp(m, i, :), [], 1),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
+            'Color', [0.4660    0.6740    0.1880] ...
+            );
+        
+        hold on
+        sc1 = scatter(pcue, prop(i, :),...
+            'MarkerEdgeColor', 'w',...
+            'MarkerFaceColor', [0.4660    0.6740    0.1880]);
+        s.MarkerFaceAlpha = 0.7;
+        
+        hold on 
+        ind_point = interp1(lin3.YData, lin3.XData, 0.5);
+        sc2 = scatter(ind_point, 0.5, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
+       
+        if mod(i, 2) ~= 0
+            ylabel('P(choose learnt value)');
         end
-        text(-0.35, 6,  models{m}, 'FontSize', 14, 'FontWeight', 'Bold', ...
-            'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Bottom' ) ;
+        if ismember(i, [7, 8])
+            xlabel('Described cue win probability');
+        end
+       
+        if i < 6
+            text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
+        else
+
+            text(pwin(i)-0.30, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 7);
+        end
+
+        ylim([-0.08, 1.08]);
+        xlim([-0.08, 1.08]);
+       
+        text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r');
+
+    end
+    saveas(gcf, sprintf('fig/sim/%s/explicite_implicite_%d.png', data_filename, m));
     end
 end

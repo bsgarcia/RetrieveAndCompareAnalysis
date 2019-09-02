@@ -74,9 +74,13 @@ for sub = 1:size(corr1, 1)
         for j = 1:4
             d = corr1(sub, con1(sub, :) == j);
             corr_rate_learning(sub, t, j) = mean(d(1:t));
+            
+            corr_rate(sub, t, j) = d(t);
         end
     end
 end
+
+
 %------------------------------------------------------------------------
 % Compute corr choice rate elicitation
 %------------------------------------------------------------------------
@@ -121,7 +125,7 @@ scatterCorr(...
     1);
 ylabel('CRT Score');
 xlabel('Correct choice rate learning');
-saveas(gcf, sprintf('fig/exp/%s/corr_learning_crt.eps', name));
+saveas(gcf, sprintf('fig/exp/%s/corr_learning_crt.png', name));
 
 %------------------------------------------------------------------------
 % ELICITATION PHASE
@@ -136,7 +140,7 @@ scatterCorr(...
     1);
 ylabel('CRT Score');
 xlabel('Correct choice rate elicitation');
-saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.eps', name));
+saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
 
 %------------------------------------------------------------------------
 % ELICITATION VS LEARNING 
@@ -151,7 +155,7 @@ scatterCorr(...
     1);
 ylabel('Correct choice rate learning');
 xlabel('Correct choice rate elicitation');
-saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_learning.eps', name));
+saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_learning.png', name));
 
 %------------------------------------------------------------------------
 % PLOT
@@ -164,7 +168,7 @@ for cond = 1:4
     subplot(1, 4, cond)
 
     surfaceplot(...
-        corr_rate_learning(:, :, cond)',...
+        corr_rate(:, :, cond)',...
         ones(3) * 0.5,...
         [0.4660    0.6740    0.1880],...
         1,...
@@ -179,7 +183,7 @@ for cond = 1:4
 
     i = i + 1;
 end
-saveas(gcf, sprintf('fig/exp/%s/learning_curve.eps', name));
+saveas(gcf, sprintf('fig/exp/%s/learning_curve.png', name));
 
 % ----------------------------------------------------------------------
 % Compute for each symbol p of chosing depending on described cue value
@@ -307,7 +311,7 @@ colors = [0.3963    0.2461    0.3405;...
 figure('Renderer', 'painters', 'Position', [326,296,1064,691])
 skylineplot(...
     mn, colors,...
-    0, 1, 20, 'Slider choices' , 'P(win of learnt value)',...
+    -0.08, 1.08, 20, 'Slider choices' , 'P(win of learnt value)',...
     'Estimated probability', pwin...
 );
 
