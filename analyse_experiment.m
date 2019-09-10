@@ -4,117 +4,19 @@ clear all
 addpath './'
 
 %------------------------------------------------------------------------
-name = 'block';
-folder = 'data/';
-data_filename = sprintf('%sfull',name);
-fit_folder = 'data/fit/';
-fit_filename = name;
-quest_filename = sprintf('data/questionnaire_%s', name);
-
-%------------------------------------------------------------------------
-[data,sub_ids, exp, sim] = DataExtraction.get_data(...
-    sprintf('%s%s', folder, data_filename));
-
-%------------------------------------------------------------------------
 % Set parameters
 %------------------------------------------------------------------------
+conf = 'interleaved';
+feedback = 'incomplete';
+
+name = sprintf('%s_%s', conf, feedback);
+%name = 'blockcomplete20';
+optimism = 1;
+rtime_threshold = 100000;
 catch_threshold = 1;
 n_best_sub = 0;
 allowed_nb_of_rows = [258, 288, 255, 285];
-
-%------------------------------------------------------------------------
-% get parameters
-%------------------------------------------------------------------------
-ncond = max(data(:, 13));
-nsession = max(data(:, 20));
-sub_ids = unique(data(:, 1));
-%sub_ids = sub_ids(2);
-sim = 1;
-choice = 2;
-
-%------------------------------------------------------------------------
-% Exclude subjects and retrieve data 
-%------------------------------------------------------------------------
-[sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
-    data, sub_ids, exp, catch_threshold, n_best_sub, allowed_nb_of_rows);
-
-nsub = length(sub_ids);
-fprintf('N = %d \n', nsub);
-fprintf('Catch threshold = %.2f \n', catch_threshold);
-
-[cho1, out1, corr1, con1, rew] = DataExtraction.extract_learning_data(...
-    data, sub_ids, exp);
-
-[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
-    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
-
-% ------------------------------------------------------------------------
-% Split depending on optimism tendency
-% -----------------------------------------------------------------------
-data2 = load(sprintf('%s%s', fit_folder, fit_filename));
-parameters = data2.data('parameters');
-delta_alpha = parameters(:, 2, 2) - parameters(:, 3, 2);
-[sorted, idx_order] = sort(delta_alpha);
-if n_best_sub == 0
-    idx_order = idx_order(1:size(cho, 1));
-else
-    idx_order = idx_order(1:n_best_sub);
-end
-
-cho = cho(idx_order, :);
-p2 = p2(idx_order, :);
-p1 = p1(idx_order, :);
-
-%------------------------------------------------------------------------
-% Compute corr choice rate learning
-%------------------------------------------------------------------------
-corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
-
-for sub = 1:size(corr1, 1)
-    for t = 1:size(corr1, 2)/4
-        for j = 1:4
-            d = corr1(sub, con1(sub, :) == j);
-            corr_rate_learning(sub, t, j) = mean(d(1:t));
-            
-            corr_rate(sub, t, j) = d(t);
-        end
-    end
-end
-
-%------------------------------------------------------------------------
-% Compute corr choice rate learning
-%------------------------------------------------------------------------
-corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
-
-for sub = 1:size(corr1, 1)
-    for t = 1:size(corr1, 2)/4
-        for j = 1:4
-            d = corr1(sub, con1(sub, :) == j);
-            corr_rate_learning(sub, t, j) = mean(d(1:t));
-            
-            corr_rate(sub, t, j) = d(t);
-        end
-    end
-end
-
-%------------------------------------------------------------------------
-% Compute sampling
-%------------------------------------------------------------------------
-sampling = zeros(nsub, 8);
-for sub = 1:nsub
-    i = 1;
-    for cond = 1:4
-        for c = 1:2
-            choice_frequency(sub, i) = ...
-                mean(logical((cho1(sub, :) == c) .* (con1(sub, :) == cond)));
-            sampling(sub, i) = ...
-                mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
-            i = i + 1;
-        end
-    end
-end
-[ev, evorder] = sort([0.8, -0.8, 0.6, -0.6, 0.4, -0.4, 0.2, -0.2]);
-
+displayfig = 'on';
 colors = [0.3963    0.2461    0.3405;...
     1 0 0;...
     0.7875    0.1482    0.8380;...
@@ -124,43 +26,189 @@ colors = [0.3963    0.2461    0.3405;...
     0.2952    0.3013    0.3569;...
     0.1533    0.4964    0.2730];
 
-figure('Renderer', 'painters', 'Position', [326,296,1064,691])
-skylineplot(...
-    choice_frequency(:, evorder)', colors,...
-    -0.02, .272, 13, '' , 'Expected Utility',...
-    'choice frequency', ev...
+%-----------------------------------------------------------------------
+
+folder = 'data/';
+data_filename = name;
+fit_folder = 'data/fit/';
+fit_filename = name;
+quest_filename = sprintf('data/questionnaire_%s', name);
+
+%------------------------------------------------------------------------
+[data, sub_ids, exp, sim] = DataExtraction.get_data(...
+    sprintf('%s%s', folder, data_filename));
+
+%------------------------------------------------------------------------
+% get parameters
+%------------------------------------------------------------------------
+ncond = max(data(:, 13));
+nsession = max(data(:, 20));
+
+sim = 1;
+choice = 2;
+
+%------------------------------------------------------------------------
+% Exclude subjects and retrieve data 
+%------------------------------------------------------------------------
+[sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
+    data, sub_ids, exp, catch_threshold, rtime_threshold, n_best_sub,...
+    allowed_nb_of_rows...
 );
 
-figure('Renderer', 'painters', 'Position', [326,296,1064,691])
-skylinemedianplot(...
-    sampling(:, evorder)', colors,...
-    -1.08, 1.08, 13, '' , 'Expected Utility',...
-    'Average outcome', ev...
+nsub = length(sub_ids);
+fprintf('N = %d \n', nsub);
+fprintf('Catch threshold = %.2f \n', catch_threshold);
+
+[cho1, out1, cfout1, corr1, con1, p11, p21, rew] = ...
+    DataExtraction.extract_learning_data(data, sub_ids, exp);
+
+[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+
+[corr3, cho3, out3, p13, p23, ev13, ev23, ctch3, cont13, cont23, dist3] = ...
+    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 2);
+
+% ------------------------------------------------------------------------
+% Split depending on optimism tendency
+% -----------------------------------------------------------------------
+if optimism
+    data2 = load(sprintf('%s%s', fit_folder, fit_filename));
+    parameters = data2.data('parameters');
+    delta_alpha = parameters(:, 2, 2) - parameters(:, 3, 2);
+    [sorted, idx_order] = sort(delta_alpha);    
+end
+
+%------------------------------------------------------------------------
+% Compute corr choice rate learning
+%------------------------------------------------------------------------
+corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
+
+for sub = 1:size(corr1, 1)
+    for t = 1:size(corr1, 2)/4
+        for j = 1:4
+            d = corr1(sub, con1(sub, :) == j);
+            corr_rate_learning(sub, t, j) = mean(d(1:t));
+            
+            corr_rate(sub, t, j) = d(t);
+        end
+    end
+end
+
+%------------------------------------------------------------------------
+% Compute corr choice rate elicitation
+%------------------------------------------------------------------------
+corr_rate_elicitation = zeros(size(corr, 1), 1);
+corr_rate_elicitation_sym = zeros(size(corr, 1), 8);
+dist_ordered = zeros(size(corr, 1), 8);
+
+for sub = 1:size(corr, 1)
+    mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+    d = corr(sub, mask_equal_ev);
+    corr_rate_elicitation(sub) = mean(d);
+    i = 1;
+    for p = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9]
+        mask_p = logical(p1(sub, :) == p);
+        d = corr(sub, logical(mask_p.*mask_equal_ev));
+        corr_rate_elicitation_sym(sub, i) = mean(d);
+        dist_ordered(sub, i) = dist3(sub, p13(sub, :) == p);
+        i = i + 1;
+    end
+end
+
+%------------------------------------------------------------------------
+% Compute sampling
+%------------------------------------------------------------------------
+for sub = 1:nsub
+    i = 1;
+    for p = [.1, .2, .3, .4]
+
+            sampling_mean(sub, i) = ...
+                mean([...
+                    cfout1(sub, logical(...
+                        (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
+                    out1(sub, logical(...
+                        (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
+       
+                    ], 'all');
+
+             sampling_sum(sub, i) = ...
+                sum([...
+                    cfout1(sub, logical(...
+                        (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
+                    out1(sub, logical(...
+                        (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
+       
+                    ], 'all');
+            i = i + 1;
+    end
+    for p = [.6, .7, .8, .9]
+            
+                mean([...
+                    out1(sub, logical(...
+                        (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
+                    cfout1(sub, logical(...
+                        (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
+       
+                    ], 'all');
+
+             sampling_sum(sub, i) = ...
+                sum([...
+                    out1(sub, logical(...
+                        (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
+                    cfout1(sub, logical(...
+                        (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
+       
+                    ], 'all');
+            i = i + 1;
+    end
+end
+%------------------------------------------------------------------------
+% Compute sampling
+%------------------------------------------------------------------------
+% for sub = 1:nsub
+%     i = 1;
+%     for cond = 1:4
+%         for c = 1:2
+%             choice_frequency(sub, i) = ...
+%                 mean(logical((cho1(sub, :) == c) .* (con1(sub, :) == cond)));
+%             sampling_mean(sub, i) = ...
+%                 mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+%             sampling_median(sub, i) = ...
+%                 mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+%              sampling_sum(sub, i) = ...
+%                 sum(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+%             i = i + 1;
+%         end
+%     end
+% end
+[ev, evorder] = sort([0.8, -0.8, 0.6, -0.6, 0.4, -0.4, 0.2, -0.2]);
+
+
+figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
+skylineplot(...
+    sampling_sum(:, :)', colors,...
+    -35, 35, 13, '' , 'Expected Utility',...
+    'outcome sum', ev...
 );
 yline(0, 'LineStyle', ':');
+saveas(gcf, sprintf('fig/exp/%s/average_outcome.png', name));
 
 
-figure('Renderer', 'painters', 'Position', [326,296,1064,691])
-j = 1;
-for i = evorder
-    subplot(2, 4, j)
-    histogram(sampling(:, i), 10, 'EdgeColor', 'w', 'FaceColor', colors(j, :));
-    xlim([-1.08, 1.08]);
-    ylim([-0.08, 45.08]);
-    title(ev(j));
-    j = j + 1;
-end
-return
+figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
+skylinemedianplot(...
+    sampling_sum(:, :)', colors,...
+    -35, 35, 13, '' , 'Expected Utility',...
+    'outcome sum (median and quartiles)', ev...
+);
+yline(0, 'LineStyle', ':');
+saveas(gcf, sprintf('fig/exp/%s/median_outcome.png', name));
 
 % ------------------------------------------------------------------------
 % Correlate corr choice rate vs quest
 % -----------------------------------------------------------------------
 quest_data = load(quest_filename);
-if strcmp(quest_filename, 'data/questionnaire_block')
-    quest_data = quest_data.questionnaireblock;
-else
-    quest_data = quest_data.questionnairedatarandc;
-end
+quest_data = quest_data.data;
+
 for i = 1:length(sub_ids)
     sub = sub_ids(i);
     mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
@@ -172,11 +220,30 @@ for i = 1:length(sub_ids)
 end
 
 %------------------------------------------------------------------------
+% Plot CRT predict performance 
+% -----------------------------------------------------------------------
+% x = unique(crt_scores./14);
+% y = zeros(length(x), 1); 
+% j = 1;
+% for i = x
+%     y(j) = mean(corr_rate_elicitation(crt_scores./14 == i));
+%     j = j + 1;
+% end
+% [logitCoef, dev] = glmfit(...
+%            crt_scores./14, corr_rate_elicitation', 'normal', 'link', 'identity');
+% p = glmval(logitCoef, linspace(0, 1, 20), 'identity');
+% figure
+% plot(linspace(0, 1, 20), p);
+% hold on
+% scatter(x, y);
+% return
+
+%------------------------------------------------------------------------
 % Plot correlations 
 % -----------------------------------------------------------------------
 % LEARNING PHASE
 % -----------------------------------------------------------------------
-figure
+figure('visible', displayfig)
 scatterCorr(...
     mean(corr_rate_learning, [2, 3])',...
     crt_scores./14,...
@@ -191,7 +258,7 @@ saveas(gcf, sprintf('fig/exp/%s/corr_learning_crt.png', name));
 %------------------------------------------------------------------------
 % ELICITATION PHASE
 % -----------------------------------------------------------------------
-figure
+figure('visible', displayfig)
 scatterCorr(...
     corr_rate_elicitation',...
     crt_scores./14,...
@@ -206,7 +273,21 @@ saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
 %------------------------------------------------------------------------
 % ELICITATION VS LEARNING 
 % -----------------------------------------------------------------------
-figure
+figure('visible', displayfig)
+scatterCorr(...
+    corr_rate_elicitation',...
+    mean(corr_rate_learning, [2, 3])',...
+    [0.4660    0.6740    0.1880],...
+    0.5,...
+    2,...
+    1);
+ylabel('Correct choice rate learning');
+xlabel('Correct choice rate elicitation');
+saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_learning.png', name));
+%------------------------------------------------------------------------
+% ELICITATION VS LEARNING 
+% -----------------------------------------------------------------------
+figure('visible', displayfig)
 scatterCorr(...
     corr_rate_elicitation',...
     mean(corr_rate_learning, [2, 3])',...
@@ -219,11 +300,38 @@ xlabel('Correct choice rate elicitation');
 saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_learning.png', name));
 
 %------------------------------------------------------------------------
+% ELICITATION 1 VS ELICITATION 2 
+% -----------------------------------------------------------------------
+figure('Renderer', 'painters', 'Position', [961, 1, 960, 1090], 'visible', displayfig)
+pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+for i = 1:8
+    subplot(4, 2, i);
+             
+    scatterCorr(...
+        corr_rate_elicitation_sym(:, i)',...
+        dist_ordered(:, i)',...
+        [0.4660    0.6740    0.1880],...
+        0.5,...
+        2,...
+    1);
+    if mod(i, 2) ~= 0
+        ylabel('Distance');
+    end
+    if ismember(i, [7, 8])
+        xlabel('Correct choice rate elicitation');
+    end
+    ylim([-0.08, 1.08]);
+    title(sprintf('P(win) = %.1f', pwin(i)));
+    
+end
+saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_1_dist.png', name));
+
+%------------------------------------------------------------------------
 % PLOT
 %------------------------------------------------------------------------
 %i = 1;
 titles = {'0.9 vs 0.1', '0.8 vs 0.2', '0.7 vs 0.3', '0.6 vs 0.4'};
-figure('Renderer', 'painters', 'Position', [42,124,2320,900])
+figure('Renderer', 'painters', 'Position', [42,124,2320,900], 'visible', displayfig)
 
 for cond = 1:4
     subplot(1, 4, cond)
@@ -261,38 +369,54 @@ for i = 1:size(cho, 1)
     end
 end
 
-titles = {'Low \Delta\alpha', 'High \Delta\alpha', 'All'};
+if optimism
+    titles = {'Low \Delta\alpha', 'High \Delta\alpha', 'All'};
+else
+    titles = {'Low tier group', 'Best tier group', 'All'};
+end
+
 tt = 0;
 nsub = size(cho, 1);
 nsub_divided = ceil(nsub/2);
 % ----------------------------------------------------------------------
 % PLOT P(learnt value) vs Described Cue
 % ------------------------------------------------------------------------
-% for k = {1:ceil(size(cho, 1)/2), ceil(size(cho, 1)/2)+1:size(cho, 1)}
-for k = {1:nsub_divided, nsub_divided:nsub, 1:nsub}
+for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
+    
     k = k{:};
     tt = tt + 1;
+    
+    if exist('idx_order')
+        k = idx_order(k)';
+    end
+    
     prop = zeros(length(psym), length(pcue));
+    temp1 = cho(k, :);
     for j = 1:length(pcue)
-        for l = 1:length(psym)
-           temp1 = cho(k, :);
-           temp = temp1(logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
+        for l = 1:length(psym)      
+           temp = temp1(...
+               logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
            prop(l, j) = mean(temp == 1);
        end
     end
    
-    X = repmat(pcue, size(k, 2), 1);
+    X = reshape(...
+        repmat(pcue, size(k, 2), 1), [], 1....
+    );
     pp = zeros(length(psym), length(pcue));
+    
     for i = 1:length(psym)
-        Y = plearn(k, :, i);
-        %     [B,dev,stats] = mnrfit(X, Y);
-        %     pp(i, :) = mnrval(B, plearn(:, :, i));
+        Y = reshape(plearn(k, :, i), [], 1);      
         [logitCoef, dev] = glmfit(...
-            reshape(X, [], 1), reshape(plearn(k, :, i), [], 1), 'binomial','logit');
+             X, Y, 'binomial','logit');
         pp(i, :) = glmval(logitCoef, pcue', 'logit');
     end
 
-    figure('Renderer', 'painters', 'Position', [961, 1, 960, 1090])
+    figure(...
+        'Renderer', 'painters',...
+        'Position', [961, 1, 960, 1090],...
+        'visible', displayfig)
+    
     suptitle(titles{tt});
     pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
 
@@ -352,7 +476,7 @@ end
 % ----------------------------------------------------------------------
 % Plot violins
 % % --------------------------------------------------------------------
-[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
+[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
     DataExtraction.extract_elicitation_data(data, sub_ids, exp, 2);
 
 i = 1;
@@ -361,15 +485,7 @@ for p = pwin
     i = i + 1;
 end
 
-colors = [0.3963    0.2461    0.3405;...
-    1 0 0;...
-    0.7875    0.1482    0.8380;...
-    0.4417    0.4798    0.7708;...
-    0.5992    0.6598    0.1701;...
-    0.7089    0.3476    0.0876;...
-    0.2952    0.3013    0.3569;...
-    0.1533    0.4964    0.2730];
-figure('Renderer', 'painters', 'Position', [326,296,1064,691])
+figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
 skylineplot(...
     mn, colors,...
     -0.08, 1.08, 20, 'Slider choices' , 'P(win of learnt value)',...

@@ -1,5 +1,5 @@
 % --------------------------------------------------------------------
-% This function finds the best fitting model/parameters               
+% This script finds the best fitting model/parameters               
 % --------------------------------------------------------------------
 % 1: basic df=2
 % 2: asymmetric neutral df=3
@@ -9,6 +9,7 @@
 % 6: gradual perseveration df=3
 % 7: full df=5
 % 8: Bayesian df=3
+%% TODO: check mapping sym/Qvalue/cont  for fitting
 % --------------------------------------------------------------------
 close all
 clear all
@@ -20,10 +21,13 @@ addpath './'
 % --------------------------------------------------------------------
 % Load experiment data
 % --------------------------------------------------------------------
+conf = 'block';
+feedback = 'incomplete';
+
 folder = 'data/';
-data_filename = 'blockfull';
+data_filename = sprintf('%s_%s', conf, feedback);
 fit_folder = 'data/fit/';
-fit_filename = 'block';
+fit_filename = data_filename;
 
 [data, sub_ids, idx] = DataExtraction.get_data(...
     sprintf('%s%s', folder, data_filename));
@@ -32,19 +36,22 @@ fit_filename = 'block';
 % Set exclusion criteria
 % --------------------------------------------------------------------
 catch_threshold = 1.;
+rtime_threshold = 100000;
+
 n_best_sub = 0;
+optimism = 1;
 allowed_nb_of_rows = [258, 288, 255, 285];
 
 %------------------------------------------------------------------------
 % Exclude subjects and retrieve data 
 %------------------------------------------------------------------------
 [sub_ids, corr_catch] = DataExtraction.exclude_subjects(data, sub_ids, idx,...
-    catch_threshold, n_best_sub, allowed_nb_of_rows);
+    catch_threshold, rtime_threshold, n_best_sub, allowed_nb_of_rows);
 
 fprintf('N = %d \n', length(sub_ids));
 fprintf('Catch threshold = %.2f \n', catch_threshold);
 
-[cho1, out1, corr1, con1] = ...
+[cho1,  out1, cfout1, corr1, con1, p11, p21, rew] = ...
     DataExtraction.extract_learning_data(...
     data, sub_ids, idx);
 
@@ -58,6 +65,9 @@ con = horzcat(con1, cont1);
 phase = vertcat(ones(size(con1, 2), 1), ones(size(cont1, 2), 1) .* 2);
 out = out1;
 ev = horzcat(ones(size(con1)) .* -1, ev2);
+
+% set ntrials
+ntrials = size(cho, 2);
 
 % mapping cont/con
 map = [2 4 6 8 -1 7 5 3 1];
@@ -99,7 +109,8 @@ end
 % --------------------------------------------------------------------
 % Plots Param and Model Comparison
 % --------------------------------------------------------------------
-figure
+figure('Renderer', 'painters', 'Position', [181,187,1465,852])
+
 params = {...
     [2],...
     [2, 3],... %2
@@ -147,34 +158,38 @@ set(gca, 'Fontsize', 30);
 saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
 
 % --------------------------------------------------------------------
+% MODEL SELECTION PROCEDURE  
+% --------------------------------------------------------------------
 % Compute information criteria
 % --------------------------------------------------------------------
 i = 0;
 nfpm = [2, 3, 3, 3, 4, 5, 7, 4];
-
 for n = whichmodel
     i = i + 1;
-   % bic(1:85, i) = -2 * -ll(:, n) + nfpm(n) * log(96);
-    bic(:, i) = -2 * -ll(:, n) + nfpm(n) * log(size(cho, 2));
-    aic(:, i)= -2 * -ll(:, n)...
-            + 2*nfpm(n);
-    me(:, i) = -lpp(:, n) + (nfpm(n)/2)*log(2*pi) - (1/2)*log(...
+    bic(i, :) = -2 * -ll(:, n) + nfpm(n) * log(ntrials);
+    aic(i, :)= -2 * -ll(:, n) + 2 * nfpm(n);
+    me(i, :) = -lpp(:, n) + (nfpm(n)/2)*log(2*pi) - (1/2)*log(...
        arrayfun(@(x) det(cell2mat(x)), {hessian{:, n}})');
-    %
 end
-% --------------------------------------------------------------------
-% figure
-% bar(mean(aic, 1));
-% ylabel('AIC');
-VBA_groupBMC(-aic');
-VBA_groupBMC(-me');
-
-VBA_groupBMC(-bic');
-saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
-
 
 % --------------------------------------------------------------------
-% Functions
+% Model competition
+% --------------------------------------------------------------------
+figNames = {'aic', 'me', 'bic'};
+i = 0;
+for criterium = {aic, me, bic}
+    i = i + 1;
+    
+    options = struct();
+    options.modelNames = models;
+    options.figName = figNames{i};
+    
+    VBA_groupBMC(-cell2mat(criterium), options);
+    saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, figNames{i}));
+end
+
+% --------------------------------------------------------------------
+% FUNCTIONS USED IN THIS SCRIPT
 % --------------------------------------------------------------------
 function runfit(subjecttot, nparam, nmodel, whichmodel, con, cho, out,...
     ev, phase, map, folder, fit_filename)

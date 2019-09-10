@@ -6,7 +6,7 @@ addpath './'
 % -----------------------------------------------------------------------
 
 folder = 'data/sim/';
-data_filename = 'block';
+data_filename = 'interleaved';
 fit_folder = 'data/fit/';
 fit_filename = data_filename;
 

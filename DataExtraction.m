@@ -5,19 +5,9 @@ classdef DataExtraction
         function [data, sub_ids, exp, sim] = get_data(filename)
             
             data = load(filename);
-            if strcmp(filename, 'data/blockfull')
-                data = data.blockfull;
-                sub_ids = unique(data(:, 1));
-
-            elseif strcmp(filename, 'data/interleavedfull')
-                data = data.full;
-                sub_ids = unique(data(:, 1));
-
-            else
-                data = data.data;
-                sub_ids = [];
-                
-            end
+            
+            data = data.data;
+            sub_ids = unique(data(:, 1));            
             
             % EXP
             %-------------------------------------------------------------
@@ -27,6 +17,7 @@ classdef DataExtraction
             exp.trial = 12;
             exp.cho = 9;
             exp.out = 7;
+            exp.cfout = 8;
             exp.corr = 10;
             exp.rew = 19;
             exp.catch = 25;
@@ -58,7 +49,7 @@ classdef DataExtraction
         end
         
         
-        function [cho, out, corr, con, rew] = extract_learning_data(data, sub_ids, exp)
+        function [cho, out, cfout, corr, con, p1, p2, rew] = extract_learning_data(data, sub_ids, exp)
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
@@ -84,33 +75,53 @@ classdef DataExtraction
                 tempcon = data(mask, exp.cond);
                 con(i, :) = tempcon(trialorder) + 1;
                 
+                tempcfout = data(mask, exp.cfout);
+                cfout(i, :) = tempcfout(trialorder);
+                
+                temp_p1 = data(mask, exp.p1);
+                p1(i, :) = temp_p1(trialorder);
+                
+                temp_p2 = data(mask, exp.p2);
+                p2(i, :) = temp_p2(trialorder);
+                
+                
                 i = i + 1;
             end
         end
         
         function [to_keep, corr_catch] = exclude_subjects(data, sub_ids, exp,...
-                catch_threshold, n_best_sub, allowed_nb_of_rows)
+                catch_threshold, rtime_threshold, n_best_sub, allowed_nb_of_rows)
             to_keep = [];
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 if ismember(sum(data(:, exp.sub) == sub), allowed_nb_of_rows) %255, 285,
-                    for eli = [0, 2]
-                        mask_eli = data(:, exp.elic) == eli;
-                        if eli == 0
-                            eli = 1;
+                    for eli = [0, 2, -1]
+                        if eli ~= -1
+                            mask_eli = data(:, exp.elic) == eli;
+                            if eli == 0
+                                eli = 1;
+                            end
+                            mask_sub = data(:, exp.sub) == sub;
+                            mask_catch = data(:, exp.catch) == 1;
+                            mask_no_catch = data(:, exp.catch) == 0;
+                            mask_sess = ismember(data(:, exp.sess), [0]);
+                            mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
+                            [noneed, trialorder] = sort(data(mask, exp.trial));
+                            temp_corr = data(mask, exp.corr);
+                            corr_catch{i, eli} = temp_corr(trialorder);
+
+                            mask = logical(mask_sub .* mask_sess .* mask_eli);
+                            rtime{i, eli} = data(mask, exp.rtime);
+                        else
+                            mask_eli = data(:, exp.elic) == eli;
+                            mask = logical(mask_sub .* mask_sess .* mask_eli);
+                            rtime{i, 3} = data(mask, exp.rtime);
                         end
-                        mask_sub = data(:, exp.sub) == sub;
-                        mask_catch = data(:, exp.catch) == 1;
-                        mask_no_catch = data(:, exp.catch) == 0;
-                        mask_sess = ismember(data(:, exp.sess), [0]);
-                        mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
-                        [noneed, trialorder] = sort(data(mask, exp.trial));
-                        temp_corr = data(mask, exp.corr);
-                        corr_catch{i, eli} = temp_corr(trialorder);
                     end
                     
-                    if mean(corr_catch{i}) >= catch_threshold
+                    if (mean(corr_catch{i}) >= catch_threshold)...
+                            && (sum(rtime{i} > rtime_threshold) < 1)
                         to_keep(length(to_keep) + 1) = sub;
                         
                     end
@@ -133,7 +144,7 @@ classdef DataExtraction
             end
         end
         
-        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2] = ...
+        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
                 extract_elicitation_data(data, sub_ids, exp, eli)
             i = 1;
             for id = 1:length(sub_ids)
@@ -176,6 +187,9 @@ classdef DataExtraction
                 
                 temp_p2 = data(mask, exp.p2);
                 p2(i, :) = temp_p2(trialorder);
+                
+                temp_dist = data(mask, exp.dist);
+                dist(i, :) = temp_dist(trialorder)./100;
                 
                 i = i + 1;
             end
