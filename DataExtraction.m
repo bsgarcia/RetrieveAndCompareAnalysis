@@ -7,7 +7,11 @@ classdef DataExtraction
             data = load(filename);
             
             data = data.data;
-            sub_ids = unique(data(:, 1));            
+            try
+                sub_ids = unique(data(:, 1));
+            catch
+                sub_ids = 1:length(data);
+            end
             
             % EXP
             %-------------------------------------------------------------

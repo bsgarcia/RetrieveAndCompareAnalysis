@@ -2,11 +2,14 @@ close all
 clear all
 
 addpath './'
+addpath './plot'
 
 % -----------------------------------------------------------------------
-
+conf = 'block';
+feedback = 'complete';
+optimism = 0;
 folder = 'data/sim/';
-data_filename = 'interleaved';
+data_filename = sprintf('%s_%s', conf, feedback);
 fit_folder = 'data/fit/';
 fit_filename = data_filename;
 

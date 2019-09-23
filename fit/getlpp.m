@@ -1,21 +1,23 @@
-function lpp = getlpp(params, s, a, r, ev, phase, map, model)
+function lpp = getlpp(params, s, a, cfa, r, cfr, ev, phase, map, model,...
+    fit_counterfactual, ntrials)
 
     addpath './'
     
-    p = getp(model, params);
+    p = getp(model, params, fit_counterfactual);
    
     p = -sum(p);
 
-    l = getll(params, s, a, r, ev, phase, map, model);
+    l = getll(params, s, a, cfa, r, cfr, ev, phase, map, model, fit_counterfactual, ntrials);
     lpp = p + l;
 end
 
 
-function p = getp(model, params)
+function p = getp(model, params, fit_counterfactual)
     %% log prior of parameters
     beta1 = params(1); % choice temphiature
     alpha1 = params(2); % policy or factual learning rate
     alpha2 = params(3); % counterfactual or fictif learning rate
+    alpha3 = params(9);
     pri = params(4); % priors
     phi = params(5);  % impulsive perseveration
     tau = params(6); % perseveration choice trace
@@ -26,23 +28,38 @@ function p = getp(model, params)
     pbeta1 = log(gampdf(beta1, 1.2, 5.0));
     palpha1 = log(betapdf(alpha1, 1.1, 1.1));
     palpha2 = log(betapdf(alpha2, 1.1, 1.1));
+    palpha3 = log(betapdf(alpha3, 1.1, 1.1));
     ppri = log(unifpdf(pri, -1, 1));
     pphi = log(unifpdf(phi, -5, 5));
     ptau = log((unifpdf(tau, 0, 1)));
     psig_xi = log(unifpdf(sig_xi, 0, 1));
     psig_eps = log(unifpdf(sig_eps, 0, 1));
     
-    pp = {...
-        [pbeta1, palpha1], ... % Sym
-        [pbeta1, palpha1, palpha2],... % Asym
-        [pbeta1, palpha1, palpha2],... % Asym. Pess
-        [pbeta1, palpha1, ppri],... % Prior
-        [pbeta1, palpha1, pphi],... % Perse
-        [pbeta1, palpha1, pphi, ptau],... %GradPerse
-        [pbeta1, palpha1, palpha2, pphi],... % Semifull
-        [pbeta1, palpha1, palpha2, pphi, ptau],... % Full
-        [pbeta1, palpha1, psig_xi, psig_eps],... % Kalman
-    };
+    if fit_counterfactual
+        pp = {...
+            [pbeta1, palpha1, palpha3], ... % Sym
+            [pbeta1, palpha1, palpha2],... % Asym
+            [pbeta1, palpha1, palpha2],... % Asym. Pess
+            [pbeta1, palpha1,ppri],... % Prior
+            [pbeta1, palpha1, palpha3, pphi],... % Perse
+            [pbeta1, palpha1, palpha3, pphi, ptau],... %GradPerse
+            [pbeta1, palpha1, palpha2, pphi],... % Semifull
+            [pbeta1, palpha1, palpha2, pphi, ptau],... % Full
+            [pbeta1, palpha1, psig_xi, psig_eps],... % Kalman
+        };
+    else
+        pp = {...
+            [pbeta1, palpha1], ... % Sym
+            [pbeta1, palpha1, palpha2],... % Asym
+            [pbeta1, palpha1, palpha2],... % Asym. Pess
+            [pbeta1, palpha1,ppri],... % Prior
+            [pbeta1, palpha1, pphi],... % Perse
+            [pbeta1, palpha1, pphi, ptau],... %GradPerse
+            [pbeta1, palpha1, palpha2, pphi],... % Semifull
+            [pbeta1, palpha1, palpha2, pphi, ptau],... % Full
+            [pbeta1, palpha1, psig_xi, psig_eps],... % Kalman
+        };
+    end
     p = pp{model};
     
 end

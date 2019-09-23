@@ -7,8 +7,11 @@ addpath './fit'
 % ------------------------------------------------------------------------
 % load data
 % ------------------------------------------------------------------------
+conf = 'block';
+feedback = 'complete'; 
+
 fit_folder = 'data/fit/';
-fit_filename = 'interleaved';
+fit_filename = sprintf('%s_%s', conf, feedback);
 sim_folder = 'data/sim/';
 sim_filename = fit_filename;
 
