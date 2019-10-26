@@ -21,7 +21,7 @@ feedback = 'complete';
 
 whichmodel = [1, 2, 3];
 % flatten data and treat it as one subject
-flatten = 1;
+flatten = 1 ;
 
 displaywin = 'on';
 catch_threshold = 1.;
@@ -133,18 +133,19 @@ for i = 1:size(parameters, 1)
     y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
     y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
     hold on
-    pl1 = plot(x, y_exp, 'Color', colors(9, :), 'LineWidth', 1.5);
+    pl1 = plot(x, y_desc, 'Color', colors(9, :), 'LineWidth', 1.5);
     hold on
-    pl2 = plot(x, y_desc, 'Color', colors(10, :),  'LineWidth', 1.5);
+    pl2 = plot(x, y_exp, 'Color', colors(10, :),  'LineWidth', 1.5);
     if size(parameters, 1) > 1
         pl1.Color(4) = 0.2;
         pl2.Color(4) = 0.2;
     end
 end
+
 legend({'Experience', 'Description'},'Location', 'southeast');
-xlabel('real p');
+xlabel('p');
 ylabel('W(p)');
-title('Prelec PWF');
+title('Prelec Probability Weighting Function');
 box off
 saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, 'prelec'));
 
@@ -168,9 +169,9 @@ legend({
     sprintf('Experience, \\lambda=%.2f', parameters(1, 9, 3)),...
     sprintf('Description, \\lambda=%.2f', parameters(1, 10, 3))...
    },'Location', 'southeast');
-xlabel('real p');
+xlabel('p');
 ylabel('W(p)');
-title('Prelec PWF');
+title('Prelec Probability Weighting Function');
 box off
 saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, 'prelec_loss'))
 % figure('visible', displaywin)
@@ -184,7 +185,11 @@ saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, 'prelec_loss'))
 % plot(x, zeros(length(x), 1), 'Color', 'k', 'LineStyle', ':');
 % %hold on
 % %plot(x, y_desc, 'Color', colors(10, :),  'LineWidth', 1.5);
-% %legend('Experience', 'Description');
+% %legend('Experience', 'Descr%     if size(parameters, 1) > 1
+%         pl1.Color(4) = 0.2;
+%         pl2.Color(4) = 0.2;
+%     end
+%iption');
 % xlabel('real p');
 % ylabel('W_{exp}(p) - W_{desc}(p) ');
 

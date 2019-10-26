@@ -25,7 +25,7 @@ addpath './'
 conf = 'block';
 feedback = 'complete';
 fit_counterfactual = 1;
-fit_elicitation = 1;
+fit_elicitation = 0;
 
 whichmodel = [1, 2, 5];
 displaywin = 'on';
@@ -199,12 +199,12 @@ else
         [2, 3, 5, 6] % 8
     };
 paramlabels = {
-    {'\alpha', '\alpha'},...
+    {'\alpha'},...
     {'\alpha_{+}', '\alpha_{-}'},...
     {'\alpha_{+}', '\alpha_{-}'},...
     {'\alpha_{+}', '\alpha_{-}'},...
-    {'\alpha', '\beta', '\phi'},...
-    {'\alpha', '\beta', '\phi', '\tau'},...
+    {'\alpha', '\phi'},...
+    {'\alpha', '\phi', '\tau'},...
     {'\alpha_{+}', '\alpha_{-}', '\phi'}};
 
 end
@@ -228,14 +228,19 @@ bias1 = (parameters(:, 2, 2) - parameters(:, 3, 2))./...
 %bias2 = (parameters(:, 2, 3) - parameters(:, 3, 3)) ./...
 %    (parameters(:, 2, 3) + parameters(:, 3, 3));
 perse = parameters(:, 5, 5);
-tau = (parameters(:, 5, 6) .* parameters(:, 6, 6)) ./...
-(parameters(:, 5, 6) + parameters(:, 6, 6));
+% tau = (parameters(:, 5, 6) .* parameters(:, 6, 6)) ./...
+% (parameters(:, 5, 6) + parameters(:, 6, 6));
 prior = parameters(:, 5, 4);
 color = [107/255 196/255 103/255];
 
 subplot(2, 3, 5)
 scatterCorr(bias1, perse, color, 0.8, 2, 1, 'w');
-xlabel('\alpha_{con} > \alpha_{dis}', 'FontSize', 20);
+if fit_counterfactual
+    xlabel('\alpha_{con} > \alpha_{dis}', 'FontSize', 20);
+else
+    xlabel('\alpha_{+} > \alpha_{-}', 'FontSize', 20);
+end
+
 ylabel('\phi', 'FontSize', 20);
 title('')
 set(gca, 'Fontsize', 30);
@@ -253,9 +258,13 @@ saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
 % Compute information criteria
 % --------------------------------------------------------------------
 i = 0;
-nfpm = [2, 3, 3, 3, 3, 4, 4, 4] + ...
-    [fit_counterfactual, 0, 0, 0,...
-    fit_counterfactual, fit_counterfactual, 0, 0] ;
+    
+      %[Q1, Asy, Asy Pes, Pri,  Per, Grad. Pers, Full, Kalman]
+nfpm = [2,   3,     3,     3,   3,      4,         4,    4] + ...
+    ...%[Q1,               Asy, Asy Pes, Pri,  
+       [fit_counterfactual, 0,   0,       0,...
+    ...Per,               Grad. Pers,        Full,     Kalman]
+    fit_counterfactual, fit_counterfactual,   0,         0] ;
 
 for n = whichmodel
     i = i + 1;
@@ -483,6 +492,7 @@ function barplot_param_comparison(parameters, param_idx, model_idx, labels, mode
         errors(i) = sem(y(i, :));
        % param_labels{i} = labels{param_idx(i)};
     end
+
     b = bar(means, 'EdgeColor', 'black');
     hold on
     e = errorbar(means, errors, 'Color', 'black', 'LineWidth', 2, 'LineStyle', 'none');
@@ -490,19 +500,26 @@ function barplot_param_comparison(parameters, param_idx, model_idx, labels, mode
     box off
     b.FaceColor = 'flat';
     b.CData(1, :) = [107/255 196/255 103/255];
-    b.CData(2, :) = [149/255 230/255 146/255];
     if length(param_idx) == 3
+        b.CData(2, :) = [149/255 230/255 146/255];
+        
         b.CData(3, :) = [149/255 240/255 146/255];
         set(gca, 'XTickLabel',{labels{1}, labels{2}, labels{3}});
     elseif length(param_idx) == 4
+        b.CData(2, :) = [149/255 230/255 146/255];
+
         b.CData(3, :) = [149/255 240/255 146/255];
         b.CData(4, :) = [60/255 240/255 146/255];
         set(gca, 'XTickLabel',{labels{1},...
             labels{2}, labels{3}, labels{4}});
+    elseif length(param_idx) == 2
+        b.CData(2, :) = [149/255 230/255 146/255];
+
+        set(gca, 'XTickLabel',{labels{1},...
+            labels{2}});
     else
-        set(gca, 'XTickLabel',{labels{1}, labels{2}});
+        set(gca, 'XTickLabel',{labels{1}});
     end
-    
     set(gca, 'FontSize', 20);
     
     %xticklabels(param_labels);

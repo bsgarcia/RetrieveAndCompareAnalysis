@@ -14,9 +14,9 @@ name = sprintf('%s_%s', conf, feedback);
 optimism = 0;
 rtime_threshold = 100000;
 catch_threshold = 1;
-n_best_sub = 20;
+n_best_sub = 0;
 allowed_nb_of_rows = [258, 288, 255, 285];
-displayfig = 'on';
+displayfig = 'off';
 colors = [0.3963    0.2461    0.3405;...
     1 0 0;...
     0.7875    0.1482    0.8380;...
@@ -207,17 +207,6 @@ end
 % plot(pwin, pp_exp(evorder));
 % return
 
-figure
-plot(pwin, p_exp);
-hold on
-plot(pwin, p_desc);
-hold on
-% scatter(pwin, p_desc);
-hold on
-ylim([0.05, 0.95])
-xlim([0.05, 0.95])
-return
-
 % surfaceplot(...
 %         corr_rate(:, :, cond)',...
 %         ones(3) * 0.5,...
@@ -233,7 +222,6 @@ return
 %     );
 
 
-return 
 figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
 skylineplot(...
     sampling_sum(:, :)', colors,...
@@ -457,7 +445,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
         'Position', [961, 1, 960, 1090],...
         'visible', displayfig)
     
-    suptitle(titles{tt});
+    %suptitle(titles{tt});
     pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
 
     for i = 1:length(psym)
@@ -488,10 +476,10 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         sc2 = scatter(ind_point, 0.5, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
        
-        if mod(i, 2) ~= 0
+        if mod(i, 2) ~= 0 || ismember(i, [1, 2])
             ylabel('P(choose learnt value)');
         end
-        if ismember(i, [7, 8])
+        if ismember(i, [7, 8]) || ismember(i, [2])
             xlabel('Described cue win probability');
         end
        
@@ -528,7 +516,7 @@ end
 figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
 skylineplot(...
     mn, colors,...
-    -0.08, 1.08, 20, 'Slider choices' , 'P(win of learnt value)',...
+    -0.08, 1.08, 20, name, 'P(win of learnt value)',...
     'Estimated probability', pwin...
 );
 
