@@ -208,49 +208,49 @@ paramlabels = {
     {'\alpha_{+}', '\alpha_{-}', '\phi'}};
 
 end
-alternatives = whichmodel(1:end);
-j = 0;
-
-for i = alternatives
-    j = j +1; 
-    subplot(2, length(whichmodel), j)
-%     violinplot_param_comparison(...
-%         parameters, params{i}, i, paramlabels, models, 0.5, colors);
-    barplot_param_comparison(...
-       parameters, params{i}, i, paramlabels{i}, models, 0.5);
-end
-
-% --------------------------------------------------------------------
+% alternatives = whichmodel(1:end);
+% j = 0;
+% 
+% for i = alternatives
+%     j = j +1; 
+%     subplot(2, length(whichmodel), j)
+% %     violinplot_param_comparison(...
+% %         parameters, params{i}, i, paramlabels, models, 0.5, colors);
+%     barplot_param_comparison(...
+%        parameters, params{i}, i, paramlabels{i}, models, 0.5);
+% end
+% 
+% % --------------------------------------------------------------------
 % Parameters correlations
 % --------------------------------------------------------------------
-bias1 = (parameters(:, 2, 2) - parameters(:, 3, 2))./...
-    (parameters(:, 2, 2) + parameters(:, 3, 2)) ;
-%bias2 = (parameters(:, 2, 3) - parameters(:, 3, 3)) ./...
-%    (parameters(:, 2, 3) + parameters(:, 3, 3));
-perse = parameters(:, 5, 5);
-% tau = (parameters(:, 5, 6) .* parameters(:, 6, 6)) ./...
-% (parameters(:, 5, 6) + parameters(:, 6, 6));
-prior = parameters(:, 5, 4);
-color = [107/255 196/255 103/255];
-
-subplot(2, 3, 5)
-scatterCorr(bias1, perse, color, 0.8, 2, 1, 'w');
-if fit_counterfactual
-    xlabel('\alpha_{con} > \alpha_{dis}', 'FontSize', 20);
-else
-    xlabel('\alpha_{+} > \alpha_{-}', 'FontSize', 20);
-end
-
-ylabel('\phi', 'FontSize', 20);
-title('')
-set(gca, 'Fontsize', 30);
-% subplot(2, 2, 4)
-% scatterCorr(bias1, tau, color, 0.5, 2, 1);
-% xlabel( '\alpha+ > \alpha-', 'FontSize', 20);
-% ylabel('\phi x \tau', 'FontSize', 20);
+% bias1 = (parameters(:, 2, 2) - parameters(:, 3, 2))./...
+%     (parameters(:, 2, 2) + parameters(:, 3, 2)) ;
+% %bias2 = (parameters(:, 2, 3) - parameters(:, 3, 3)) ./...
+% %    (parameters(:, 2, 3) + parameters(:, 3, 3));
+% perse = parameters(:, 5, 5);
+% % tau = (parameters(:, 5, 6) .* parameters(:, 6, 6)) ./...
+% % (parameters(:, 5, 6) + parameters(:, 6, 6));
+% prior = parameters(:, 5, 4);
+% color = [107/255 196/255 103/255];
+% 
+% subplot(2, 3, 5)
+% scatterCorr(bias1, perse, color, 0.8, 2, 1, 'w');
+% if fit_counterfactual
+%     xlabel('\alpha_{con} > \alpha_{dis}', 'FontSize', 20);
+% else
+%     xlabel('\alpha_{+} > \alpha_{-}', 'FontSize', 20);
+% end
+% 
+% ylabel('\phi', 'FontSize', 20);
 % title('')
 % set(gca, 'Fontsize', 30);
-saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
+% % subplot(2, 2, 4)
+% % scatterCorr(bias1, tau, color, 0.5, 2, 1);
+% % xlabel( '\alpha+ > \alpha-', 'FontSize', 20);
+% % ylabel('\phi x \tau', 'FontSize', 20);
+% % title('')
+% % set(gca, 'Fontsize', 30);
+% saveas(gcf, sprintf('fig/fit/%s/fit_bar.png', fit_filename));
 
 % --------------------------------------------------------------------
 % MODEL SELECTION PROCEDURE  
@@ -282,6 +282,8 @@ end
 % --------------------------------------------------------------------
 % Model competition
 % --------------------------------------------------------------------
+models = {'RW', 'RW_\pm', 'Perseveration'};
+
 figNames = {'AIC', 'ME', 'BIC'};
 i = 0;
 for criterium = {aic, me, bic}
@@ -292,15 +294,63 @@ for criterium = {aic, me, bic}
     if strcmp(displaywin, 'off')
         options.DisplayWin = 1;
     end
+            options.DisplayWin = 0;
+
     if strcmp('ME', figNames{i})
-        VBA_groupBMC(cell2mat(criterium), options);
+        [postr, out] = VBA_groupBMC(cell2mat(criterium), options);
     else
-        VBA_groupBMC(-cell2mat(criterium), options);
+        [postr, out] = VBA_groupBMC(-cell2mat(criterium), options);
     end
-    saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, figNames{i}));
+%     figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', 'on')
+%     skylineplot(...
+%         post.r, colors([6, 5, 7], :),...
+%         -0.08, 1.08, 20, sprintf('%s+%s',conf, feedback), 'Model',...
+%         'p(M | D)'...R
+%     );    
+%     set(gca, 'XTickLabel', models);
+    
+    post(i, :, :) = postr.r;
+    mn(i, :) = mean(postr.r, 2);
+    err(i, :) = std(postr.r, 1, 2)/sqrt(size(postr.r, 2));
 end
 
-% --------------------------------------------------------------------
+figure('Renderer', 'painters',...
+    'Position', [927,131,726,447], 'visible', displaywin)
+b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55);
+hold on
+ngroups = 3;
+nbars = 3;
+nsub = size(postr.r, 2);
+% Calculating the width for each bar group
+groupwidth = min(0.8, nbars/(nbars + 1.5));
+cc = [0    0.4470    0.7410;
+    0.8500    0.3250    0.0980j
+    0.9290    0.6940    0.1250];
+for i = 1:nbars
+    x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+    hold on
+    for j = 1:length(x)
+        s = scatter(...
+        x(j).*ones(1, nsub)-Shuffle(linspace(-0.04, 0.04, nsub)),...
+        post(j, i, :),...
+        'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+        'MarkerFaceColor', cc(i, :),...
+        'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+    end
+    errorbar(x, mn(:, i), err(:,i), 'LineStyle', 'none', 'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+end
+hold off
+ylim([0, 1.08]);
+%e = errorbar(mn', err', 'Color', 'black', 'LineWidth', 2, 'LineStyle', 'none');
+%hold off
+box off
+set(gca, 'XTickLabel', figNames);
+ylabel('p(M|D)');
+set(gca, 'Fontsize', 20);
+saveas(gcf, sprintf('fig/fit/%s/full.png', fit_filename));
+
+
+% -------------------------------------------------------------------
 % FUNCTIONS USED IN THIS SCRIPT
 % --------------------------------------------------------------------
 function [parameters, ll, lpp, hessian] = ...
@@ -541,6 +591,53 @@ function barplot_param_comparison(parameters, param_idx, model_idx, labels, mode
             y(i, :),...
              'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 1,...
              'MarkerFaceColor', [107/255 220/255 103/255],...
+             'MarkerEdgeColor', 'w');
+        set(gca, 'xtick', []);
+        set(gca, 'box', 'off');
+        set(ax(i), 'box', 'off');
+        
+        set(gca, 'ytick', []);
+        box off
+    end
+    uistack(e, 'top');
+    box off;
+end
+
+function barplot_model_comparison(post) 
+    nsub = size(post, 3);
+    for i = 1:size(post, 2)
+        means(:,i) = mean(y(i, :));
+        errors(i) = sem(y(i, :));
+       % param_labels{i} = labels{param_idx(i)};
+    end
+
+    b = bar(means, 'EdgeColor', 'w');
+    hold on
+    e = errorbar(means, errors, 'Color', 'black', 'LineWidth', 2, 'LineStyle', 'none');
+    %hold off
+    box off
+    
+    
+    set(gca, 'FontSize', 20);
+    
+    %xticklabels(param_labels);
+
+    title(ttl);
+    ax1 = gca;
+
+    for i = 1:length(means)   
+
+        ax(i) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+         'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+          
+        hold(ax(i), 'all');
+        
+        X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
+        s = scatter(...
+            X + (i-1),...
+            y(i, :),...
+             'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 1,...
+             'MarkerFaceColor', colors(i, :),...
              'MarkerEdgeColor', 'w');
         set(gca, 'xtick', []);
         set(gca, 'box', 'off');

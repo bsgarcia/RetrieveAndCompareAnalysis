@@ -133,22 +133,22 @@ for i = 1:size(parameters, 1)
     y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
     y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
     hold on
-    pl1 = plot(x, y_desc, 'Color', colors(9, :), 'LineWidth', 1.5);
+    pl1 = plot(x, y_desc, 'Color', colors(10, :), 'LineWidth', 1.5);
     hold on
-    pl2 = plot(x, y_exp, 'Color', colors(10, :),  'LineWidth', 1.5);
+    pl2 = plot(x, y_exp, 'Color', colors(9, :),  'LineWidth', 1.5);
     if size(parameters, 1) > 1
         pl1.Color(4) = 0.2;
         pl2.Color(4) = 0.2;
     end
 end
 
-legend({'Experience', 'Description'},'Location', 'southeast');
+legend({'Description', 'Experience'},'Location', 'southeast');
 xlabel('p');
 ylabel('W(p)');
-title('Prelec Probability Weighting Function');
+title('Prelec PWF');
 box off
 saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, 'prelec'));
-
+return
 figure('visible', displaywin)
 x = linspace(0, 1, 100);
 plot(x, x, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 0.8, 'HandleVisibility','off');
@@ -157,9 +157,9 @@ for i = 1:size(parameters, 1)
     y_exp = exp(-parameters(i, 1, 3).*(-log(x)).^parameters(i, 2, 3));
     y_desc = exp(-parameters(i, 3, 3).*(-log(x)).^parameters(i, 4, 3));
     hold on
-    pl1 = plot(x, y_exp, 'Color', colors(9, :), 'LineWidth', 1.5);
+    pl1 = plot(x, y_desc, 'Color', colors(9, :), 'LineWidth', 1.5);
     hold on
-    pl2 = plot(x, y_desc, 'Color', colors(10, :),  'LineWidth', 1.5);
+    pl2 = plot(x, y_exp, 'Color', colors(10, :),  'LineWidth', 1.5);
     if size(parameters, 1) > 1
         pl1.Color(4) = 0.2;
         pl2.Color(4) = 0.2;
