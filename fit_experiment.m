@@ -23,8 +23,8 @@ addpath './'
 % Set parameters
 % --------------------------------------------------------------------
 conf = 'block';
-feedback = 'complete';
-fit_counterfactual = 1;
+feedback = 'incomplete';
+fit_counterfactual = 0;
 fit_elicitation = 0;
 
 whichmodel = [1, 2, 5];
@@ -312,6 +312,7 @@ for criterium = {aic, me, bic}
     post(i, :, :) = postr.r;
     mn(i, :) = mean(postr.r, 2);
     err(i, :) = std(postr.r, 1, 2)/sqrt(size(postr.r, 2));
+    eF(i, :) = out.Ef;
 end
 
 figure('Renderer', 'painters',...
@@ -348,6 +349,28 @@ set(gca, 'XTickLabel', figNames);
 ylabel('p(M|D)');
 set(gca, 'Fontsize', 20);
 saveas(gcf, sprintf('fig/fit/%s/full.png', fit_filename));
+
+figure('Renderer', 'painters',...
+    'Position', [927,131,726,447], 'visible', displaywin)
+b = bar(eF, 'EdgeColor', 'w', 'FaceAlpha', 0.55);
+hold on
+ngroups = 3;
+nbars = 3;
+% Calculating the width for each bar group
+groupwidth = min(0.8, nbars/(nbars + 1.5));
+cc = [0    0.4470    0.7410;
+    0.8500    0.3250    0.0980j
+    0.9290    0.6940    0.1250];
+
+hold off
+ylim([0, 1.08]);
+%e = errorbar(mn', err', 'Color', 'black', 'LineWidth', 2, 'LineStyle', 'none');
+%hold off
+box off
+set(gca, 'XTickLabel', figNames);
+ylabel('Estimated model frequency');
+set(gca, 'Fontsize', 20);
+saveas(gcf, sprintf('fig/fit/%s/ef.png', fit_filename));
 
 
 % -------------------------------------------------------------------
