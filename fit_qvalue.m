@@ -13,8 +13,8 @@ addpath './'
 % --------------------------------------------------------------------
 % Set parameters
 % --------------------------------------------------------------------
-conf = 'interleaved';
-feedback = 'incomplete';
+conf = 'block';
+feedback = 'complete';
 
 
 displaywin = 'on';
@@ -80,7 +80,9 @@ try
     parameters = data2.data('parameters');  %% Optimization parameters 
     ll = data2.data('ll');
     answer = question(...
-        'There is already a fit file, would you like to use it or to rerun analyses (the old file will be replaced)',...
+        ['There is already a fit file,',
+         'would you like to use it or to rerun analyses',
+         '(the old file will be replaced)'],...
         'Use existent fit file', 'Rerun and erase');
     if strcmp(answer, 'Rerun and erase')
         [parameters, ll] = runfit(...
@@ -151,8 +153,9 @@ try
     parameters = data.data('parameters');  %% Optimization parameters 
     ll = data.data('ll');
     answer = question(...
-        'There is already a fit file, would you like to use it or to rerun analyses (the old file will be replaced)',...
-        'Use existent fit file', 'Rerun and erase');
+        ['There is already a fit file, would you like',
+         ' to use it or to rerun analyses (the old file will be replaced)',
+         'Use existent fit file'], 'Rerun and erase');
     if strcmp(answer, 'Rerun and erase')
         [parameters, ll] = runfit(...
         subjecttot,...
