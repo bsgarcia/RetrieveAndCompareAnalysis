@@ -18,6 +18,7 @@ classdef DataExtraction
             exp.rtime = 6;
             exp.cond = 13;
             exp.sess = 20;
+            exp.vsSym = 22;
             exp.trial = 12;
             exp.cho = 9;
             exp.out = 7;
@@ -157,8 +158,9 @@ classdef DataExtraction
                 mask_eli = data(:, exp.elic) == eli;
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
+                mask_vs_lot = data(:, exp.vsSym) ~= 1;
                 mask_sess = ismember(data(:, exp.sess), [0]);
-                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
+                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 
                 [noneed, trialorder] = sort(data(mask, exp.trial));
                 

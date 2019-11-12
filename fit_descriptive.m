@@ -17,7 +17,7 @@ addpath './'
 % Set parameters
 % --------------------------------------------------------------------
 conf = 'block';
-feedback = 'complete';
+feedback = 'complete_mixed';
 
 whichmodel = [1, 2, 3];
 % flatten data and treat it as one subject
@@ -41,6 +41,8 @@ colors = [0.3963    0.2461    0.3405;...
     0.1533    0.4964    0.2730;...
     0.8500 0.3250 0.0980;...
     0 0.4470 0.7410];
+blue_color = [0.0274 0.427 0.494];
+
 
 % --------------------------------------------------------------------
 % Load experiment data
@@ -53,7 +55,7 @@ colors = [0.3963    0.2461    0.3405;...
 % --------------------------------------------------------------------
 n_best_sub = 0;
 optimism = 0;
-allowed_nb_of_rows = [258, 288, 255, 285];
+allowed_nb_of_rows = [258, 288, 255, 285, 376, 470];
 
 %------------------------------------------------------------------------
 % Exclude subjects and retrieve data 
@@ -127,15 +129,15 @@ end
 % --------------------------------------------------------------------
 figure('visible', displaywin)
 x = linspace(0, 1, 100);
-plot(x, x, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 0.8, 'HandleVisibility','off');
+plot(x, x, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 1.2, 'HandleVisibility','off');
 
 for i = 1:size(parameters, 1)
     y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
     y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
     hold on
-    pl1 = plot(x, y_desc, 'Color', colors(10, :), 'LineWidth', 1.5);
+    pl1 = plot(x, y_desc, 'Color', colors(9, :), 'LineWidth', 1.9);
     hold on
-    pl2 = plot(x, y_exp, 'Color', colors(9, :),  'LineWidth', 1.5);
+    pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
     if size(parameters, 1) > 1
         pl1.Color(4) = 0.2;
         pl2.Color(4) = 0.2;
@@ -145,8 +147,10 @@ end
 legend({'Description', 'Experience'},'Location', 'southeast');
 xlabel('p');
 ylabel('W(p)');
-title('Prelec PWF');
+%title('Prelec PWF');
+set(gca, 'FontSize', 21);
 box off
+
 saveas(gcf, sprintf('fig/fit/%s/%s.png', fit_filename, 'prelec'));
 return
 figure('visible', displaywin)

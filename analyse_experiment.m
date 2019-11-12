@@ -7,16 +7,24 @@ addpath './plot'
 %------------------------------------------------------------------------
 % Set parameters
 %------------------------------------------------------------------------
-conf = 'interleaved';
-feedback = 'incomplete';
-
+conf = 'block';
+feedback = 'complete_mixed';
+folder = 'data';
 name = sprintf('%s_%s', conf, feedback);
+data_filename = sprintf('%s/%s', folder, name);
+
+folder = 'data/';
+data_filename = name;
+fit_folder = 'data/fit/';
+fit_filename = name;
+quest_filename = sprintf('data/questionnaire_%s', name);
+
 optimism = 0;
 rtime_threshold = 100000;
 catch_threshold = 1;
 n_best_sub = 0;
-allowed_nb_of_rows = [258, 288, 255, 285];
-displayfig = 'off';
+allowed_nb_of_rows = [258, 288, 255, 285, 376, 326, 470];
+displayfig = 'on';
 colors = [0.3963    0.2461    0.3405;...
     1 0 0;...
     0.7875    0.1482    0.8380;...
@@ -26,18 +34,22 @@ colors = [0.3963    0.2461    0.3405;...
     0.2952    0.3013    0.3569;...
     0.1533    0.4964    0.2730];
 blue_color = [0.0274 0.427 0.494];
+blue_color_min = [0 0.686 0.8];
 
+% create a default color map ranging from blue to dark blue
+len = 8;
+blue_color_gradient = zeros(len, 3);
+blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
+blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
+blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
+
+    
 %-----------------------------------------------------------------------
 
-folder = 'data/';
-data_filename = name;
-fit_folder = 'data/fit/';
-fit_filename = name;
-quest_filename = sprintf('data/questionnaire_%s', name);
 
 %------------------------------------------------------------------------
 [data, sub_ids, exp, sim] = DataExtraction.get_data(...
-    sprintf('%s%s', folder, data_filename));
+    sprintf('%s/%s', folder, data_filename));
 
 %------------------------------------------------------------------------
 % get parameters
@@ -298,19 +310,19 @@ end
 %------------------------------------------------------------------------
 % ELICITATION PHASE
 % -----------------------------------------------------------------------
-% figure('Position', [753,720,492,371], 'visible', displayfig)
-% scatterCorr(...
-%     corr_rate_elicitation',...
-%     crt_scores./14,...
-%     blue_color,...
-%     0.6,...
-%     2,...
-%     2,...
-%     'w');
-% %ylabel('CRT Score');
-% xlabel('Correct choice rate (Description vs Experience)');
-% box off
-% saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
+figure('Position', [753,720,492,371], 'visible', displayfig)
+scatterCorr(...
+    corr_rate_elicitation',...
+    crt_scores./14,...
+    blue_color,...
+    0.6,...
+    2,...
+    2....
+   );
+%ylabel('CRT Score');
+xlabel('Correct choice rate (Description vs Experience)');
+box off
+saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
 % return
 % 
 % %------------------------------------------------------------------------
@@ -461,7 +473,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
         lin2 = plot(...
             ones(10)*pwin(i),...
             linspace(0.1, 0.9, 10),...
-            'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 1.3);
+            'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 2);
         
         hold on
         % [0.4660    0.6740    0.1880]
@@ -481,23 +493,23 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
         sc2 = scatter(ind_point, 0.5, 100, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
        
         if mod(i, 2) ~= 0 || ismember(i, [1, 2])
-            ylabel('P(choose learnt value)', 'FontSize', 25);
+            ylabel('P(choose learned value)', 'FontSize', 26);
         end
         if ismember(i, [7, 8]) || ismember(i, [2])
-            xlabel('Described cue win probability', 'FontSize', 25);
+            xlabel('Described cue win probability', 'FontSize', 26);
         end
        
         if i < 6
-            text(pwin(i)+0.03, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 12);
+            text(pwin(i)+0.03, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
         else
 
-            text(pwin(i)-0.30, 0.8, sprintf('P(win) = %0.1f', pwin(i)), 'FontSize', 12);
+            text(pwin(i)-0.30, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
         end
 
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
        
-        text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r', 'FontSize', 22);
+        text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r', 'FontSize', 25);
         box off
 
     end
@@ -528,7 +540,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
 
     figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
     skylineplot(...
-        mn, colors,...
+        mn, blue_color_gradient,...
         -0.08, 1.08, 20, sprintf('%s+%s',conf, feedback), 'P(win of learnt value)',...
         'Estimated probability', pwin...
     );
