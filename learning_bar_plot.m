@@ -1,3 +1,6 @@
+
+
+
 close all
 clear all
 
@@ -43,15 +46,6 @@ blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
     sprintf('%s/%s', folder, name));
 
 %------------------------------------------------------------------------
-% get parameters
-%------------------------------------------------------------------------
-ncond = max(data(:, 13));
-nsession = max(data(:, 20));
-
-sim = 1;
-choice = 2;
-
-%------------------------------------------------------------------------
 % Exclude subjects and retrieve data
 %------------------------------------------------------------------------
 [sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
@@ -78,6 +72,7 @@ for sub = 1:size(corr1, 1)
         corr_rate_learning(sub, j) = mean(d);
     end
 end
+
 mn = mean(corr_rate_learning, 1);
 err = std(corr_rate_learning, 1, 1)/sqrt(size(corr_rate_learning, 2));
 nsub = size(corr1, 1);
@@ -132,5 +127,87 @@ ylim([0, 1.15]);
 box off
 saveas(gcf, sprintf('fig/exp/%s/learning_bar_plot.png', name));
 
+  
+[corr1, cho1, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+                DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+
+[corr2, cho2, out2, p1, p2, b, c, ctch, cont1, cont2, dist] = ...
+                DataExtraction.extract_sym_vs_sym_post_test(data, sub_ids, exp);
+            
+for sub = 1:size(corr1, 1)
+    mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+    d = corr1(sub, mask_equal_ev);
+    corr_rate_elicitation(sub) = mean(d);
+end
+corr_rate_learning = mean(corr2, 2);
+figure
+skylineplot(...
+    [corr_rate_learning, corr_rate_elicitation']',...
+    blue_color_gradient([2, 8], :),...
+    -0.08,...
+    1.08,...
+    18,...
+    '', '', 'Correct choice rate',  {'Exp. vs Exp', 'Desc. vs Exp.'}, 0 ...
+);
+return
+mn1 = mean(corr_rate_learning);
+mn2 = mean(corr_rate_elicitation);
+mn = [mn1, mn2];
+err1 = std(corr_rate_learning, 1, 1)/sqrt(size(corr_rate_learning, 1));
+err2 = std(corr_rate_elicitation, 1, 2)/sqrt(size(corr_rate_elicitation, 2));
+err = [err1, err2];
+figure('Renderer', 'painters',...
+    'Position', [927,131,726,447], 'visible', displaywin)
+ylabel('Correct choice rate');
+
+b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+hold on
+b.CData(:, :) = blue_color_gradient([2, 8], :);
+ax1 = gca;
+set(gca, 'XTickLabel', {'Exp. vs Exp', 'Desc. vs Exp.'});
+ylim([0, 1.07])
+ylabel('Correct choice rate');
+e = errorbar(mn, err, 'LineStyle', 'none',...
+   'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+set(gca, 'Fontsize', 18);
+
+for i = 1:2
+    ax(i) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+        'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+    
+    hold(ax(i), 'all');
+    if (i == 1)
+        d = corr_rate_learning;
+    else
+        d = corr_rate_elicitation;
+    end
+    X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
+    s = scatter(...
+        X + (i-1),...
+        d,...
+        'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
+        'MarkerEdgeAlpha', 1,...
+        'MarkerFaceColor', b.CData(i, :),...
+        'MarkerEdgeColor', 'w');
+    box off
+    
+     set(gca, 'xtick', []);
+     set(gca, 'box', 'off');
+     set(ax(i), 'box', 'off');
+    
+    set(gca, 'ytick', []);
+    ylim([0, 1.15]);
+    
+    box off
+end    
+box off
+uistack(e, 'top');
+
+
+box off
+hold off
+ylim([0, 1.15]);
+box off
+saveas(gcf, sprintf('fig/exp/%s/learning_vs_elicitation_correct_choice_rate.png', name));
 
 

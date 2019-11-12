@@ -78,6 +78,7 @@ for sub = 1:size(corr1, 1)
         corr_rate_learning(sub, j) = mean(d);
     end
 end
+
 mn = mean(corr_rate_learning, 1);
 err = std(corr_rate_learning, 1, 1)/sqrt(size(corr_rate_learning, 2));
 nsub = size(corr1, 1);
@@ -132,5 +133,75 @@ ylim([0, 1.15]);
 box off
 saveas(gcf, sprintf('fig/exp/%s/learning_bar_plot.png', name));
 
+  
+[corr1, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+                DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+            
 
+for sub = 1:size(corr1, 1)
+    mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+    d = corr1(sub, mask_equal_ev);
+    corr_rate_elicitation(sub) = mean(d);
+end
+
+corr_rate_sym = mean(corr_rate_learning, 2);
+mn1 = mean(corr_rate_learning);
+mn2 = mean(corr_rate_elicitation);
+mn = [mn1, mn2];
+err1 = std(corr_rate_learning, 1, 1)/sqrt(size(corr_rate_learning, 1));
+err2 = std(corr_rate_elicitation, 1, 2)/sqrt(size(corr_rate_elicitation, 2));
+err = [err1, err2];
+figure('Renderer', 'painters',...
+    'Position', [927,131,726,447], 'visible', displaywin)
+ylabel('Correct choice rate');
+
+b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+hold on
+b.CData(:, :) = blue_color_gradient([2, 8], :);
+ax1 = gca;
+set(gca, 'XTickLabel', {'Learning phase', 'Desc. vs Exp. phase'});
+ylim([0, 1.07])
+ylabel('Correct choice rate');
+e = errorbar(mn, err, 'LineStyle', 'none',...
+   'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+set(gca, 'Fontsize', 23);
+
+for i = 1:2
+    ax(i) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+        'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+    
+    hold(ax(i), 'all');
+    if (i == 1)
+        d = corr_rate_learning;
+    else
+        d = corr_rate_elicitation;
+    end
+    X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
+    s = scatter(...
+        X + (i-1),...
+        d,...
+        'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
+        'MarkerEdgeAlpha', 1,...
+        'MarkerFaceColor', b.CData(i, :),...
+        'MarkerEdgeColor', 'w');
+    box off
+    
+     set(gca, 'xtick', []);
+     set(gca, 'box', 'off');
+     set(ax(i), 'box', 'off');
+    
+    set(gca, 'ytick', []);
+    ylim([0, 1.15]);
+    
+    box off
+end    
+box off
+uistack(e, 'top');
+
+
+box off
+hold off
+ylim([0, 1.15]);
+box off
+saveas(gcf, sprintf('fig/exp/%s/learning_vs_elicitation_correct_choice_rate.png', name));
 

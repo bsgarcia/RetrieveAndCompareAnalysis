@@ -43,22 +43,10 @@ blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
 blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
 blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
 
-    
-%-----------------------------------------------------------------------
-
 
 %------------------------------------------------------------------------
 [data, sub_ids, exp, sim] = DataExtraction.get_data(...
     sprintf('%s/%s', folder, data_filename));
-
-%------------------------------------------------------------------------
-% get parameters
-%------------------------------------------------------------------------
-ncond = max(data(:, 13));
-nsession = max(data(:, 20));
-
-sim = 1;
-choice = 2;
 
 %------------------------------------------------------------------------
 % Exclude subjects and retrieve data 
@@ -75,8 +63,7 @@ fprintf('Catch threshold = %.2f \n', catch_threshold);
 [cho1, out1, cfout1, corr1, con1, p11, p21, rew] = ...
     DataExtraction.extract_learning_data(data, sub_ids, exp);
 
-[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+
 
 [corr3, cho3, out3, p13, p23, ev13, ev23, ctch3, cont13, cont23, dist3] = ...
     DataExtraction.extract_elicitation_data(data, sub_ids, exp, 2);
@@ -94,114 +81,114 @@ end
 %------------------------------------------------------------------------
 % Compute corr choice rate learning
 %------------------------------------------------------------------------
-corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
-
-for sub = 1:size(corr1, 1)
-    for t = 1:size(corr1, 2)/4
-        for j = 1:4
-            d = corr1(sub, con1(sub, :) == j);
-            corr_rate_learning(sub, t, j) = mean(d(1:t));
-            
-            corr_rate(sub, t, j) = d(t);
-        end
-    end
-end
+% corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
+% 
+% for sub = 1:size(corr1, 1)
+%     for t = 1:size(corr1, 2)/4
+%         for j = 1:4
+%             d = corr1(sub, con1(sub, :) == j);
+%             corr_rate_learning(sub, t, j) = mean(d(1:t));
+%             
+%             corr_rate(sub, t, j) = d(t);
+%         end
+%     end
+% end
 
 %------------------------------------------------------------------------
 % Compute corr choice rate elicitation
 %------------------------------------------------------------------------
-corr_rate_elicitation = zeros(size(corr, 1), 1);
-corr_rate_elicitation_sym = zeros(size(corr, 1), 8);
-dist_ordered = zeros(size(corr, 1), 8);
-
-for sub = 1:size(corr, 1)
-    mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
-    d = corr(sub, mask_equal_ev);
-    corr_rate_elicitation(sub) = mean(d);
-    i = 1;
-    for p = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9]
-        mask_p = logical(p1(sub, :) == p);
-        d = corr(sub, logical(mask_p.*mask_equal_ev));
-        corr_rate_elicitation_sym(sub, i) = mean(d);
-        dist_ordered(sub, i) = dist3(sub, p13(sub, :) == p);
-        i = i + 1;
-    end
-end
+% corr_rate_elicitation = zeros(size(corr, 1), 1);
+% corr_rate_elicitation_sym = zeros(size(corr, 1), 8);
+% dist_ordered = zeros(size(corr, 1), 8);
+% 
+% for sub = 1:size(corr, 1)
+%     mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+%     d = corr(sub, mask_equal_ev);
+%     corr_rate_elicitation(sub) = mean(d);
+%     i = 1;
+%     for p = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9]
+%         mask_p = logical(p1(sub, :) == p);
+%         d = corr(sub, logical(mask_p.*mask_equal_ev));
+%         corr_rate_elicitation_sym(sub, i) = mean(d);
+%         dist_ordered(sub, i) = dist3(sub, p13(sub, :) == p);
+%         i = i + 1;
+%     end
+% end
 
 %------------------------------------------------------------------------
 % Compute sampling
 %------------------------------------------------------------------------
-for sub = 1:nsub
-    i = 1;
-    for p = [.1, .2, .3, .4]
-
-            sampling_mean(sub, i) = ...
-                mean([...
-                    cfout1(sub, logical(...
-                        (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
-                    out1(sub, logical(...
-                        (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
-       
-                    ], 'all');
-
-             sampling_sum(sub, i) = ...
-                sum([...
-                    cfout1(sub, logical(...
-                        (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
-                    out1(sub, logical(...
-                        (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
-       
-                    ], 'all');
-            i = i + 1;
-    end
-    for p = [.6, .7, .8, .9]
-            
-                mean([...
-                    out1(sub, logical(...
-                        (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
-                    cfout1(sub, logical(...
-                        (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
-       
-                    ], 'all');
-
-             sampling_sum(sub, i) = ...
-                sum([...
-                    out1(sub, logical(...
-                        (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
-                    cfout1(sub, logical(...
-                        (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
-       
-                    ], 'all');
-            i = i + 1;
-    end
-end
-% ------------------------------------------------------------------------
-% Compute sampling
-% ------------------------------------------------------------------------
-i = 1;
-pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
-
-for cond = 1:4
-    
-    d1 = cho1(con1 == cond);
-    
-    for c = 1:2
-        
-        p_exp(i) = mean(d1 == c);
-        
-        d2 = cho(pwin(i) == p1);
-        p_desc(i) = mean(d2 == 1);
-        
-%          sampling_mean(i) = ...
-%              mean(out1(sub, logical((cho1 == c) .* (con1 == cond))) == 1);
-%         sampling_median(sub, i) = ...
-%             mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
-%         sampling_sum(sub, i) = ...
-%             sum(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
-        i = i + 1;
-    end
-    
-end
+% for sub = 1:nsub
+%     i = 1;
+%     for p = [.1, .2, .3, .4]
+% 
+%             sampling_mean(sub, i) = ...
+%                 mean([...
+%                     cfout1(sub, logical(...
+%                         (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
+%                     out1(sub, logical(...
+%                         (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
+%        
+%                     ], 'all');
+% 
+%              sampling_sum(sub, i) = ...
+%                 sum([...
+%                     cfout1(sub, logical(...
+%                         (cho1(sub, :) == 1) .* (p21(sub, :) == p))),...
+%                     out1(sub, logical(...
+%                         (cho1(sub, :) == 2) .* (p21(sub, :) == p)))...
+%        
+%                     ], 'all');
+%             i = i + 1;
+%     end
+%     for p = [.6, .7, .8, .9]
+%             
+%                 mean([...
+%                     out1(sub, logical(...
+%                         (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
+%                     cfout1(sub, logical(...
+%                         (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
+%        
+%                     ], 'all');
+% 
+%              sampling_sum(sub, i) = ...
+%                 sum([...
+%                     out1(sub, logical(...
+%                         (cho1(sub, :) == 1) .* (p11(sub, :) == p))),...
+%                     cfout1(sub, logical(...
+%                         (cho1(sub, :) == 2) .* (p11(sub, :) == p)))...
+%        
+%                     ], 'all');
+%             i = i + 1;
+%     end
+% end
+% % ------------------------------------------------------------------------
+% % Compute sampling
+% % ------------------------------------------------------------------------
+% i = 1;
+% pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+% 
+% for cond = 1:4
+%     
+%     d1 = cho1(con1 == cond);
+%     
+%     for c = 1:2
+%         
+%         p_exp(i) = mean(d1 == c);
+%         
+%         d2 = cho(pwin(i) == p1);
+%         p_desc(i) = mean(d2 == 1);
+%         
+% %          sampling_mean(i) = ...
+% %              mean(out1(sub, logical((cho1 == c) .* (con1 == cond))) == 1);
+% %         sampling_median(sub, i) = ...
+% %             mean(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+% %         sampling_sum(sub, i) = ...
+% %             sum(out1(sub, logical((cho1(sub, :) == c) .* (con1(sub, :) == cond))));
+%         i = i + 1;
+%     end
+%     
+% end
 [ev, evorder] = sort([0.8, -0.8, 0.6, -0.6, 0.4, -0.4, 0.2, -0.2]);
 % 
 % X = reshape(con1, [], 1);
@@ -257,18 +244,18 @@ end
 % ------------------------------------------------------------------------
 % Correlate corr choice rate vs quest
 % -----------------------------------------------------------------------
-quest_data = load(quest_filename);
-quest_data = quest_data.data;
-
-for i = 1:length(sub_ids)
-    sub = sub_ids(i);
-    mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
-    mask_sub = arrayfun(...
-        @(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)),...
-        quest_data{:, 'sub_id'});
-    crt_scores(i) = sum(...
-        quest_data{logical(mask_quest .* mask_sub), 'val'});
-end
+% quest_data = load(quest_filename);
+% quest_data = quest_data.data;
+% 
+% for i = 1:length(sub_ids)
+%     sub = sub_ids(i);
+%     mask_quest = arrayfun(@(x) x==-7, quest_data{:, 'quest'});
+%     mask_sub = arrayfun(...
+%         @(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)),...
+%         quest_data{:, 'sub_id'});
+%     crt_scores(i) = sum(...
+%         quest_data{logical(mask_quest .* mask_sub), 'val'});
+% end
 
 %------------------------------------------------------------------------
 % Plot CRT predict performance 
@@ -310,20 +297,20 @@ end
 %------------------------------------------------------------------------
 % ELICITATION PHASE
 % -----------------------------------------------------------------------
-figure('Position', [753,720,492,371], 'visible', displayfig)
-scatterCorr(...
-    corr_rate_elicitation',...
-    crt_scores./14,...
-    blue_color,...
-    0.6,...
-    2,...
-    2....
-   );
-%ylabel('CRT Score');
-xlabel('Correct choice rate (Description vs Experience)');
-box off
-saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
-% return
+% figure('Position', [753,720,492,371], 'visible', displayfig)
+% scatterCorr(...
+%     corr_rate_elicitation',...
+%     crt_scores./14,...
+%     blue_color,...
+%     0.6,...
+%     2,...
+%     2....
+%    );
+% %ylabel('CRT Score');
+% xlabel('Correct choice rate (Description vs Experience)');
+% box off
+% saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
+% % return
 % 
 % %------------------------------------------------------------------------
 % % ELICITATION VS LEARNING 
@@ -397,17 +384,23 @@ saveas(gcf, sprintf('fig/exp/%s/corr_elicitation_crt.png', name));
 % end
 % saveas(gcf, sprintf('fig/exp/%s/learning_curve.png', name));
 
+
+
+
+[corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+
 % ----------------------------------------------------------------------
 % Compute for each symbol p of chosing depending on described cue value
 % ------------------------------------------------------------------------
 pcue = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 psym = [0.1, 0.9];
-plearn = zeros(size(cho, 1), length(pcue), length(psym));
+chose_symbol = zeros(size(cho, 1), length(pcue), length(psym));
 for i = 1:size(cho, 1)
     for j = 1:length(pcue)
         for k = 1:length(psym)
-            temp = cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));           
-            plearn(i, j, k) = temp == 1;
+            temp = cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
+            chose_symbol(i, j, k) = temp == 1;
         end
     end
 end
@@ -449,7 +442,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
     pp = zeros(length(psym), length(pcue));
     
     for i = 1:length(psym)
-        Y = reshape(plearn(k, :, i), [], 1);      
+        Y = reshape(chose_symbol(k, :, i), [], 1);      
         [logitCoef, dev] = glmfit(...
              X, Y, 'binomial','logit');
         pp(i, :) = glmval(logitCoef, pcue', 'logit');
@@ -499,11 +492,11 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
             xlabel('Described cue win probability', 'FontSize', 26);
         end
        
-        if i < 6
+        if pwin(i) < 0.6
             text(pwin(i)+0.03, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
         else
 
-            text(pwin(i)-0.30, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
+            text(pwin(i)-0.58, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
         end
 
         ylim([-0.08, 1.08]);
@@ -541,7 +534,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
     figure('Renderer', 'painters', 'Position', [326,296,1064,691], 'visible', displayfig)
     skylineplot(...
         mn, blue_color_gradient,...
-        -0.08, 1.08, 20, sprintf('%s+%s',conf, feedback), 'P(win of learnt value)',...
+        -0.08, 1.08, 20, '', 'P(win of learnt value)',...
         'Estimated probability', pwin...
     );
     yline(0.5, 'LineStyle', ':');

@@ -1,4 +1,4 @@
-function [Nbar,Nsub] = skylineplot(DataCell,Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin)
+function [Nbar,Nsub] = skylineplot(DataCell,Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin, noscatter)
 
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -8,6 +8,10 @@ function [Nbar,Nsub] = skylineplot(DataCell,Colors,Yinf,Ysup,Font,Title,LabelX,L
 % transforms the Data matrix into cell format if needed
 if iscell(DataCell)==0
     DataCell = num2cell(DataCell,2);
+end
+
+if ~exist('noscatter')
+    noscatter = 0;
 end
 
 % number of factors/groups/conditions
@@ -93,11 +97,13 @@ for n = 1:Nbar
 
     jitter=abs(zscore(1:length(DataMatrix))'/max(zscore(1:length(DataMatrix))'));
     
-	scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, 10,...
-        Colors(n,:),'filled',...
-        'marker','o',...
-        'MarkerFaceAlpha',0.4);
-    hold on
+    if ~noscatter
+        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, 10,...
+            Colors(n,:),'filled',...
+            'marker','o',...
+            'MarkerFaceAlpha',0.4);
+        hold on
+    end
     
     % MEAN HORIZONTAL BAR
 %     if length(density)>1
