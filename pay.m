@@ -2,7 +2,7 @@ clear all
 close all
 %------------------------------------------------------------------------
 
-name = 'blockcomplete20';
+name = 'block_complete_mixed';
 
 data = load(sprintf('data/%s_pay', name));
 data = data.data;
@@ -16,11 +16,11 @@ function extract_learning_data(data, old_sub_ids, sub_ids)
     for id = 1:length(sub_ids)
         sub = sub_ids(id);
         mask_sub = data{:, 'prolific'} == sub;
-        if ismember(sum(mask_sub), [258, 288, 259, 28])
+        if ismember(sum(mask_sub), [258, 288, 259, 28, 470, 376])
             mask_sess = ismember(data{:, 'VarName21'}, [0]);
             mask = logical(mask_sub .* mask_sess);
 
-            fprintf('%s,%.2f \n', sub, 2.5+sum(data{mask, 'out'}, 'all')* (2.5/98));
+            fprintf('%s,%.2f \n', sub, 2.5+sum(data{mask, 'out'}, 'all')* (2.5/115));
                         i = i+1;
 
 

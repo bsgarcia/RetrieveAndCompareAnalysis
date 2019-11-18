@@ -7,8 +7,8 @@ addpath './plot'
 %------------------------------------------------------------------------
 % Set parameters
 %------------------------------------------------------------------------
-conf = 'block';
-feedback = 'complete_mixed';
+conf = 'interleaved';
+feedback = 'incomplete';
 folder = 'data';
 name = sprintf('%s_%s', conf, feedback);
 data_filename = sprintf('%s/%s', folder, name);
@@ -486,17 +486,17 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
         sc2 = scatter(ind_point, 0.5, 100, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
        
         if mod(i, 2) ~= 0 || ismember(i, [1, 2])
-            ylabel('P(choose learned value)', 'FontSize', 26);
+            ylabel('P(choose experienced value)', 'FontSize', 26);
         end
         if ismember(i, [7, 8]) || ismember(i, [2])
             xlabel('Described cue win probability', 'FontSize', 26);
         end
        
         if pwin(i) < 0.6
-            text(pwin(i)+0.03, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
+            text(pwin(i)+0.03, 0.8, sprintf('P(win experienced value) = %0.1f', pwin(i)), 'FontSize', 20);
         else
 
-            text(pwin(i)-0.58, 0.8, sprintf('P(win learned value) = %0.1f', pwin(i)), 'FontSize', 20);
+            text(pwin(i)-0.68, 0.8, sprintf('P(win experienced value) = %0.1f', pwin(i)), 'FontSize', 20);
         end
 
         ylim([-0.08, 1.08]);
@@ -504,6 +504,7 @@ for k = {1:nsub_divided, nsub_divided+1:nsub, 1:nsub}
        
         text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r', 'FontSize', 25);
         box off
+        set(gca, 'Fontsize', 23);
 
     end
     saveas(gcf, sprintf('fig/exp/%s/explicite_implicite%d.png', name, tt));

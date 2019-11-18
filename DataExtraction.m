@@ -149,7 +149,7 @@ classdef DataExtraction
             end
         end
         
-        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
                 extract_elicitation_data(data, sub_ids, exp, eli)
             i = 1;
             for id = 1:length(sub_ids)
@@ -197,11 +197,14 @@ classdef DataExtraction
                 temp_dist = data(mask, exp.dist);
                 dist(i, :) = temp_dist(trialorder)./100;
                 
+                temp_rtime = data(mask, exp.rtime);
+                rtime(i, :) = temp_rtime(trialorder);
+                
                 i = i + 1;
             end
         end
         
-        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
                 extract_sym_vs_sym_post_test(data, sub_ids, exp)
             i = 1;
             for id = 1:length(sub_ids)
@@ -248,6 +251,9 @@ classdef DataExtraction
                 
                 temp_dist = data(mask, exp.dist);
                 dist(i, :) = temp_dist(trialorder)./100;
+                
+                temp_rtime = data(mask, exp.rtime);
+                rtime(i, :) = temp_rtime(trialorder);
                 
                 i = i + 1;
             end
