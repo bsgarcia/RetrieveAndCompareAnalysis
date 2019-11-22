@@ -37,14 +37,12 @@ blue_color_gradient = zeros(len, 3);
 blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
 blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
 blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
-
 %-------------------------------------------------------------------------
 % Load Data
 %-------------------------------------------------------------------------
-for f = filenames
-    filename = f{:};
-    d{filename} = load(sprintf('%s/%s', folder, filename));
-end
+for filename = filenames
+    d{file
+
 %-----------------------------------------------------------------------
 
 %------------------------------------------------------------------------

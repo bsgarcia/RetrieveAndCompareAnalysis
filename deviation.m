@@ -85,29 +85,33 @@ end
 % ----------------------------------------------------------------------
 % PLOT P(learnt value) vs Described Cue
 % ------------------------------------------------------------------------
-for sub = 1:nsub
-    
-    X = pcue';
-    pp = zeros(length(psym), length(pcue));
-    
-    for i = 1:length(psym)
-        Y = reshape(chose_symbol(sub, :, i), [], 1);
-         lin = plot(pcue,  Y);
-         ind_point(sub, i) = interp1(lin.XData, lin.YData, 0.5);
-    end
-    
+
+X = reshape(...
+        repmat(pcue, nsub, 1), [], 1....
+    );
+pp = zeros(length(psym), length(pcue));
+
+for i = 1:length(psym)
+    Y = reshape(chose_symbol(:, :, i), [], 1);
+    [logitCoef, dev] = glmfit(...
+        X, Y, 'binomial','logit');
+    pp(i, :) = glmval(logitCoef, pcue', 'logit');
+    lin = plot(pcue',  pp(i, :));
+    ind_point(i) = interp1(lin.XData, lin.YData, 0.5);
 end
-
-
 figure
-x = linspace(0, 1, 100);
-plot(x, x, 'Color', 'k', 'LineStylend', '--', 'LineWidth', 0.8,...
+y = linspace(0, 1, 10);
+x = linspace(.1, .8, 10);
+plot(x, y, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 0.8,...
     'HandleVisibility','off');
 hold on
-for sub = 1:nsub
-    
-    lin2 = plot(linspace(0, 1, 8), ind_point(sub,:), 'Color', blue_color, 'LineWidth', 2.5);
-    lin2.Color(4) = 0.5;
-    
-end
+plot([1:8]./10, ind_point, 'LineWidth', 2);
 
+% hold on
+% for sub = 1:nsub
+%     
+%     lin2 = plot(linspace(0, 1, 8), ind_point(sub,:), 'Color', blue_color, 'LineWidth', 2.5);
+%     lin2.Color(4) = 0.5;
+%     
+% end
+% 
