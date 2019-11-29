@@ -9,11 +9,13 @@ for t = 1:ntrials
         lik = lik + Q(s(t), a(t))- log(sum(exp(Q(s(t), :))));
         
     elseif length(unique(s1)) == length(unique(s2))
+        % sym vs sym
         choice = [Q(s2(t)), Q(s1(t))];
         value = choice((a(t) == 1) + 1);
         lik = lik + value - log(sum(exp(choice)));
 
     else
+        % sym vs lot
         choice = [s2(t), Q(s1(t))];
         value = choice((a(t) == 1) + 1);
         lik = lik + value - log(sum(exp(choice)));

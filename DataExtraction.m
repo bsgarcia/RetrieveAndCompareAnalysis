@@ -94,7 +94,7 @@ classdef DataExtraction
             end
         end
         
-        function [to_keep, corr_catch] = exclude_subjects(data, sub_ids, exp,...
+        function to_keep = exclude_subjects(data, sub_ids, exp,...
                 catch_threshold, rtime_threshold, n_best_sub, allowed_nb_of_rows)
             to_keep = [];
             i = 1;
@@ -110,7 +110,7 @@ classdef DataExtraction
                             mask_sub = data(:, exp.sub) == sub;
                             mask_catch = data(:, exp.catch) == 1;
                             mask_no_catch = data(:, exp.catch) == 0;
-                            mask_sess = ismember(data(:, exp.sess), [0]);
+                            mask_sess = ismember(data(:, exp.sess), [0, 1]);
                             mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
                             [noneed, trialorder] = sort(data(mask, exp.trial));
                             temp_corr = data(mask, exp.corr);
@@ -147,19 +147,20 @@ classdef DataExtraction
                 to_keep = to_keep(end-n_best_sub+1:end);
             else
             end
+            %new_data = data(ismember(data(:, exp.sub), to_keep), :);
         end
         
         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-                extract_elicitation_data(data, sub_ids, exp, eli)
+                extract_sym_vs_lot_post_test(data, sub_ids, exp, session)
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 
-                mask_eli = data(:, exp.elic) == eli;
+                mask_eli = data(:, exp.elic) == 0;
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
                 mask_vs_lot = data(:, exp.vsSym) ~= 1;
-                mask_sess = ismember(data(:, exp.sess), [0]);
+                mask_sess = ismember(data(:, exp.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 
                 [noneed, trialorder] = sort(data(mask, exp.trial));
@@ -205,7 +206,7 @@ classdef DataExtraction
         end
         
         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-                extract_sym_vs_sym_post_test(data, sub_ids, exp)
+                extract_sym_vs_sym_post_test(data, sub_ids, exp, session)
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
@@ -214,7 +215,7 @@ classdef DataExtraction
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
                 mask_vs_lot = data(:, exp.vsSym) == 1;
-                mask_sess = ismember(data(:, exp.sess), [0]);
+                mask_sess = ismember(data(:, exp.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 
                 [noneed, trialorder] = sort(data(mask, exp.trial));

@@ -51,7 +51,7 @@ blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
 %------------------------------------------------------------------------
 % Exclude subjects and retrieve data 
 %------------------------------------------------------------------------
-[sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
+[sub_ids] = DataExtraction.exclude_subjects(...
     data, sub_ids, exp, catch_threshold, rtime_threshold, n_best_sub,...
     allowed_nb_of_rows...
 );
@@ -65,7 +65,7 @@ fprintf('Catch threshold = %.2f \n', catch_threshold);
 % Plot corr P(win described cue) vs RT
 %------------------------------------------------------------------------
 [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-    DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
+    DataExtraction.extract_sym_vs_lot_post_test(data, sub_ids, exp, 0);
 
 psym = [1:9]./10;
 psym(5) = [];
