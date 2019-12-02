@@ -7,24 +7,19 @@ addpath './plot'
 %------------------------------------------------------------------------
 % Set parameters
 %------------------------------------------------------------------------
-conf = 'block';
-feedback = 'complete_mixed';
+% filenames and folders
+filenames = {
+    'block_complete_mixed', 'block_complete_mixed_2s'};
+
 folder = 'data';
-name = sprintf('%s_%s', conf, feedback);
-data_filename = sprintf('%s/%s', folder, name);
 
-folder = 'data/';
-data_filename = name;
-fit_folder = 'data/fit/';
-fit_filename = name;
-quest_filename = sprintf('data/questionnaire_%s', name);
-
-optimism = 0;
-rtime_threshold = 30000;
+% exclusion criteria
+rtime_threshold = 100000;
 catch_threshold = 1;
 n_best_sub = 0;
-allowed_nb_of_rows = [258, 288, 255, 285, 376, 326, 470];
-displayfig = 'on';
+allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 742];
+
+% colors
 colors = [0.3963    0.2461    0.3405;...
     1 0 0;...
     0.7875    0.1482    0.8380;...
@@ -35,112 +30,67 @@ colors = [0.3963    0.2461    0.3405;...
     0.1533    0.4964    0.2730];
 blue_color = [0.0274 0.427 0.494];
 blue_color_min = [0 0.686 0.8];
-
 % create a default color map ranging from blue to dark blue
-len = 11;
+len = 8;
 blue_color_gradient = zeros(len, 3);
 blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
 blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
 blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
 
+orange_color = [0.8500, 0.3250, 0.0980];
 
-%------------------------------------------------------------------------
-[data, sub_ids, exp, sim] = DataExtraction.get_data(...
-    sprintf('%s/%s', folder, data_filename));
+% display figures
+displayfig = 'on';
 
-%------------------------------------------------------------------------
-% Exclude subjects and retrieve data 
-%------------------------------------------------------------------------
-[sub_ids] = DataExtraction.exclude_subjects(...
-    data, sub_ids, exp, catch_threshold, rtime_threshold, n_best_sub,...
-    allowed_nb_of_rows...
-);
+fit_folder = 'data/fit/qvalues/';
 
-nsub = length(sub_ids);
-fprintf('N = %d \n', nsub);
-fprintf('Catch threshold = %.2f \n', catch_threshold);
+%-------------------------------------------------------------------------
+% Load Data (do cleaning stuff)
+%-------------------------------------------------------------------------
+[d, idx] = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
+    n_best_sub, allowed_nb_of_rows);
 
+show_loaded_data(d);
 
-%------------------------------------------------------------------------
-% Plot corr P(win described cue) vs RT
-%------------------------------------------------------------------------
-[corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-    DataExtraction.extract_sym_vs_lot_post_test(data, sub_ids, exp, 0);
+function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
+    catch_threshold, n_best_sub, allowed_nb_of_rows)
 
-psym = [1:9]./10;
-psym(5) = [];
-plot = [0:10]./10;
-
-figure
-for i = 1:length(psym)
-    subplot(4, 2, i)
-    mask = logical(p1 == psym(i));
-    for j = 1:length(plot)
-        d(j, :) = rtime(logical(...
-            mask.*logical(plot(j) == p2)...
-            ));
+    d = struct();
+    i = 1;
+    for f = filenames
+        [dd{i}, sub_ids{i}, idx] = DataExtraction.get_data(...
+            sprintf('%s/%s', folder, char(f)));
+        i = i + 1;
     end
     
-    skylineplot(...
-        d, blue_color_gradient,...
-        -0.08, 5000, 9,  psym(i), 'P(win described cue)',...
-        'Reaction time (ms)', plot...
-        );
-    %xlim([0, 12]);
-    scatterCorr(...
-        reshape(repmat(plot.*10, 1, size(d, 2)), [], 1),...
-        reshape(d, [], 1),...
-        'w',...
-        0,...
-        2,...
-        0,...
-        'w', 1);
-    clear d
-    set(gca, 'FontSize', 10);
+    i = 1;
+    for f = filenames
+        d = setfield(d, char(f), struct());
+        new_d = getfield(d, char(f));
+        new_d.sub_ids = ...
+            DataExtraction.exclude_subjects(...
+            dd{i}, sub_ids{i}, idx, catch_threshold, rtime_threshold,...
+            n_best_sub, allowed_nb_of_rows);
+        new_d.data = dd{i};
+        new_d.nsub = length(new_d.sub_ids);
+        d = setfield(d, char(f), new_d);
 
+        i = i + 1;
+    end
+    
 end
 
-
-%------------------------------------------------------------------------
-% Plot corr P(win learned cue) vs RT
-%------------------------------------------------------------------------
-[corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-    DataExtraction.extract_sym_vs_sym_post_test(data, sub_ids, exp);
-
-clear d
-figure
-for i = 1:length(psym)
-    
-    subplot(4, 2, i)
-    mask = logical(p1 == psym(i));
-    
-    k = 1;
-    for j = 1:length(psym)
-        if i ~= j
-            d(k, :) = rtime(logical(...
-                mask.*logical(psym(j) == p2)...
-                ));
-            k = k + 1;
+function show_loaded_data(d)
+    disp('Loaded struct with fields: ');
+    filenames = fieldnames(d);
+    disp(filenames);
+    disp('N sub:');
+    for f = filenames'
+        f = f{:};
+        if ~strcmp(f, 'idx')
+            fprintf('%s: N=%d \n', f, d.(f).nsub);
         end
     end
-
-    skylineplot(...
-        d, blue_color_gradient,...
-        -0.08, 5000, 9, psym(i), 'P(win learned cue)',...
-        'Reaction time (ms)', psym(psym ~= psym(i))...
-    );
-    
-    scatterCorr(...
-        reshape(repmat(psym(psym ~= psym(i)).*10, 1, size(d, 2)), [], 1),...
-        reshape(d, [], 1),...
-        'w',...
-        0,...
-        2,...
-        0,...
-        'w',...
-        1);
-    clear d
-    set(gca, 'FontSize', 10);
-
 end
+
 

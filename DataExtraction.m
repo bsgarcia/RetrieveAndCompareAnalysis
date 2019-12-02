@@ -59,7 +59,7 @@ classdef DataExtraction
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 mask_sub = data(:, exp.sub) == sub;
-                mask_sess = ismember(data(:, exp.sess), [0]);
+                mask_sess = ismember(data(:, exp.sess), [0, 1]);
                 mask_eli = data(:, exp.elic) == -1;
                 mask = logical(mask_sub .* mask_sess .* mask_eli);
                 
@@ -125,7 +125,7 @@ classdef DataExtraction
                         end
                     end
                     
-                    if (mean(corr_catch{i}) >= catch_threshold)...
+                    if (mean(corr_catch{i, 1}) >= catch_threshold)...
                             && (sum(rtime{i} > rtime_threshold) < 1)
                         to_keep(length(to_keep) + 1) = sub;
                         
@@ -147,6 +147,7 @@ classdef DataExtraction
                 to_keep = to_keep(end-n_best_sub+1:end);
             else
             end
+            
             %new_data = data(ismember(data(:, exp.sub), to_keep), :);
         end
         
