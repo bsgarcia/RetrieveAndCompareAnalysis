@@ -54,12 +54,12 @@ classdef DataExtraction
         end
         
         
-        function [cho, out, cfout, corr, con, p1, p2, rew] = extract_learning_data(data, sub_ids, exp)
+        function [cho, out, cfout, corr, con, p1, p2, rew] = extract_learning_data(data, sub_ids, exp, session)
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 mask_sub = data(:, exp.sub) == sub;
-                mask_sess = ismember(data(:, exp.sess), [0, 1]);
+                mask_sess = ismember(data(:, exp.sess), session);
                 mask_eli = data(:, exp.elic) == -1;
                 mask = logical(mask_sub .* mask_sess .* mask_eli);
                 
