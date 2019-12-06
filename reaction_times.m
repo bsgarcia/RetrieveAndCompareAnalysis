@@ -1,96 +1,218 @@
-close all
-clear all
-
-addpath './'
-addpath './plot'
+% --------------------------------------------------------------------
+% This script finds the best fitting Values for each exp
+% then plots the article figs
+% --------------------------------------------------------------------
+init;
 
 %------------------------------------------------------------------------
-% Set parameters
+% Plot fig 2.A
 %------------------------------------------------------------------------
-% filenames and folders
-filenames = {
-    'block_complete_mixed', 'block_complete_mixed_2s'};
+f = {filenames{[1, 2, 3]}};
+plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
+saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
 
-folder = 'data';
+f = {filenames{[4, 5]}};
+plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
+saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
 
-% exclusion criteria
-rtime_threshold = 100000;
-catch_threshold = 1;
-n_best_sub = 0;
-allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 742];
 
-% colors
-colors = [0.3963    0.2461    0.3405;...
-    1 0 0;...
-    0.7875    0.1482    0.8380;...
-    0.4417    0.4798    0.7708;...
-    0.5992    0.6598    0.1701;...
-    0.7089    0.3476    0.0876;...
-    0.2952    0.3013    0.3569;...
-    0.1533    0.4964    0.2730];
-blue_color = [0.0274 0.427 0.494];
-blue_color_min = [0 0.686 0.8];
-% create a default color map ranging from blue to dark blue
-len = 8;
-blue_color_gradient = zeros(len, 3);
-blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
-blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
-blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
+function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
 
-orange_color = [0.8500, 0.3250, 0.0980];
-
-% display figures
-displayfig = 'on';
-
-fit_folder = 'data/fit/qvalues/';
-
-%-------------------------------------------------------------------------
-% Load Data (do cleaning stuff)
-%-------------------------------------------------------------------------
-[d, idx] = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
-    n_best_sub, allowed_nb_of_rows);
-
-show_loaded_data(d);
-
-function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
-    catch_threshold, n_best_sub, allowed_nb_of_rows)
-
-    d = struct();
     i = 1;
-    for f = filenames
-        [dd{i}, sub_ids{i}, idx] = DataExtraction.get_data(...
-            sprintf('%s/%s', folder, char(f)));
-        i = i + 1;
-    end
     
-    i = 1;
-    for f = filenames
-        d = setfield(d, char(f), struct());
-        new_d = getfield(d, char(f));
-        new_d.sub_ids = ...
-            DataExtraction.exclude_subjects(...
-            dd{i}, sub_ids{i}, idx, catch_threshold, rtime_threshold,...
-            n_best_sub, allowed_nb_of_rows);
-        new_d.data = dd{i};
-        new_d.nsub = length(new_d.sub_ids);
-        d = setfield(d, char(f), new_d);
-
-        i = i + 1;
-    end
-    
-end
-
-function show_loaded_data(d)
-    disp('Loaded struct with fields: ');
-    filenames = fieldnames(d);
-    disp(filenames);
-    disp('N sub:');
-    for f = filenames'
-        f = f{:};
-        if ~strcmp(f, 'idx')
-            fprintf('%s: N=%d \n', f, d.(f).nsub);
+    figure('Position', [1,1,1900,900]);
+    titles = {'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
+         
+    for exp_name = {exp_names{:}, exp_names{end}}
+        if i == 3
+            session = 1;
+        else
+            session = 0;
         end
+        subplot(1, 3, i);
+        
+        exp_name = char(exp_name);
+        nsub = d.(exp_name).nsub;
+     
+        [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+            DataExtraction.extract_sym_vs_lot_post_test(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+        
+        for sub = 1:nsub
+            mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+            mask_easy = logical(~ismember(ev2(sub, :), [-1, 0, 1]));
+            mask_chosen_lot = logical(cho(sub, :) == 2);
+            mask_chosen_sym = logical(cho(sub, :) == 1);
+            d1 = rtime(sub, logical(mask_equal_ev.*mask_easy));
+            d2 = rtime(sub, logical(mask_equal_ev.*mask_easy.*mask_chosen_lot));
+            d3 = rtime(sub, logical(mask_equal_ev.*mask_easy.*mask_chosen_sym));
+            rtime_both(sub) = median(d1);
+            rtime_lot(sub) = median(d2);
+            rtime_sym(sub) = median(d3);
+        end        
+        
+        [corr1, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+            DataExtraction.extract_sym_vs_sym_post_test(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+   
+        for sub = 1:nsub
+            d4 = rtime(sub, :);
+            rtime_sym_vs_sym(sub) = median(d4);
+        end
+        
+        dd = {rtime_sym_vs_sym,...
+            rtime_both, rtime_sym, rtime_lot};
+        mn = [mean(rtime_sym_vs_sym),...
+            mean(rtime_both), mean(rtime_sym), mean(rtime_lot)];
+        
+        err1 = std(rtime_sym_vs_sym)/sqrt(length(rtime_sym_vs_sym));
+        err2 = std(rtime_both)/sqrt(length(rtime_both));
+        err3 = std(rtime_sym)/sqrt(length(rtime_sym));
+        err4 = std(rtime_lot)/sqrt(length(rtime_lot));
+        err = [err1, err2, err3, err4];
+            
+        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        
+        hold on
+        b.CData(1, :) = blue_color;
+        b.CData(2, :) = orange_color;
+        b.CData(3, :) = orange_color;
+        b.CData(4, :) = orange_color;
+  
+        ax1 = gca;
+        set(gca, 'XTickLabel', {'EE', 'ED', 'E_{chosen}', 'D_{chosen}'});
+        
+        ylim([0, 3500])
+        ylabel('Response time (ms)');
+        e = errorbar(mn, err, 'LineStyle', 'none',...
+            'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+        set(gca, 'Fontsize', 18);
+        title(titles{i});
+        
+        for j = 1:4
+            ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+                'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+            
+            hold(ax(j), 'all');
+           
+            X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
+            s = scatter(...
+                X + (j-1),...
+                dd{j},...
+                'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
+                'MarkerEdgeAlpha', 1,...
+                'MarkerFaceColor', b.CData(j, :),...
+                'MarkerEdgeColor', 'w');
+            box off
+            
+            set(gca, 'xtick', []);
+            set(gca, 'box', 'off');
+            set(ax(j), 'box', 'off');
+            
+            set(gca, 'ytick', []);
+            %ylim([0, 1.15]);
+            
+            box off
+        end
+        box off
+        uistack(e, 'top');
+        
+        i = i + 1;
+        
+        clear dd X mn err err1 err2 err3 err4 nsub ev1 ev2 cho rtime
+        clear rtime_sym_vs_sym rtime_sym rtime_both rtime_lot
     end
 end
 
+function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_names)
 
+    i = 1;
+    
+    figure('Position', [1,1,1900,900]);
+    titles = {'Exp. 1', 'Exp. 2', 'Exp. 3'};
+         
+    for exp_name = {exp_names{:}}
+        subplot(1, 3, i);
+        
+        exp_name = char(exp_name);
+        nsub = d.(exp_name).nsub;
+     
+        [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+            DataExtraction.extract_sym_vs_lot_post_test(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, 0);
+        
+        for sub = 1:nsub
+            mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
+            mask_easy = logical(~ismember(ev2(sub, :), [-1, 0, 1]));
+            mask_chosen_lot = logical(cho(sub, :) == 2);
+            mask_chosen_sym = logical(cho(sub, :) == 1);
+            d1 = rtime(sub, logical(mask_equal_ev.*mask_easy));
+            d2 = rtime(sub, logical(mask_equal_ev.*mask_easy.*mask_chosen_lot));
+            d3 = rtime(sub, logical(mask_equal_ev.*mask_easy.*mask_chosen_sym));
+            rtime_both(sub) = median(d1);
+            rtime_lot(sub) = median(d2);
+            rtime_sym(sub) = median(d3);
+        end        
+       
+        dd = {
+            rtime_both, rtime_sym, rtime_lot};
+        mn = [
+            mean(rtime_both), nanmean(rtime_sym), mean(rtime_lot)];
+        
+        err2 = std(rtime_both)/sqrt(length(rtime_both));
+        err3 = nanstd(rtime_sym)/sqrt(length(rtime_sym));
+        err4 = std(rtime_lot)/sqrt(length(rtime_lot));
+        err = [err2, err3, err4];
+            
+        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        
+        hold on
+        b.CData(1, :) = orange_color;
+        b.CData(2, :) = orange_color;
+        b.CData(3, :) = orange_color;
+  
+        ax1 = gca;
+        set(gca, 'XTickLabel', {'ED', 'E_{chosen}', 'D_{chosen}'});
+        
+        ylim([0, 3500])
+        ylabel('Response time (ms)');
+        e = errorbar(mn, err, 'LineStyle', 'none',...
+            'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+        set(gca, 'Fontsize', 18);
+        title(titles{i});
+        
+        for j = 1:3
+            ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+                'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+            
+            hold(ax(j), 'all');
+           
+            X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
+            s = scatter(...
+                X + (j-1),...
+                dd{j},...
+                'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
+                'MarkerEdgeAlpha', 1,...
+                'MarkerFaceColor', b.CData(j, :),...
+                'MarkerEdgeColor', 'w');
+            box off
+            
+            set(gca, 'xtick', []);
+            set(gca, 'box', 'off');
+            set(ax(j), 'box', 'off');
+            
+            set(gca, 'ytick', []);
+            %ylim([0, 1.15]);
+            
+            box off
+        end
+        box off
+        uistack(e, 'top');
+        
+        i = i + 1;
+        
+        clear dd X mn err err1 err2 err3 err4 nsub ev1 ev2 cho rtime
+        clear rtime_sym_vs_sym rtime_sym rtime_both rtime_lot
+        clear b
+    end
+end

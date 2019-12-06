@@ -2,15 +2,6 @@
 % This script finds the best fitting Values for each exp
 % then plots the article figs
 % --------------------------------------------------------------------
-
-close all
-clear all
-
-addpath './fit'
-addpath './plot'
-addpath './data'
-addpath './'
-
 init;
 
 %------------------------------------------------------------------------

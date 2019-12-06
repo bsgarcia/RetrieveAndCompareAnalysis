@@ -133,6 +133,8 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
         end
         i = i + 1;
     end
+    
+    
     corr_rate = fliplr(corr_rate);
     mn = mean(corr_rate, 1);
     err = std(corr_rate, 1)/sqrt(size(corr_rate, 1));
@@ -177,6 +179,8 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     end
     box off
     uistack(e, 'top');
+    
+    clear corr_rate
      
 end
 
