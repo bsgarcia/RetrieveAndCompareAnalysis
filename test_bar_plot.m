@@ -2,7 +2,6 @@
 % This script 
 % computes correct choice rate then plots the article figs
 % --------------------------------------------------------------------
-
 init;
 filenames{6} = 'block_complete_mixed_2s';
 
@@ -14,7 +13,6 @@ saveas(gcf, 'fig/exp/all/correct_choice_rate_learning_cont.png');
 
 plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
 saveas(gcf, 'fig/exp/all/correct_choice_rate_learning_exp.png');
-
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
