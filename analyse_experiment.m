@@ -64,39 +64,45 @@ for f = {filenames{:}, filenames{end}}
     
     figure(...
         'Renderer', 'painters',...
-        'Position', [961, 1, 960, 1090],...
+        'Position', [961, 1, 1000, 550],...
         'visible', displayfig)
     
     pwin = [0.1, 0.9];
-    
+    alpha = [0.55, 0.95];
+    lin1 = plot(...
+            linspace(0, 1, 12), ones(12)*0.5, 'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     for i = 1:length(psym)
-        
-        subplot(2, 1, i)
-        lin1 = plot(...
-            linspace(0, 1, 12), ones(12)*0.5, 'LineStyle', ':', 'Color', [0, 0, 0]);
-        
+              
         hold on
-        lin2 = plot(...
-            ones(10)*pwin(i),...
-            linspace(0.1, 0.9, 10),...
-            'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 2);
+%         lin2 = plot(...
+%             ones(10)*pwin(i),...
+%             linspace(0.1, 0.9, 10),...
+%             'LineStyle', '--', 'Color', [0, 0, 0], 'LineWidth', 2);
         
         hold on
         % [0.4660    0.6740    0.1880]
         lin3 = plot(...
             pcue,  pp(i, :),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
-            'Color', blue_color, 'LineWidth', 3.5 ...
-            );
+            'Color', orange_color, 'LineWidth', 3.5...
+        );
         
+        lin3.Color(4) = alpha(i);
         hold on
-        sc1 = scatter(pcue, prop(i, :), 130,...
+        sc1 = scatter(pcue, prop(i, :), 180,...
             'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', blue_color);
-        s.MarkerFaceAlpha = 0.5;
+            'MarkerFaceColor', orange_color, 'MarkerFaceAlpha', alpha(i));
+        %s.MarkerFaceAlpha = alpha(i);
         
         hold on
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
-        sc2 = scatter(ind_point, 0.5, 150, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'w');
+        if i == 1
+        sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
+            'MarkerEdgeColor', 'w');
+        else
+            sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
+            'MarkerEdgeColor', 'w', 'HandleVisibility', 'off');
+        end
+        %sc2.MarkerFaceAlpha = alpha(i);
         
         if mod(i, 2) ~= 0 || ismember(i, [1, 2])
             ylabel('P(choose experienced cue)', 'FontSize', 26);
@@ -105,23 +111,30 @@ for f = {filenames{:}, filenames{end}}
             xlabel('Described cue win probability', 'FontSize', 26);
         end
         
-        if pwin(i) < 0.6
-            text(pwin(i)+0.03, 0.8, sprintf('P(win experienced cue) = %0.1f', pwin(i)), 'FontSize', 20);
-        else
-            
-            text(pwin(i)-0.68, 0.8, sprintf('P(win experienced cue) = %0.1f', pwin(i)), 'FontSize', 20);
-        end
+%         if pwin(i) < 0.6
+%             text(pwin(i)+0.03, 0.8, sprintf('P(win experienced cue) = %0.1f', pwin(i)), 'FontSize', 20);
+%         else
+%             
+%             text(pwin(i)-0.68, 0.8, sprintf('P(win experienced cue) = %0.1f', pwin(i)), 'FontSize', 20);
+%         end
         
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
         
-        text(ind_point + 0.05, .55, sprintf('%.2f', ind_point), 'Color', 'r', 'FontSize', 25);
+        text(ind_point + (0.05) * (1 + (-4 * (i == 1))) , .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
         box off
         set(gca, 'Fontsize', 23);
+        
     end
     
-    s1 = suptitle(titles{exp_num});
-    set(s1, 'Fontsize', 40)
+    %legend({'Logit reg. p(win experienced cue) = 0.1',...
+    %       'Data p(win experience cue) = 0.1',...
+    %       'Indifference point',...
+    %       'Logit reg. p(win experienced cue) = 0.9',...
+    %       'Data p(win experience cue) = 0.9'}, 'FontSize', 25, 'BigMarker');
+    
+    s1 = title(titles{exp_num});
+    set(s1, 'Fontsize', 20)
 
     saveas(gcf, sprintf('fig/exp/all/ind_curve_%s_%d.png', name, session));
     exp_num = exp_num + 1;
