@@ -1,7 +1,6 @@
 % --------------------------------------------------------------------
 % This script is ran by other main scripts at init 
 % --------------------------------------------------------------------
-
 close all
 clear all
 
@@ -10,10 +9,12 @@ addpath './plot'
 addpath './data'
 addpath './'
 
+
+format shortg
+
 %------------------------------------------------------------------------
 % Set parameters
 %------------------------------------------------------------------------
-
 % filenames and folders
 filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
@@ -41,9 +42,12 @@ blue_color_min = [0 0.686 0.8];
 % create a default color map ranging from blue to dark blue
 len = 8;
 blue_color_gradient = zeros(len, 3);
-blue_color_gradient(:, 1) = linspace(blue_color_min(1),blue_color(1),len)';
-blue_color_gradient(:, 2) = linspace(blue_color_min(2),blue_color(2),len)';
-blue_color_gradient(:, 3) = linspace(blue_color_min(3),blue_color(3),len)';
+blue_color_gradient(:, 1) = ...
+    linspace(blue_color_min(1),blue_color(1),len)';
+blue_color_gradient(:, 2) = ...
+    linspace(blue_color_min(2),blue_color(2),len)';
+blue_color_gradient(:, 3) = ...
+    linspace(blue_color_min(3),blue_color(3),len)';
 
 orange_color = [0.8500, 0.3250, 0.0980];
 
@@ -59,6 +63,7 @@ fit_folder = 'data/fit/qvalues/';
     n_best_sub, allowed_nb_of_rows);
 show_loaded_data(d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
+
 
 function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
     catch_threshold, n_best_sub, allowed_nb_of_rows)
@@ -88,7 +93,12 @@ function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
     
 end
 
+
 function show_loaded_data(d)
+    disp(repmat('=', [1, 30]));
+    disp('RUNNING init.m SCRIPT');
+    disp(repmat('=', [1, 30]));
+    
     disp('Loaded struct with fields: ');
     filenames = fieldnames(d);
     disp(filenames);
@@ -101,11 +111,18 @@ function show_loaded_data(d)
     end
 end
 
-function show_parameter_values(rtime_threshold, catch_threshold, allowed_number_of_rows)
-fprintf('\nParameter values:\n');
-fprintf('Response time threshold=%d seconds\n', rtime_threshold/1000);
-fprintf('Correct catch trials threshold=%d  \n', catch_threshold.*100);
-fprintf(['Number of trials allowed and retrieved per subject=' ...
-    repmat('%d ', 1, length(allowed_number_of_rows))], allowed_number_of_rows);
-fprintf('\n');
+
+function show_parameter_values(rtime_threshold, catch_threshold,...
+    allowed_number_of_rows)
+
+    fprintf('\nParameter values:\n');
+    fprintf('Response time threshold=%d seconds\n', rtime_threshold/1000);
+    fprintf('Correct catch trials threshold=%d  \n', catch_threshold.*100);
+    fprintf(['Number of trials allowed and retrieved per subject=' ...
+        repmat('%d ', 1, length(allowed_number_of_rows))], allowed_number_of_rows);
+    fprintf('\n');
+    disp(repmat('=', [1, 30]));
+    fprintf('RUNNING SELECTED SCRIPT \n');
+    disp(repmat('=', [1, 30]));
+    
 end

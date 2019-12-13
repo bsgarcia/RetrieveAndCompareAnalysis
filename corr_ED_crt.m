@@ -2,7 +2,6 @@
 % This script finds the best fitting Values for each exp
 % then plots the article figs
 % --------------------------------------------------------------------
-
 init;
 
 %------------------------------------------------------------------------

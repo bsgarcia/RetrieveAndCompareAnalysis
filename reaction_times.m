@@ -11,15 +11,15 @@ f = {filenames{[1, 2, 3]}};
 plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
 saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
 
-f = {filenames{[4, 5]}};
-plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
-saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
+% f = {filenames{[4, 5]}};
+% plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
+% saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
 
 
 function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
 
     i = 1;
-    
+    format shortg
     figure('Position', [1,1,1900,900]);
     titles = {'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
          
@@ -61,15 +61,51 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
         end
         
         dd = {rtime_sym_vs_sym,...
-            rtime_both, rtime_sym, rtime_lot};
+             rtime_sym, rtime_lot};
+        
+        x = dd{1};
+        y = dd{2};
+        [h,p] = ttest(x,y,'Alpha',0.05);
+        pp(1) = p;
+       
+        x = dd{2};
+        y = dd{3};
+        [h,p] = ttest(x,y,'Alpha',0.05);
+        pp(2) = p;
+
+        
+        x = dd{1};
+        y = dd{3};
+        [h,p] = ttest(x,y,'Alpha',0.05);
+        pp(3) = p;
+
+        pp = pval_adjust(pp, 'bonferroni');
+        for sp = pp 
+            if sp < .001
+                h = '***';
+            elseif sp < .01
+                h='**';
+            elseif sp < .05
+                h ='*';
+            else 
+                h = 'none';
+            end
+            fprintf('h=%s, p=%d \n', h, p);
+        end
+        fprintf('===================== \n');
+
+%         t = table(
+%         [p,tbl,stats] = ranova(cell2mat(dd')');
+%         [c,~,~,gnames] = multcompare(stats);
         mn = [mean(rtime_sym_vs_sym),...
-            mean(rtime_both), mean(rtime_sym), mean(rtime_lot)];
+            mean(rtime_sym), mean(rtime_lot)];
         
         err1 = std(rtime_sym_vs_sym)/sqrt(length(rtime_sym_vs_sym));
-        err2 = std(rtime_both)/sqrt(length(rtime_both));
+        %err2 = std(rtime_both)/sqrt(length(rtime_both));
         err3 = std(rtime_sym)/sqrt(length(rtime_sym));
         err4 = std(rtime_lot)/sqrt(length(rtime_lot));
-        err = [err1, err2, err3, err4];
+        err = [err1, err3, err4];
+            %err2, 
             
         b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
         
@@ -77,19 +113,21 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
         b.CData(1, :) = blue_color;
         b.CData(2, :) = orange_color;
         b.CData(3, :) = orange_color;
-        b.CData(4, :) = orange_color;
+        %b.CData(4, :) = orange_color;
   
         ax1 = gca;
-        set(gca, 'XTickLabel', {'EE', 'ED', 'E_{chosen}', 'D_{chosen}'});
+        set(gca, 'XTickLabel', {'EE', 'E_{chosen}', 'D_{chosen}'});
         
         ylim([0, 3500])
-        ylabel('Response time (ms)');
+        ylabel('Reaction time (ms)');
+        
         e = errorbar(mn, err, 'LineStyle', 'none',...
             'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
+        
         title(titles{i});
         
-        for j = 1:4
+        for j = 1:3
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
             
@@ -98,7 +136,7 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
             X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
             s = scatter(...
                 X + (j-1),...
-                dd{j},...
+                dd{j}, 110,...
                 'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
                 'MarkerEdgeAlpha', 1,...
                 'MarkerFaceColor', b.CData(j, :),...
@@ -154,34 +192,49 @@ function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_names)
             rtime_sym(sub) = median(d3);
         end        
        
-        dd = {
-            rtime_both, rtime_sym, rtime_lot};
-        mn = [
-            mean(rtime_both), nanmean(rtime_sym), mean(rtime_lot)];
+        dd = {rtime_sym, rtime_lot};
         
-        err2 = std(rtime_both)/sqrt(length(rtime_both));
+        x = dd{1};
+        y = dd{2};
+        [h,p] = ttest(x,y,'Alpha',0.05);
+     
+        if p < .001
+            h = '***';
+        elseif p < .01
+            h='**';
+        elseif p < .05
+            h ='*';
+        else
+            h = 'none';
+        end
+        fprintf('h=%s, p=%d \n', h, p);     
+        fprintf('===================== \n');
+        mn = [
+            nanmean(rtime_sym), mean(rtime_lot)];
+        
+        %err2 = std(rtime_both)/sqrt(length(rtime_both));
         err3 = nanstd(rtime_sym)/sqrt(length(rtime_sym));
         err4 = std(rtime_lot)/sqrt(length(rtime_lot));
-        err = [err2, err3, err4];
+        err = [err3, err4];
             
         b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
         
         hold on
         b.CData(1, :) = orange_color;
         b.CData(2, :) = orange_color;
-        b.CData(3, :) = orange_color;
+        %b.CData(3, :) = orange_color;
   
         ax1 = gca;
-        set(gca, 'XTickLabel', {'ED', 'E_{chosen}', 'D_{chosen}'});
+        set(gca, 'XTickLabel', {'E_{chosen}', 'D_{chosen}'});
         
         ylim([0, 3500])
-        ylabel('Response time (ms)');
+        ylabel('Reaction time (ms)');
         e = errorbar(mn, err, 'LineStyle', 'none',...
             'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
         title(titles{i});
         
-        for j = 1:3
+        for j = 1:2
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
             
@@ -190,7 +243,7 @@ function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_names)
             X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
             s = scatter(...
                 X + (j-1),...
-                dd{j},...
+                dd{j},110,...
                 'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
                 'MarkerEdgeAlpha', 1,...
                 'MarkerFaceColor', b.CData(j, :),...
