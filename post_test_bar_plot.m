@@ -22,24 +22,20 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
     i = 1;
     
     figure('Position', [1,1,1920,1020]);
-    titles = {'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
+    titles = {'Exp. 4', 'Exp. 5'};
     
     [corr_heuristic, corr_rate1, corr_rate2] = run_simulation();
      
-    for exp_name = {exp_names{:}, exp_names{end}}
-        if i == 3
-            session = 1;
-        else
-            session = 0;
-        end
-        subplot(1, 3, i);
+    for exp_name = {exp_names{:}}
+       
+        subplot(1, 2, i);
         
         exp_name = char(exp_name);
         nsub = d.(exp_name).nsub;
      
         [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
             DataExtraction.extract_sym_vs_lot_post_test(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
         
         for sub = 1:nsub
             mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
@@ -50,7 +46,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
         
         [corr1, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
             DataExtraction.extract_sym_vs_sym_post_test(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
    
         if size(d1, 2) ~= size(corr1, 2)
             error('not the same number of trials');

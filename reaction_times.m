@@ -7,13 +7,13 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-f = {filenames{[1, 2, 3]}};
-plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
-saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
+%f = {filenames{[1, 2, 3]}};
+%plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
+%saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
 
-% f = {filenames{[4, 5]}};
-% plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
-% saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
+f = {filenames{[4, 5]}};
+plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
+saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
 
 
 function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
@@ -21,22 +21,17 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
     i = 1;
     format shortg
     figure('Position', [1,1,1900,900]);
-    titles = {'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
+    titles = {'Exp. 4', 'Exp. 5'};
          
-    for exp_name = {exp_names{:}, exp_names{end}}
-        if i == 3
-            session = 1;
-        else
-            session = 0;
-        end
-        subplot(1, 3, i);
+    for exp_name = {exp_names{:}}
+        subplot(1, 2, i);
         
         exp_name = char(exp_name);
         nsub = d.(exp_name).nsub;
      
         [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
             DataExtraction.extract_sym_vs_lot_post_test(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
         
         for sub = 1:nsub
             mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
@@ -53,7 +48,7 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
         
         [corr1, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
             DataExtraction.extract_sym_vs_sym_post_test(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
    
         for sub = 1:nsub
             d4 = rtime(sub, :);
