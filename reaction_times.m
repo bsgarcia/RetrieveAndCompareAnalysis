@@ -7,9 +7,9 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-%f = {filenames{[1, 2, 3]}};
-%plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
-%saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
+f = {filenames{[1, 2, 3]}};
+plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
+saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
 
 f = {filenames{[4, 5]}};
 plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
@@ -60,32 +60,32 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
         
         x = dd{1};
         y = dd{2};
-        [h,p] = ttest(x,y,'Alpha',0.05);
+        p = signrank(x,y);
         pp(1) = p;
        
         x = dd{2};
         y = dd{3};
-        [h,p] = ttest(x,y,'Alpha',0.05);
+        p = signrank(x,y);
         pp(2) = p;
-
         
         x = dd{1};
         y = dd{3};
-        [h,p] = ttest(x,y,'Alpha',0.05);
+        p = signrank(x,y);
         pp(3) = p;
 
         pp = pval_adjust(pp, 'bonferroni');
-        for sp = pp 
-            if sp < .001
+         
+        for p_corr = pp 
+            if p_corr < .001
                 h = '***';
-            elseif sp < .01
+            elseif p_corr < .01
                 h='**';
-            elseif sp < .05
+            elseif p_corr < .05
                 h ='*';
             else 
                 h = 'none';
             end
-            fprintf('h=%s, p=%d \n', h, p);
+            fprintf('h=%s, p=%d \n', h, p_corr);
         end
         fprintf('===================== \n');
 
@@ -191,7 +191,7 @@ function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_names)
         
         x = dd{1};
         y = dd{2};
-        [h,p] = ttest(x,y,'Alpha',0.05);
+        p = signrank(x,y);
      
         if p < .001
             h = '***';

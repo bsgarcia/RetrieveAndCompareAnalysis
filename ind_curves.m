@@ -27,7 +27,7 @@ for f = {filenames{:}, filenames{end}}
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     pcue = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-    psym = [0.1, 0.9];
+    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
     chose_symbol = zeros(size(cho, 1), length(pcue), length(psym));
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
@@ -71,12 +71,12 @@ for f = {filenames{:}, filenames{end}}
     
     
     
-    pwin = [0.1, 0.9];
-    alpha = [0.55, 0.95];
+    pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+    alpha = [0.55, linspace(.55, .65, 6), 0.95];
     lin1 = plot(...
             linspace(0, 1, 12), ones(12)*0.5,...
             'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
-    for i = 1:length(psym)
+    for i = 1:length(pwin)
               
         hold on
 %         lin2 = plot(...
@@ -86,27 +86,35 @@ for f = {filenames{:}, filenames{end}}
         
         hold on
         % [0.4660    0.6740    0.1880]
+        if ismember(i, [1, 8])
         lin3 = plot(...
             pcue,  pp(i, :),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
-            'Color', orange_color, 'LineWidth', 3.5...
+            'Color', orange_color, 'LineWidth', 4 ...
         );
+        else
+            lin3 = plot(...
+            pcue,  pp(i, :),... %'bs', pcue, pp(i, :),  'b-', 'MarkerEdgeColor',...
+            'Color', orange_color, 'LineWidth', 4 ...
+        );
+        end
         
         lin3.Color(4) = alpha(i);
         hold on
-        sc1 = scatter(pcue, prop(i, :), 180,...
-            'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', orange_color, 'MarkerFaceAlpha', alpha(i));
+        if ismember(i, [1, 8])
+            sc1 = scatter(pcue, prop(i, :), 180,...
+                'MarkerEdgeColor', 'w',...
+                'MarkerFaceColor', orange_color, 'MarkerFaceAlpha', alpha(i));
+        end
         %s.MarkerFaceAlpha = alpha(i);
         
         hold on
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
-        if i == 1
+        
+        if ismember(i, [1, 8])
         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
             'MarkerEdgeColor', 'w');
-        else
-            sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
-            'MarkerEdgeColor', 'w', 'HandleVisibility', 'off');
         end
+        
         %sc2.MarkerFaceAlpha = alpha(i);
         
         if mod(i, 2) ~= 0 || ismember(i, [1, 2])
@@ -125,8 +133,9 @@ for f = {filenames{:}, filenames{end}}
         
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
-        
-        text(ind_point + (0.05) * (1 + (-4 * (i == 1))) , .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
+        if ismember(i, [1, 8])
+            text(ind_point + (0.05) * (1 + (-4 * (i == 1))) , .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
+        end
         box off
         set(gca, 'Fontsize', 23);
         
