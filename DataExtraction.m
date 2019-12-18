@@ -55,7 +55,7 @@ classdef DataExtraction
         end
         
         
-        function [cho, out, cfout, corr, con, p1, p2, rew] = extract_learning_data(data, sub_ids, exp, session)
+        function [cho, out, cfout, corr, con, p1, p2, rew, rtime] = extract_learning_data(data, sub_ids, exp, session)
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
@@ -89,6 +89,9 @@ classdef DataExtraction
                 
                 temp_p2 = data(mask, exp.p2);
                 p2(i, :) = temp_p2(trialorder);
+                
+                temp_rtime = data(mask, exp.rtime);
+                rtime(i, :) = temp_rtime(trialorder);
                 
                 
                 i = i + 1;
