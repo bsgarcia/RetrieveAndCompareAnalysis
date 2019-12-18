@@ -4,8 +4,8 @@
 % --------------------------------------------------------------------
 init;
 filenames{6}= 'block_complete_mixed_2s';
-filenames{7}= 'block_complete_mixed_2s_amb';
-filenames{8}= 'block_complete_mixed_2s_amb';
+filenames{7}= 'block_complete_mixed_2s_amb_final1';
+%filenames{8}= 'block_complete_mixed_2s_amb';
 
 
 %------------------------------------------------------------------------
@@ -22,13 +22,13 @@ function plot_bar_plot_correct_choice_rate_exp(...
     d, idx,  blue_color_gradient, exp_names)
    
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2', 'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2'};
+        'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2', 'Exp. 6 Sess. 1'};
     
     i = 1;
 
     sub = 1;
     nsub = 0;
-    colors = blue_color_gradient(:, :, :);
+    colors = blue_color_gradient(1:7, :, :);
     
     figure('Position', [1,1,1650,1200]);
          
@@ -59,44 +59,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
         mn_corr(j) = mean(corr_rate{j});
         err_corr(j) = std(corr_rate{j})/sqrt(size(corr_rate{j}, 2));
     end
-<<<<<<< HEAD
-    
-    b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
-    b.CData(:, :) = colors;
-    hold on
-    
-    ax1 = gca;
-    set(gca, 'XTickLabel', titles);
-    
-    ylim([0, 1.07])
-    ylabel('Correct choice rate');
-    e = errorbar(mn, err, 'LineStyle', 'none',...
-        'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
-    set(gca, 'Fontsize', 18);
-    
-    for j = 1:8
-        ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
-            'YAxisLocation','right','Color','none','XColor','k','YColor','k');
-        
-        hold(ax(j), 'all');
-        nsub = length(corr_rate{j});
-        X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
-        s = scatter(...
-            X + (j-1),...
-            corr_rate{j}, 145,...
-            'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
-            'MarkerEdgeAlpha', 1,...
-            'MarkerFaceColor', b.CData(j, :),...
-            'MarkerEdgeColor', 'w');
-        box off
-        
-        set(gca, 'xtick', []);
-        set(gca, 'box', 'off');
-        set(ax(j), 'box', 'off');
-        
-        set(gca, 'ytick', []);
-        ylim([0, 1.15]);
-=======
+
     for j = 1:length(reac_time)
         mn_rt(j) = mean(reac_time{j});
         err_rt(j) = std(reac_time{j})/sqrt(size(reac_time{j}, 2));
@@ -114,7 +77,6 @@ function plot_bar_plot_correct_choice_rate_exp(...
             err = err_rt;
             dd = reac_time;
         end
->>>>>>> 166c3c5385ce4d342f4df469ee594fb27942bec2
         
         b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
         b.CData(:, :) = colors;
@@ -129,7 +91,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
-        for j = 1:6
+        for j = 1:7
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
 

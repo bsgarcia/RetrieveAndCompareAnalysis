@@ -18,7 +18,7 @@ format shortg
 % filenames and folders
 filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
-    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb'};
+    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb_final1'};
 
 folder = 'data';
 

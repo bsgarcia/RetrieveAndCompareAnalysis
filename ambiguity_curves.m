@@ -10,7 +10,7 @@ figure(...
 sub_plot = [1, 3, 2, 4];
 
 
-for f = {filenames{end}, filenames{end}}
+for f = {filenames{end}}
     subplot(2, 2, sub_plot(exp_num));
     if exp_num >= 2
         session = 1;
@@ -122,8 +122,8 @@ for f = {filenames{end}, filenames{end}}
     clear chose_symbol
     clear pp
     clear prop
-    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7];
-    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7];
+    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
+    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             temp = cho(i, logical((p1(i, :) == psym(j))));
