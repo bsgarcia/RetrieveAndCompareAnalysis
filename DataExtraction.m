@@ -18,7 +18,8 @@ classdef DataExtraction
             exp.rtime = 6;
             exp.cond = 13;
             exp.sess = 20;
-            exp.vsSym = 22;
+            exp.op1 = 21;
+            exp.op2 = 22;
             exp.trial = 12;
             exp.cho = 9;
             exp.out = 7;
@@ -160,7 +161,7 @@ classdef DataExtraction
                 mask_eli = data(:, exp.elic) == 0;
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
-                mask_vs_lot = data(:, exp.vsSym) ~= 1;
+                mask_vs_lot = data(:, exp.op2) == 0;
                 mask_sess = ismember(data(:, exp.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 
@@ -215,7 +216,7 @@ classdef DataExtraction
                 mask_eli = data(:, exp.elic) == 0;
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
-                mask_vs_lot = data(:, exp.vsSym) == 1;
+                mask_vs_lot = data(:, exp.op2) == 1;
                 mask_sess = ismember(data(:, exp.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 
@@ -260,6 +261,120 @@ classdef DataExtraction
                 i = i + 1;
             end
         end
+        
+         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                extract_sym_vs_amb_post_test(data, sub_ids, exp, session)
+            i = 1;
+            for id = 1:length(sub_ids)
+                sub = sub_ids(id);
+                
+                mask_eli = data(:, exp.elic) == 0;
+                mask_sub = data(:, exp.sub) == sub;
+                mask_catch = data(:, exp.catch) == 0;
+                mask_vs_amb = data(:, exp.op2) == 2;
+                mask_vs_sym = data(:, exp.op1) == 1;
+
+                mask_sess = ismember(data(:, exp.sess), session);
+                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_sym .* mask_vs_amb);
+                
+                [noneed, trialorder] = sort(data(mask, exp.trial));
+                
+                temp_corr = data(mask, exp.corr);
+                corr(i, :) = temp_corr(trialorder);
+                
+                temp_cho = data(mask, exp.cho);
+                cho(i, :) = temp_cho(trialorder);
+                
+                temp_out = data(mask, exp.out);
+                out(i, :) = temp_out(trialorder);
+                
+                temp_ev1 = data(mask, exp.ev1);
+                ev1(i, :) = temp_ev1(trialorder);
+                
+                temp_catch = data(mask, exp.catch);
+                ctch(i, :) = temp_catch(trialorder);
+                
+                temp_cont1 = data(mask, exp.cont1);
+                cont1(i, :) = temp_cont1(trialorder);
+                
+                temp_ev2 = data(mask, exp.ev2);
+                ev2(i, :) = temp_ev2(trialorder);
+                
+                temp_cont2 = data(mask, exp.cont2);
+                cont2(i, :) = temp_cont2(trialorder);
+                
+                temp_p1 = data(mask, exp.p1);
+                p1(i, :) = temp_p1(trialorder);
+                
+                temp_p2 = data(mask, exp.p2);
+                p2(i, :) = temp_p2(trialorder);
+                
+                temp_dist = data(mask, exp.dist);
+                dist(i, :) = temp_dist(trialorder)./100;
+                
+                temp_rtime = data(mask, exp.rtime);
+                rtime(i, :) = temp_rtime(trialorder);
+                
+                i = i + 1;
+            end
+         end
+        
+         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                extract_lot_vs_amb_post_test(data, sub_ids, exp, session)
+            i = 1;
+            for id = 1:length(sub_ids)
+                sub = sub_ids(id);
+                
+                mask_eli = data(:, exp.elic) == 0;
+                mask_sub = data(:, exp.sub) == sub;
+                mask_catch = data(:, exp.catch) == 0;
+                mask_vs_amb = data(:, exp.op2) == 2;
+                mask_vs_sym = data(:, exp.op1) == 0;
+
+                mask_sess = ismember(data(:, exp.sess), session);
+                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_sym .* mask_vs_amb);
+                
+                [noneed, trialorder] = sort(data(mask, exp.trial));
+                
+                temp_corr = data(mask, exp.corr);
+                corr(i, :) = temp_corr(trialorder);
+                
+                temp_cho = data(mask, exp.cho);
+                cho(i, :) = temp_cho(trialorder);
+                
+                temp_out = data(mask, exp.out);
+                out(i, :) = temp_out(trialorder);
+                
+                temp_ev1 = data(mask, exp.ev1);
+                ev1(i, :) = temp_ev1(trialorder);
+                
+                temp_catch = data(mask, exp.catch);
+                ctch(i, :) = temp_catch(trialorder);
+                
+                temp_cont1 = data(mask, exp.cont1);
+                cont1(i, :) = temp_cont1(trialorder);
+                
+                temp_ev2 = data(mask, exp.ev2);
+                ev2(i, :) = temp_ev2(trialorder);
+                
+                temp_cont2 = data(mask, exp.cont2);
+                cont2(i, :) = temp_cont2(trialorder);
+                
+                temp_p1 = data(mask, exp.p1);
+                p1(i, :) = temp_p1(trialorder);
+                
+                temp_p2 = data(mask, exp.p2);
+                p2(i, :) = temp_p2(trialorder);
+                
+                temp_dist = data(mask, exp.dist);
+                dist(i, :) = temp_dist(trialorder)./100;
+                
+                temp_rtime = data(mask, exp.rtime);
+                rtime(i, :) = temp_rtime(trialorder);
+                
+                i = i + 1;
+            end
+         end
         function [cho, out, corr, con, q, p1, p2, ev, phase] = extract_sim_data(...
                 data, models, sim)
             

@@ -3,7 +3,10 @@
 % computes correct choice rate then plots the article figs
 % --------------------------------------------------------------------
 init;
-filenames{6} = 'block_complete_mixed_2s';
+filenames{6}= 'block_complete_mixed_2s';
+filenames{7}= 'block_complete_mixed_2s_amb';
+filenames{8}= 'block_complete_mixed_2s_amb';
+
 
 %------------------------------------------------------------------------
 % Plot fig
@@ -19,18 +22,18 @@ function plot_bar_plot_correct_choice_rate_exp(...
     d, idx,  blue_color_gradient, exp_names)
    
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
+        'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2', 'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2'};
     
     i = 1;
 
     sub = 1;
     nsub = 0;
-    colors = blue_color_gradient(3:8, :, :);
+    colors = blue_color_gradient(:, :, :);
     
     figure('Position', [1,1,1650,900]);
          
     for exp_name = {exp_names{:}}
-        if i == 6
+        if ismember(i, [6, 8])
             session = 1;
         else
             session = 0;
@@ -69,7 +72,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
         'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
     set(gca, 'Fontsize', 18);
     
-    for j = 1:6
+    for j = 1:8
         ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
             'YAxisLocation','right','Color','none','XColor','k','YColor','k');
         
@@ -110,7 +113,7 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     figure('Position', [1,1,1300,900]);
          
     for exp_name = {exp_names{:}}
-        if i == 6
+        if ismember(i, [6, 8])
             session = 1;
         else
             session = 0;

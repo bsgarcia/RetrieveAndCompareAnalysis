@@ -8,7 +8,7 @@ init;
 
 % overwrite filenames variable
 filenames = {
-    'block_complete_mixed', 'block_complete_mixed_2s'};
+    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb'};
 
 %------------------------------------------------------------------------
 % Plot fig
@@ -22,13 +22,13 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
     i = 1;
     
     figure('Position', [1,1,1920,1020]);
-    titles = {'Exp. 4', 'Exp. 5'};
+    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6'};
     
     [corr_heuristic, corr_rate1, corr_rate2] = run_simulation();
      
     for exp_name = {exp_names{:}}
        
-        subplot(1, 2, i);
+        subplot(1, 3, i);
         
         exp_name = char(exp_name);
         nsub = d.(exp_name).nsub;

@@ -1,17 +1,16 @@
 init;
 
 titles = {...
-    'Exp. 1', 'Exp. 2', 'Exp. 3', 'Exp. 4',...
-    'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2'};
+    'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2'};
 exp_num = 1;
 figure(...
         'Renderer', 'painters',...
         'Position', [961, 1, 2200, 1500],...
         'visible', displayfig)
 
-for f = {filenames{:}, filenames{end}}
-    subplot(2, 3, exp_num);
-    if exp_num == 6
+for f = {filenames{end}, filenames{end}}
+    subplot(1, 2, exp_num);
+    if exp_num == 2
         session = 1;
     else
         session = 0;
@@ -26,7 +25,7 @@ for f = {filenames{:}, filenames{end}}
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
-    pcue = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
     psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
     chose_symbol = zeros(size(cho, 1), length(pcue), length(psym));
     for i = 1:size(cho, 1)

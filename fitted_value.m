@@ -7,12 +7,14 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-%exp_names = {filenames{1:3}};
-%plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
-
+% exp_names = {filenames{1:3}};
+% plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
+% 
 exp_names = {filenames{4:5}};
 plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
+exp_names = {filenames{6}};
+plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
 % --------------------------------------------------------------------
 % FUNCTIONS USED IN THIS SCRIPT
@@ -460,6 +462,255 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
 
 end
 
+function plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names)
+
+    i = 1;
+
+    figure('Position', [1,1,1920,1090]);
+    titles = {'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2'};
+
+    for exp_name = {exp_names{:} exp_names{end}}
+        if i == 2
+            session = 1;
+            to_add = '_sess_2';
+        else
+            session = 0;
+            to_add = '_sess_1';
+        end
+        subplot(2, 2, i);
+        exp_name = char(exp_name);
+        [corr1, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+            DataExtraction.extract_sym_vs_sym_post_test(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+
+        % set ntrials
+        ntrials = size(cho, 2);
+        subjecttot = length(d.(exp_name).sub_ids);
+        nz = [8, 1];
+        
+        cont1(ismember(cont1, [6, 7, 8, 9])) = ...
+            cont1(ismember(cont1, [6, 7, 8, 9]))-1;
+        cont2(ismember(cont2, [6, 7, 8, 9])) = ...
+            cont2(ismember(cont2, [6, 7, 8, 9]))-1;
+
+        [parameters, ll] = runfit(...
+            subjecttot,...
+            cont1,...
+            cont2,...
+            cho,...
+            ntrials,...
+            nz,...
+            fit_folder,...
+            sprintf('%s%s%s', exp_name, '_exp_vs_exp', to_add));
+
+        ev = [-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8];
+
+        Y1 = parameters(:, 1:8)';
+
+        [corr1, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+            DataExtraction.extract_sym_vs_lot_post_test(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
+
+        % set ntrials
+        ntrials = size(cho, 2);
+        subjecttot = length(d.(exp_name).sub_ids);
+        nz = [8, 1];
+        cont1(ismember(cont1, [6, 7, 8, 9])) = ...
+            cont1(ismember(cont1, [6, 7, 8, 9]))-1;
+        cont2 = ev2;
+
+        [parameters, ll] = runfit(...
+            subjecttot,...
+            cont1,...
+            cont2,...
+            cho,...
+            ntrials,...
+            nz,...
+            fit_folder,...
+            sprintf('%s%s%s', exp_name, '_desc_vs_exp', to_add));
+
+        Y2 = parameters(: , 1:8)';
+
+        %x = linspace(min(xlim), max(yl), 10);
+        brick_comparison_plot(...
+            Y1,...
+            Y2,...
+            blue_color,...
+            orange_color,...
+            [-1, 1], 11,...
+            titles{i},...
+            'Symbol Expected Value',...
+            'Fitted value', ev, 1);
+
+        hold on
+
+        yline(0, 'LineStyle', ':', 'LineWidth', 2);
+        hold on
+
+        x_lim = get(gca, 'XLim');
+        y_lim = get(gca, 'YLim');
+
+        x = linspace(x_lim(1), x_lim(2), 10);
+
+        y = linspace(y_lim(1), y_lim(2), 10);
+        plot(x, y, 'LineStyle', '--', 'Color', 'k');
+        hold on
+
+
+        for sub = 1:subjecttot
+            X = ev;
+            Y = Y1(:, sub);
+            [r(1, i, sub, :), thrw1, thrw2] = glmfit(X, Y);
+            b = glmfit(1:length(ev), Y);
+            pY1(sub, :) = glmval(b, 1:length(ev), 'identity');
+            X = ev;
+            Y = Y2(:, sub);
+            [r(2, i, sub, :), thrw1, thrw2] = glmfit(X, Y);
+            b = glmfit(1:length(ev), Y);
+            pY2(sub, :) = glmval(b, 1:length(ev), 'identity');
+        end
+
+        mn1 = mean(pY1, 1);
+        mn2 = mean(pY2, 1);
+        err1 = std(pY1, 1)./sqrt(subjecttot);
+        err2 = std(pY2, 1)./sqrt(subjecttot);
+
+        curveSup1 = (mn1 + err1);
+        curveSup2 = (mn2 + err2);
+        curveInf1 = (mn1 - err1);
+        curveInf2 = (mn2 -err2);
+
+        plot(1:length(ev), mn1, 'LineWidth', 1.7, 'Color', blue_color);
+        hold on
+        plot(1:length(ev), mn2, 'LineWidth', 1.7, 'Color', orange_color);
+        hold on
+        fill([(1:length(ev))'; flipud((1:length(ev))')], [curveInf1'; flipud(curveSup1')],...
+            blue_color, ...
+            'lineWidth', 1, ...
+            'LineStyle', 'none',...
+            'Facecolor', blue_color, ...
+            'Facealpha', 0.55);
+        hold on
+        fill([(1:length(ev))'; flipud((1:length(ev))')],[curveInf2'; flipud(curveSup2')],...
+            orange_color, ...
+            'lineWidth', 1, ...
+            'LineStyle', 'none',...
+            'Facecolor', orange_color, ...
+            'Facealpha', 0.55);
+        hold on
+        i = i + 1;
+        box off
+
+
+    end
+
+    titles2 = {'Intercept', 'Slope'};
+    sub_plot = [4, 3];
+    for j = 1:2
+
+        subplot(2, 2, sub_plot(j))
+        for k = 1:2
+            %rsize = reshape(r(:, k, :, j), [size(r, 3), 2]);
+            %mn(k, :) = mean(rsize);
+            %err(k, :) = std(rsize)./sqrt(size(r, 3));
+
+            dd{k, 1} = reshape(r(2, k, :, j), [], 1);
+            dd{k, 2} = reshape(r(1, k, :, j), [], 1);
+            
+            mn(k, 1) = mean(dd{k, 1});
+            mn(k, 2) = mean(dd{k, 2});
+            
+            err(k, 1) = std(dd{k, 1})./sqrt(length(dd{k, 1}));
+            err(k, 2) = std(dd{k, 2})./sqrt(length(dd{k, 2}));
+
+        end
+        
+        x = dd{1, 1};
+        y = dd{1, 2};
+        p = signrank(x,y);
+        pp(1) = p;
+       
+        x = dd{2, 1};
+        y = dd{2, 2};
+        p = signrank(x,y);
+        pp(2) = p;
+  
+
+        %pp = pval_adjust(pp, 'bonferroni');
+        for sp = pp 
+            if sp < .001
+                h = '***';
+            elseif sp < .01
+                h='**';
+            elseif sp < .05
+                h ='*';
+            else 
+                h = 'none';
+            end
+            fprintf('h=%s, p=%d \n', h, sp);
+        end
+        fprintf('===================== \n');
+        b = bar(mn);% 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        hold on
+
+        b(1).FaceColor = orange_color;
+        b(2).FaceColor = blue_color;
+        b(1).FaceAlpha = 0.7;
+        b(2).FaceAlpha = 0.7;
+
+        ax1 = gca;
+        set(gca, 'XTickLabel', titles);
+        ylabel('Value');
+        title(titles2{j});
+        legend('post-test ED', 'post-test EE',  'Location', 'southeast');
+        e1 = errorbar(b(1).XData+b(1).XOffset, mn(:, 1), err(:, 1), 'LineStyle', 'none',...
+            'LineWidth', 2, 'Color', 'k', 'HandleVisibility','off');
+        hold on
+        e2 = errorbar(b(2).XData+b(2).XOffset, mn(:, 2), err(:, 2), 'LineStyle', 'none',...
+            'LineWidth', 2, 'Color', 'k', 'HandleVisibility','off');
+
+        box off
+
+        hold on
+        ngroups = 2;
+        nbars = 2;
+        % Calculating the width for each bar group
+        groupwidth = min(0.8, nbars/(nbars + 1.5));
+        colors = [orange_color; blue_color];
+        for b = 1:nbars
+            x = (1:ngroups) - groupwidth/2 + (2*b-1) * groupwidth / (2*nbars);
+            hold on
+            for k = 1:length(x)
+
+                d = reshape(dd{k, b}, [], 1);
+                nsub = length(d);
+
+                s = scatter(...
+                    x(k).*ones(1, nsub)-Shuffle(linspace(-0.04, 0.04, nsub)),...
+                    d',...
+                    'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+                    'MarkerFaceColor', colors(b, :),...
+                    'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+            end
+        end
+
+        uistack(e1, 'top');
+        uistack(e2, 'top');
+
+        %set(gca, 'xtick', []);
+        set(gca, 'box', 'off');
+        %set(ax(j), 'box', 'off');
+
+        %set(gca, 'ytick', []);
+        %ylim([0, 1.15]);
+
+        box off
+    end
+
+
+    saveas(gcf, 'fig/fit/all/fitted_value_exp_6.png')
+
+end
 
 function [parameters, ll] = ...
     runfit(subjecttot, cont1, cont2, cho, ntrials, nz, folder, fit_filename)

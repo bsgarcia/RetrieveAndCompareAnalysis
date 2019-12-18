@@ -18,7 +18,7 @@ format shortg
 % filenames and folders
 filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
-    'block_complete_mixed', 'block_complete_mixed_2s'};
+    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb'};
 
 folder = 'data';
 
@@ -26,7 +26,7 @@ folder = 'data';
 rtime_threshold = 100000;
 catch_threshold = 1;
 n_best_sub = 0;
-allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 742];
+allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 658, 742, 752];
 
 % colors
 colors = [0.3963    0.2461    0.3405;...
@@ -50,6 +50,7 @@ blue_color_gradient(:, 3) = ...
     linspace(blue_color_min(3),blue_color(3),len)';
 
 orange_color = [0.8500, 0.3250, 0.0980];
+green_color =     [0.4660    0.6740    0.1880];
 
 % display figures
 displayfig = 'on';

@@ -7,11 +7,11 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-f = {filenames{[1, 2, 3]}};
-plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
-saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
+%f = {filenames{[1, 2, 3]}};
+%plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, f)
+%saveas(gcf, 'fig/exp/all/reaction_times_1_2_3.png');
 
-f = {filenames{[4, 5]}};
+f = {filenames{[4, 5, 6]}};
 plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, f)
 saveas(gcf, 'fig/exp/all/reaction_times_4_5_6.png');
 
@@ -21,10 +21,10 @@ function plot_reaction_times_4_5_6(d, idx, orange_color, blue_color, exp_names)
     i = 1;
     format shortg
     figure('Position', [1,1,1900,900]);
-    titles = {'Exp. 4', 'Exp. 5'};
+    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6'};
          
     for exp_name = {exp_names{:}}
-        subplot(1, 2, i);
+        subplot(1, 3, i);
         
         exp_name = char(exp_name);
         nsub = d.(exp_name).nsub;
