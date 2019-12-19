@@ -18,7 +18,7 @@ format shortg
 % filenames and folders
 filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
-    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb_final1'};
+    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb_final'};
 
 folder = 'data';
 
@@ -50,7 +50,7 @@ blue_color_gradient(:, 3) = ...
     linspace(blue_color_min(3),blue_color(3),len)';
 
 orange_color = [0.8500, 0.3250, 0.0980];
-green_color =     [0.4660    0.6740    0.1880];
+green_color = [0.4660    0.6740    0.1880];
 
 % display figures
 displayfig = 'on';
