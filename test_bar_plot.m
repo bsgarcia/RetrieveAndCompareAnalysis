@@ -3,8 +3,8 @@
 % computes correct choice rate then plots the article figs
 % --------------------------------------------------------------------
 init;
-filenames{6}= 'block_complete_mixed_2s';
-filenames{7}= 'block_complete_mixed_2s_amb_final1';
+% filenames{6}= 'block_complete_mixed_2s';
+% filenames{7}= 'block_complete_mixed_2s_amb_final';
 %filenames{8}= 'block_complete_mixed_2s_amb';
 
 
@@ -22,23 +22,18 @@ function plot_bar_plot_correct_choice_rate_exp(...
     d, idx,  blue_color_gradient, exp_names)
    
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5 Sess. 1', 'Exp. 5 Sess. 2', 'Exp. 6 Sess. 1'};
+        'Exp. 4', 'Exp. 5', 'Exp. 6'};
     
     i = 1;
 
     sub = 1;
     nsub = 0;
-    colors = blue_color_gradient(1:7, :, :);
+    colors = blue_color_gradient(3:8, :, :);
     
     figure('Position', [1,1,1650,1200]);
          
     for exp_name = {exp_names{:}}
-        if ismember(i, [6, 8])
-            session = 1;
-        else
-            session = 0;
-        end
-        
+        session = [0, 1]
         exp_name = char(exp_name);
         nsub = nsub + d.(exp_name).nsub;
      
@@ -66,8 +61,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
     end
     y_label = {'Correct choice rate', 'Reaction times (ms)'};
     y_lim = {[0, 1.07], [0, 3500]};
-    for j = 1:2
-        subplot(2, 1, j);
+    for j = [1]
         if j == 1
             mn = mn_corr;
             err = err_corr;
@@ -91,7 +85,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
-        for j = 1:7
+        for j = 1:6
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
 
@@ -133,11 +127,7 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     figure('Position', [1,1,1300,900]);
          
     for exp_name = {exp_names{:}}
-        if ismember(i, [6, 8])
-            session = 1;
-        else
-            session = 0;
-        end
+        session = [0 , 1]
         
         exp_name = char(exp_name);
         nsub = nsub + d.(exp_name).nsub;
@@ -163,8 +153,7 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     y_label = {'Correct choice rate', 'Reaction times (ms)'};
     y_lim = {[0, 1.07], [0, 3500]};
     dd =  {corr_rate, reac_time};
-    for k = 1:2
-        subplot(2, 1, k);
+    for k = [1]
         mn = mean(dd{k}, 1);
         err = std(dd{k}, 1)/sqrt(size(dd{k}, 1));
 

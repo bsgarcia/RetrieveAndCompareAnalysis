@@ -164,7 +164,7 @@ classdef DataExtraction
                 mask_eli = data(:, exp.elic) == 0;
                 mask_sub = data(:, exp.sub) == sub;
                 mask_catch = data(:, exp.catch) == 0;
-                mask_vs_lot = data(:, exp.op2) == 0;
+                mask_vs_lot = ismember(data(:, exp.op2), [0, -1]);
                 mask_sess = ismember(data(:, exp.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                 

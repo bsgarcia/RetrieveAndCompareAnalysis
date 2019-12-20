@@ -7,7 +7,6 @@ init;
 %   filenames{5} , filenames{6}, filenames{6}};
 %filenames{6}= 'block_complete_mixed_2s';
 %filenames{7}= 'block_complete_mixed_2s_amb';
-filenames = {filenames{[3, 4, 5]}};
 
 %------------------------------------------------------------------------
 % Plot fig

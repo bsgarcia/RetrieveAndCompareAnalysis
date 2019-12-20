@@ -1,20 +1,21 @@
+close all 
+clear all
+%-------------------------------------------------------------------------
 init;
+%-------------------------------------------------------------------------
 
-titles = {...
-    'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2'};
+   
+titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
+        'Exp. 4', 'Exp. 5', 'Exp. 6'};
 exp_num = 1;
 figure(...
         'Renderer', 'painters',...
         'Position', [961, 1, 2200, 1500],...
         'visible', displayfig)
 
-for f = {filenames{end}}
-    subplot(1, 2, exp_num);
-    if exp_num == 2
-        session = 1;
-    else
-        session = 0;
-    end
+for f = {filenames{:}}
+    subplot(2, 3, exp_num);
+    session = [0, 1];
     name = char(f);
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
@@ -25,12 +26,14 @@ for f = {filenames{end}}
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
-    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+    pcue = [0.1, 0.2, 0.3, 0.4, .5, 0.6, 0.7, 0.8, 0.9];
     psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
     chose_symbol = zeros(size(cho, 1), length(pcue), length(psym));
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             for k = 1:length(psym)
+                disp(j);
+                disp(k);
                 temp = cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
                 chose_symbol(i, j, k) = temp == 1;
             end
@@ -67,7 +70,6 @@ for f = {filenames{end}}
             X, Y, 'binomial','logit');
         pp(i, :) = glmval(logitCoef, pcue', 'logit');
     end
-    
     
     
     pwin = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
@@ -149,8 +151,9 @@ for f = {filenames{end}}
     s1 = title(titles{exp_num});
     set(s1, 'Fontsize', 20)
 
-    saveas(gcf, sprintf('fig/exp/all/ind_curve_%s_%d.png', name, session));
     exp_num = exp_num + 1;
     
     
 end
+    saveas(gcf, sprintf('fig/exp/all/ind_curve.png'));
+

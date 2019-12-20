@@ -9,7 +9,7 @@ figure(...
         'Position', [961, 1, 2200, 1500],...
         'visible', displayfig)
 
-for f = {filenames{:}, filenames{end}}
+for f = {filenames{[1, 2, 3, 4, 5, 5]}}
     subplot(2, 3, exp_num);
     if exp_num == 6
         session = 1;

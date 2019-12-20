@@ -1,12 +1,10 @@
 init;
 
-filenames = {'block_complete_mixed_2s_amb'};
 titles = {...
-    'Exp. 6 Sess. 1', 'Exp. 6 Sess. 2',  'Exp. 6 Sess. 2'};
+    'Exp. 6'};
 exp_num = 1;
 figure(...
-    'Renderer', 'painters',...
-    'Position', [961, 1, 2200, 1500],...
+    'Position', [961, 1, 800, 1100],...
     'visible', displayfig)
 %sub_plot = [1, 3, 2, 4];
 
@@ -95,8 +93,9 @@ for f = {filenames{end}}
     text(ind_point + (0.05), .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
     
     box off
-    set(gca, 'Fontsize', 23);
-              
+    set(gca, 'Fontsize', 16);
+                      set(gca,'TickDir','out')
+
     subplot(2, 1, 2);
     
     name = char(f);
@@ -112,12 +111,12 @@ for f = {filenames{end}}
     clear chose_symbol
     clear pp
     clear prop
-    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7];
-    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7];
+    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
+    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             temp = cho(i, logical((p1(i, :) == psym(j))));
-            chose_symbol(i, j) = mean(temp == 1);
+            chose_symbol(i, j, :) = temp == 1;
         end
     end
     
@@ -137,9 +136,9 @@ for f = {filenames{end}}
     end
     
     X = reshape(...
-        repmat(psym, size(k, 2), 1), [], 1....
+        repmat(psym, size(k, 2), 4), [], 1....
         );
-    Y = reshape(chose_symbol(k, :), [], 1);
+    Y = reshape(chose_symbol(k, :, :), [], 1);
     
     [logitCoef, dev] = glmfit(...
         X, Y, 'binomial','logit');
@@ -180,12 +179,13 @@ for f = {filenames{end}}
     text(ind_point + (0.05), .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
     
     box off
-    set(gca, 'Fontsize', 23);
+    set(gca, 'Fontsize', 16);
     
     clear chose_symbol
     clear pp
     clear prop
-    
+        set(gca,'TickDir','out')
+
 end
 saveas(gcf, sprintf('fig/exp/all/amb_curve.png'));
 
