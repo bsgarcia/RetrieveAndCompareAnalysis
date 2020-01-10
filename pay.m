@@ -1,53 +1,34 @@
+%------------------------------------------------------------------------
+
 clear all
 close all
 %------------------------------------------------------------------------
 
-name = 'block_complete_mixed_2s';
+name = 'block_complete_mixed_2s_amb_final';
 
 data = load(sprintf('data/%s_pay', name));
 data = data.data;
 sub_ids = unique(data{:, 'prolific'});
 
-extract_learning_data(data, [], sub_ids);
+print_session_0_gain(data, [], sub_ids);
 
 
-function extract_learning_data(data, old_sub_ids, sub_ids)
+function print_session_0_gain(data, old_sub_ids, sub_ids)
     i = 1;
-    for id = 1:length(sub_ids)
-        if  ismember(...
-                sub_ids(id), {
-                    '5d8a1f7218133500163107f8',...
-                    '5dd3e1a95e91193be490487d',...
-                    '5c21f91a867f660001ad4a2a',...
-                    '5dcdaaf46d6dfe06a0be7918',...
-                    '5bd7b4053dac81000124b592',... 
-                    '5dd607295686c15b3546af4b',...
-                    '5c3f927ae3183b0001fa00e8',...
-                    '5bafec568f3bd70001e4e5f8',...
-                    '5cf3ba5781ea050017a61781',...
-                    '5cac639638d61000014da640',...
-                    '5dd693982b033b60fe1efe92',...
-                    '59d4ff54e59146000112e5b1',...
-                    '5d78cb8a44b0d10001a53485',...
-                    '5db1b4095b8b65000fe5f097',...
-                    '5dbc3b5554c7971ed890ac82',...
-                    '5c92c143719a1d0018e5e089',...
-                    '5d82852ae7a57100011a6122'...
-                }...
-            )
+    for id = 1:length(sub_ids)     
+        sub = sub_ids(id);
+        mask_sub = data{:, 'prolific'} == sub;
+        if ismember(sum(mask_sub), [658, 752])       %[258, 288, 259, 28, 470, 376])
+            mask_sess = ismember(data{:, 'VarName21'}, [0, 1]);
+            mask = logical(mask_sub .* mask_sess);
             
-            sub = sub_ids(id);
-            mask_sub = data{:, 'prolific'} == sub;
-            if ismember(sum(mask_sub), [648, 742])       %[258, 288, 259, 28, 470, 376])
-                mask_sess = ismember(data{:, 'VarName21'}, [0, 1]);
-                mask = logical(mask_sub .* mask_sess);
-
-                fprintf('%s,%.2f \n', sub, 2.5+sum(data{mask, 'out'}, 'all')* (2.5/230));
-                i = i + 1;
+            fprintf('%s,%.2f\n', sub, 2.5+sum(data{mask, 'out'}, 'all')* (2.5/210));
+            i = i + 1;
+            if mod(i, 10) == 0
+                fprintf('\n');
             end
         end
-    
-
+       
     end
     disp(i);
 end

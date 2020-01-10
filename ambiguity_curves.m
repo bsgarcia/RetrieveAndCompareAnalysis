@@ -1,16 +1,21 @@
+clear all
+close all
+
 init;
 
-titles = {...
-    'Exp. 6'};
+titles = {'Exp. 6', 'Exp. 7'};
 exp_num = 1;
-figure(...
-    'Position', [961, 1, 800, 1100],...
-    'visible', displayfig)
+
 %sub_plot = [1, 3, 2, 4];
 
 
-for f = {filenames{end}}
-    subplot(2, 1, 1);
+for f = {filenames{[6,7]}}
+    
+    figure(...
+    'Position', [961, 1, 900, 550],...
+    'visible', displayfig)
+
+    %subplot(2, 1, 1);
     session = [0, 1];
     name = char(f);
     data = d.(name).data;
@@ -22,8 +27,8 @@ for f = {filenames{end}}
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
-    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
-    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9];
+    pcue = unique(p2)';
+    psym = unique(p1)';
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             temp = cho(i, logical((p1(i, :) == psym(j))));
@@ -94,9 +99,18 @@ for f = {filenames{end}}
     
     box off
     set(gca, 'Fontsize', 16);
-                      set(gca,'TickDir','out')
+    set(gca,'TickDir','out')
+    title(titles{exp_num});
+    
+    mkdir('fig/exp', 'ambiguity_curves');
+    saveas(gcf, sprintf('fig/exp/ambiguity_curves/symbol_exp_%d.png', exp_num));
 
-    subplot(2, 1, 2);
+    
+    %subplot(2, 1, 2);
+    
+    figure(...
+    'Position', [961, 1, 900, 550],...
+    'visible', displayfig)
     
     name = char(f);
     data = d.(name).data;
@@ -111,8 +125,8 @@ for f = {filenames{end}}
     clear chose_symbol
     clear pp
     clear prop
-    pcue = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
-    psym = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, .8, .9];
+    pcue = unique(p2)';
+    psym = unique(p1)';
     for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             temp = cho(i, logical((p1(i, :) == psym(j))));
@@ -184,10 +198,15 @@ for f = {filenames{end}}
     clear chose_symbol
     clear pp
     clear prop
-        set(gca,'TickDir','out')
+    set(gca,'TickDir','out')
+    title(titles{exp_num});
+
+    saveas(gcf, sprintf('fig/exp/ambiguity_curves/lottery_exp_%d.png', exp_num));
+    
+    exp_num = exp_num + 1;
+
 
 end
-saveas(gcf, sprintf('fig/exp/all/amb_curve.png'));
 
 
 

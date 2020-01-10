@@ -1,42 +1,50 @@
 % --------------------------------------------------------------------
-% This script finds the best fitting Values for each exp
+% This script computes the correct choice rate for each exp
 % then plots the article figs
 % --------------------------------------------------------------------
-
 % run init script 
 init;
 
 % overwrite filenames variable
 filenames = {
-    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb'};
+    'block_complete_mixed', 'block_complete_mixed_2s',...
+    'block_complete_mixed_2s_amb_final',...
+    'block_complete_mixed_2s_amb_heuristic'...
+};
 
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
-plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, filenames)
-saveas(gcf, 'fig/exp/all/correct_choice_rate.png');
+i = 4;
+for exp_name = filenames
+    ttl = sprintf('Exp. %d', i);
+    plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl);
+    mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
+    saveas(gcf, sprintf('fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d.png', i));
+    i = i + 1;
+end
 
 
-function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_names)
+function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl)
 
-    i = 1;
     
-    figure('Position', [1,1,1920,1020]);
-    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6'};
-    
-    [corr_heuristic, corr_rate1, corr_rate2] = run_simulation();
-     
-    for exp_name = {exp_names{:}}
-       
-        subplot(1, 3, i);
+    figure('Position', [1,1,600, 900]);
+    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
+         
         
         exp_name = char(exp_name);
-        nsub = d.(exp_name).nsub;
      
         [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
             DataExtraction.extract_sym_vs_lot_post_test(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
         
+        nsub = size(cho, 1);
+        
+        ev2 = ev2(~ismember(ev2, [-1, 0, 1]));
+        %ev2(ismember(ev2, [-1, 0, 1])) = [];
+
+        corr_heuristic = run_simulation(unique(ev1), unique(ev2));
+
         for sub = 1:nsub
             mask_equal_ev = logical(ev1(sub, :) ~= ev2(sub, :));
             mask_easy = logical(~ismember(ev2(sub, :), [-1, 0, 1]));
@@ -48,10 +56,6 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
             DataExtraction.extract_sym_vs_sym_post_test(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
    
-        if size(d1, 2) ~= size(corr1, 2)
-            error('not the same number of trials');
-        end
-        
         for sub = 1:nsub
             d2 = corr1(sub, :);
             corr_rate_exp_vs_exp(sub) = mean(d2);
@@ -60,8 +64,10 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
         mn1 = mean(corr_rate_exp_vs_exp);
         mn2 = mean(corr_rate_desc_vs_exp);
         mn = [mn1, mn2];
-        err1 = std(corr_rate_exp_vs_exp)/sqrt(size(corr_rate_exp_vs_exp, 2));
-        err2 = std(corr_rate_desc_vs_exp)/sqrt(size(corr_rate_desc_vs_exp, 2));
+        err1 = ...
+            std(corr_rate_exp_vs_exp)/sqrt(size(corr_rate_exp_vs_exp, 2));
+        err2 = ...
+            std(corr_rate_desc_vs_exp)/sqrt(size(corr_rate_desc_vs_exp, 2));
         
         err = [err1, err2];
                 
@@ -78,7 +84,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
         e = errorbar(mn, err, 'LineStyle', 'none',...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
-        title(titles{i});
+        title(ttl);
         
         for j = 1:2
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
@@ -113,25 +119,18 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
         uistack(e, 'top');
         
         xlim([0, 3]);
-      
+           
         p2_1 = plot([1.55, 2.35],...
             ones(1, 2) .* mean(corr_heuristic),...
-            'Color', orange_color, 'LineStyle', '--', 'LineWidth', 2.8);
+            'Color', 'k', 'LineStyle', ':', 'LineWidth', 3);
         
-        p2_2 = plot([1.55, 2.35],...
-            ones(1, 2) .* mean(corr_rate2{i}),...
-            'Color', orange_color, 'LineWidth', 2.8);
-        
-        legend([p2_2, p2_1],...
-            {'Sim. ED with EE fitted values',...
-            'Sim. Heuristic'},...
+        legend([p2_1], {'Sim. Heuristic'},...
             'Location', 'southwest');
 
         box off
         hold off
         ylim([0, 1.08]);
         box off
-        i = i + 1;
         
         clear corr_rate_exp_vs_exp
         clear corr_rate_desc_vs_exp
@@ -139,7 +138,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp
         clear d1 d2 d3
         clear err1 err2 err
         clear mn1 mn2 mn
-    end
+    
 end
 
 

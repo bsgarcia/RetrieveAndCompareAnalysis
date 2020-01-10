@@ -1,4 +1,7 @@
 % --------------------------------------------------------------------
+clear all
+close all
+% --------------------------------------------------------------------
 % This script finds the best fitting Values for each exp
 % then plots the article figs
 % --------------------------------------------------------------------
@@ -7,14 +10,14 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-% exp_names = {filenames{1:3}};
-% plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
+exp_names = {filenames{1:3}};
+plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
 % 
-exp_names = {filenames{4:5}};
-plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, exp_names);
+%exp_names = {filenames{4:7}};
+%plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
-exp_names = {filenames{6}};
-plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
+%exp_names = {filenames{6}};
+%plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
 % --------------------------------------------------------------------
 % FUNCTIONS USED IN THIS SCRIPT

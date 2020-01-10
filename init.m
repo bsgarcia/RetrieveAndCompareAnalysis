@@ -1,5 +1,5 @@
 % --------------------------------------------------------------------
-% This script is ran by other main scripts at init 
+% This script is ran by other scripts at init 
 % --------------------------------------------------------------------
 close all
 clear all
@@ -8,6 +8,7 @@ addpath './fit'
 addpath './plot'
 addpath './data'
 addpath './'
+addpath './utils'
 
 
 format shortg
@@ -18,7 +19,9 @@ format shortg
 % filenames and folders
 filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
-    'block_complete_mixed', 'block_complete_mixed_2s', 'block_complete_mixed_2s_amb_final'};
+    'block_complete_mixed', 'block_complete_mixed_2s',...
+    'block_complete_mixed_2s_amb_final',...
+    'block_complete_mixed_2s_amb_heuristic'};
 
 folder = 'data';
 
@@ -28,7 +31,15 @@ catch_threshold = 1;
 n_best_sub = 0;
 allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 658, 742, 752];
 
+% display figures
+displayfig = 'off';
+
+fit_folder = 'data/fit/qvalues/';
+
+%-----------------------------------------------------------------------
 % colors
+%-----------------------------------------------------------------------
+
 colors = [0.3963    0.2461    0.3405;...
     1 0 0;...
     0.7875    0.1482    0.8380;...
@@ -39,6 +50,7 @@ colors = [0.3963    0.2461    0.3405;...
     0.1533    0.4964    0.2730];
 blue_color = [0.0274 0.427 0.494];
 blue_color_min = [0 0.686 0.8];
+
 % create a default color map ranging from blue to dark blue
 len = 8;
 blue_color_gradient = zeros(len, 3);
@@ -51,11 +63,15 @@ blue_color_gradient(:, 3) = ...
 
 orange_color = [0.8500, 0.3250, 0.0980];
 green_color = [0.4660    0.6740    0.1880];
+red_color = [0.6350    0.0780    0.1840];
 
-% display figures
-displayfig = 'on';
+red_to_blue(:, 1) = ...
+    linspace(red_color(1),blue_color(1),len)';
+red_to_blue(:, 2) = ...
+    linspace(red_color(2),blue_color(2),len)';
+red_to_blue(:, 3) = ...
+    linspace(red_color(3),blue_color(3),len)';
 
-fit_folder = 'data/fit/qvalues/';
 
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
@@ -66,6 +82,9 @@ show_loaded_data(d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
 
 
+%-------------------------------------------------------------------------
+% Define functions
+%-------------------------------------------------------------------------
 function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
     catch_threshold, n_best_sub, allowed_nb_of_rows)
 

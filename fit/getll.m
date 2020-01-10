@@ -1,6 +1,6 @@
 function lik = getll(params, s, a, cfa, r, cfr, ev, phase, map, model, fit_counterfactual, ntrials)
 
-beta1 = params(1); % choice temperature
+beta1 = 1; % choice temperature
 alpha1 = 0; % first learning rate
 alpha2 = 0; % second learning rate
 alpha3 = 0;

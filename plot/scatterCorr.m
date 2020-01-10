@@ -27,7 +27,7 @@ plot(X,Yf, 'color', color, 'LineWidth', 1.6);
 % Scatter
 if exist('noscatter') && noscatter
 else
-    scat = scatter(X, Y, 'MarkerEdgeColor', markeredgecolor,...
+    scat = scatter(X, Y,120, 'MarkerEdgeColor', markeredgecolor,...
         'MarkerFaceColor', color, 'MarkerEdgeAlpha', 1, 'MarkerFaceAlpha', alpha);
     scat.MarkerEdgeAlpha = 1;
 

@@ -7,41 +7,51 @@ init;
 % filenames{7}= 'block_complete_mixed_2s_amb_final';
 %filenames{8}= 'block_complete_mixed_2s_amb';
 
-
+selected_exp = 7;
+filenames = {filenames{:}};
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
+if length(filenames) > 1
+    to_add = '_all';
+else
+    to_add = sprintf('_exp_%d', selected_exp);
+end
 plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames)
-saveas(gcf, 'fig/exp/all/correct_choice_rate_learning_cont.png');
+mkdir('fig/exp', 'bar_plot_correct_choice_rate');
+saveas(gcf, ...
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_%s.png', to_add));
 
 plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
-saveas(gcf, 'fig/exp/all/correct_choice_rate_learning_exp.png');
+saveas(gcf,...
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_%s.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
     d, idx,  blue_color_gradient, exp_names)
    
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5', 'Exp. 6'};
+        'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
     
     i = 1;
 
     sub = 1;
     nsub = 0;
-    colors = blue_color_gradient(3:8, :, :);
+    colors = blue_color_gradient(2:8, :, :);
     
     figure('Position', [1,1,1650,1200]);
          
     for exp_name = {exp_names{:}}
-        session = [0, 1]
+        session = [0, 1];
         exp_name = char(exp_name);
-        nsub = nsub + d.(exp_name).nsub;
      
         [cho, out, cfout, corr, con, p1, p2, rew, rtime] = ...
             DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
         
-        for isub = 1:d.(exp_name).nsub
+        nsub = nsub + size(cho, 1);
+
+        for isub = 1:size(cho, 1)
             corr_rate{i}(isub) = mean(corr(isub, :));
             reac_time{i}(isub) = median(rtime(isub, :));
         end
@@ -85,7 +95,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
-        for j = 1:6
+        for j = 1:7
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
 
@@ -127,16 +137,17 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     figure('Position', [1,1,1300,900]);
          
     for exp_name = {exp_names{:}}
-        session = [0 , 1]
+        session = [0 , 1];
         
         exp_name = char(exp_name);
-        nsub = nsub + d.(exp_name).nsub;
      
         [cho, out, cfout, corr, con, p1, p2, rew, rtime] = ...
             DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
         
-        for isub = 1:d.(exp_name).nsub
+        nsub = nsub + size(cho, 1);
+
+        for isub = 1:size(cho, 1)
             for icond = 1:4
                 corr_rate(sub, icond) = mean(corr(isub, (con(isub, :) == icond)));
                 reac_time(sub, icond) = median(rtime(isub, (con(isub, :) == icond)));
@@ -163,7 +174,7 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
         hold on
 
         ax1 = gca;
-        set(gca, 'XTickLabel', {'60/40', '70/30','80/20','90/10'});
+        set(gca, 'XTickLabel', {'75/25', '80/20','85/15','90/10'});
 
         ylim(y_lim{k})
         ylabel(y_label{k});
