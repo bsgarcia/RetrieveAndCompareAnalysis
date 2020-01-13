@@ -10,26 +10,25 @@ init;
 %------------------------------------------------------------------------
 
 titles = {...
-    'Exp. 1', 'Exp. 2', 'Exp. 3', 'Exp. 4', 'Exp. 5', 'Pooled'};
+    'Exp. 1', 'Exp. 2', 'Exp. 3', 'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
 
 i = 1;
 
-figure('Position', [1,1,1900,1000]);
 
-for exp_name = {filenames{1:5}}
-    subplot(2, 3, i);
-    if i == 5
+for exp_name = filenames
+    %subplot(2, 3, i);
+    if ismember(i, [5, 6, 7])
         session = [0, 1];
     else
         session = 0;
     end
     exp_name = char(exp_name);
-    nsub = d.(exp_name).nsub;
     
     [cho, out, cfout, corr2, con, p1, p2, rew] = ...
         DataExtraction.extract_learning_data(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
     
+    nsub = size(cho, 1);
     quest_filename = sprintf('data/questionnaire_%s', exp_name);
     % ------------------------------------------------------------------------
     % Correlate corr choice rate vs quest
@@ -51,7 +50,8 @@ for exp_name = {filenames{1:5}}
         d1 = corr2(sub, :);
         corr_rate_learning(sub) = mean(d1);
     end
-    
+    figure('Position', [1,1,700,500]);
+
     scatterCorr(...
         (crt_scores./7)',....
         (corr_rate_learning)',...
@@ -66,19 +66,25 @@ for exp_name = {filenames{1:5}}
     xlabel('CRT score');
     ylim([.4, 1])
     title(titles{i});
-    i = i + 1;
     clear crt_scores
     clear corr_rate_learning
     
+    mkdir('fig/exp/', 'correlations');
+    saveas(gcf, sprintf('fig/exp/correlations/crt_Learning_exp_%d.png', i));
+    
+    
+    i = i + 1;
+    clear crt_scores
+    clear corr_rate_desc_vs_exp
+    
 end
 
-subplot(2, 3, i);
 
 count_quest = 1;
 count_lot = 1;
 for exp_name = filenames
     exp_name = char(exp_name);
-    nsub = d.(exp_name).nsub;
+    
     [cho, out, cfout, corr2, con, p1, p2, rew] = ...
         DataExtraction.extract_learning_data(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
@@ -88,6 +94,7 @@ for exp_name = filenames
     % -----------------------------------------------------------------------
     quest_data = load(quest_filename);
     quest_data = quest_data.data;
+    nsub = size(cho, 1);
     
     for j = 1:nsub
         sub = d.(exp_name).sub_ids(j);
@@ -110,6 +117,8 @@ for exp_name = filenames
     
 end
 
+figure('Position', [1,1,700,500]);
+
 scatterCorr(...
     (crt_scores./7)',....
     (corr_rate_learning)',...
@@ -120,9 +129,13 @@ scatterCorr(...
     'w',...
     0 ...
     );
+
+
 ylabel('Correct choice rate (Test)');
 xlabel('CRT score');
-ylim([.4, 1])
-title(titles{i});
 
-saveas(gcf, 'fig/exp/all/corr_crt_learning.png');
+set(gca,'TickDir','out')
+ylim([.4, 1])
+title('All Exp.');
+mkdir('fig/exp/', 'correlations');
+saveas(gcf, sprintf('fig/exp/correlations/crt_Learning_all_exp.png'));

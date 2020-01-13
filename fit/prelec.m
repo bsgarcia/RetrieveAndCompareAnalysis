@@ -92,11 +92,21 @@ function lik = prelec(params, a, p1, p2, model, ntrials)
                 );
                 
                 % Compute EV and apply loss aversion parameter
-                %cond = ((param(3, :)) .* (pp < .5));
-                %disp(cond);
-                %cond(cond == 0) = cond(cond == 0) + 1;
-                ev = (p_def -(1 - p_def)) + (param(3, :)) .* (pp < .5) ;
-                                
+                  %cond = ((param(3, :)) .* (pp < .5));
+%                 %disp(cond);
+                  %cond(cond == 0) = cond(cond == 0) + 1;
+%                 if any(cond == 0) 
+%                     error('error');
+%                 end
+                ev = (p_def -(1 - p_def));%(param(3, :)) .* (pp < .5) ;
+                
+                cond(1) = param(3, 1) * (ev(1) < 0);
+                cond(2) = param(3, 2) * (ev(2) < 0);
+                
+                cond(cond==0) = cond(cond==0)+1;
+
+                ev = [ev(1) .* cond(1),...
+                    ev(2) .* cond(2)];
         end
         
         % -----------------------------------------------------------%

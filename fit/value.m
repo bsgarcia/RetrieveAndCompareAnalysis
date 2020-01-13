@@ -11,15 +11,15 @@ for t = 1:ntrials
             lik = lik + Q(s(t), a(t))- log(sum(exp(Q(s(t), :))));
         
         case 2
-        % sym vs lot
-        choice = [s2(t), Q(s1(t))];
-        value = choice((a(t) == 1) + 1);
-        lik = lik + value - log(sum(exp(choice)));
+            % sym vs lot
+            choice = [s2(t), Q(s1(t))];
+            value = choice((a(t) == 1) + 1);
+            lik = lik + value - log(sum(exp(choice)));
         case 3
-        % sym vs sym
-        choice = [Q(s2(t)), Q(s1(t))];
-        value = choice((a(t) == 1) + 1);
-        lik = lik + value - log(sum(exp(choice)));       
+            % sym vs sym
+            choice = [Q(s2(t)), Q(s1(t))];
+            value = choice((a(t) == 1) + 1);
+            lik = lik + value - log(sum(exp(choice)));       
         case 4
             % amb vs lot
             choice = [Q(1), s1(t)];

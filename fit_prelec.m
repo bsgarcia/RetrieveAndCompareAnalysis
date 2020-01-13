@@ -1,9 +1,9 @@
-%% --------------------------------------------------------------------
-%% This script finds the best fitting model/parameters               
-%% --------------------------------------------------------------------
+% --------------------------------------------------------------------
+% This script finds the best fitting model/parameters               
+% --------------------------------------------------------------------
 % 1: Prelec PWF
 % 2: Prelec PWF -/+
-%% TODO: check mapping sym/Qvalue/cont  for fitting
+% 3: loss aversion
 % --------------------------------------------------------------------
 close all
 clear all
@@ -90,23 +90,22 @@ for exp_name = filenames
     % --------------------------------------------------------------------
     % Plot PWF
     % --------------------------------------------------------------------
+    i = 1;
     figure('Position', [1,1,900,600]);
+    
     x = linspace(0, 1, 100);
-    plot(x, x, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 1.2, 'HandleVisibility','off');
+    plot(x, x, 'Color', 'k', 'LineStyle', '--',...
+        'LineWidth', 1.2, 'HandleVisibility','off');
 
-    for i = 1:size(parameters, 1)
-        y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
-        y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
-        hold on
-        pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
-        hold on
-        pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
-        if size(parameters, 1) > 1
-            pl1.Color(4) = 0.2;
-            pl2.Color(4) = 0.2;
-        end
-    end
+    y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
+    y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
+    hold on
+    pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
+    hold on
+    pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
 
+    clear y_exp y_desc
+    
     legend({'Description', 'Experience'},'Location', 'southeast');
     xlabel('p');
     ylabel('W(p)');
@@ -119,26 +118,25 @@ for exp_name = filenames
     
     mkdir('fig/exp', 'prelec');
     saveas(gcf, sprintf('fig/exp/prelec/fig_exp_%d.png', exp_num));
-
+    
+    % --------------------------------------------------------------------
+    % Plot PWF Loss Aversion
+    % --------------------------------------------------------------------
     figure('Position', [1,1,900,600]);
     x = linspace(0, 1, 100);
-    plot(x, x, 'Color', 'k', 'LineStyle', '--', 'LineWidth', 0.8, 'HandleVisibility','off');
+    plot(x, x, 'Color', 'k', 'LineStyle', '--',...
+        'LineWidth', 0.8, 'HandleVisibility','off');
 
-    for i = 1:size(parameters, 1)
-        y_exp = exp(-parameters(i, 1, 3).*(-log(x)).^parameters(i, 2, 3));
-        y_desc = exp(-parameters(i, 3, 3).*(-log(x)).^parameters(i, 4, 3));
-        hold on
-        pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.5);
-        hold on
-        pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.5);
-        if size(parameters, 1) > 1
-            pl1.Color(4) = 0.2;
-            pl2.Color(4) = 0.2;
-        end
-    end
+    y_exp = exp(-parameters(i, 1, 3).*(-log(x)).^parameters(i, 2, 3));
+    y_desc = exp(-parameters(i, 3, 3).*(-log(x)).^parameters(i, 4, 3));
+    hold on
+    pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
+    hold on
+    pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
+
     legend({
-        sprintf('Experience, \\lambda=%.2f', parameters(1, 9, 3)),...
-        sprintf('Description, \\lambda=%.2f', parameters(1, 10, 3))...
+        sprintf('Description, \\lambda=%.2f', parameters(1, 9, 3)),...
+        sprintf('Experience, \\lambda=%.2f', parameters(1, 10, 3))...
        },'Location', 'southeast');
     xlabel('p');
     ylabel('W(p)');
@@ -147,9 +145,10 @@ for exp_name = filenames
 
     box off
     
+    set(gca,'TickDir','out')
+
     mkdir('fig/exp', 'prelec');
     saveas(gcf, sprintf('fig/exp/prelec/fig_loss_aversion_exp_%d.png', exp_num));
-    set(gca,'TickDir','out')
 
     exp_num = exp_num + 1;
 
@@ -280,8 +279,8 @@ function [ll, parameters] = runfit(whichmodel, cho, p1, p2, ntrials, nsub, folde
                 model,  ntrials),...
                 [ones(8, 1) .* 0.01; [0, 0]'],...
                 [], [], [], [],...
-                [ones(8, 1) .* 0.01; [-5, -5]'],...
-                [ones(8, 1) .* 2.5; [5, 5]'],...
+                [ones(8, 1) .* 0.01; [0.01, 0.01]'],...
+                [ones(8, 1) .* 3; [10, 10]'],...
                 [],...
                 options...
                 );

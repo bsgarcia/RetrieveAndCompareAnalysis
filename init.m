@@ -9,6 +9,7 @@ addpath './plot'
 addpath './data'
 addpath './'
 addpath './utils'
+addpath './simulation'
 
 
 format shortg

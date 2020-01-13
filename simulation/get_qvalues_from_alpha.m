@@ -12,11 +12,10 @@ function qvalues = get_qvalues_from_alpha(alphas, a, out, s, cfa, cfout)
             deltaI = out(sub, t) - Q(s(sub, t), a(sub, t));
             Q(s(sub, t), a(sub, t)) = Q(s(sub, t), a(sub, t)) + alpha1 * deltaI;
             
-            if cfout(sub, 1) ~= -1
+            if ~all(cfout(:, :) == 0)
                 deltaCF = cfout(sub, t) - Q(s(sub, t), cfa(sub, t));
                 Q(s(sub, t), cfa(sub, t)) = Q(s(sub, t), cfa(sub, t)) + alpha2 * deltaCF;
             end
-
 
         end
         qvalues(sub, :, :) = Q(:, :);
