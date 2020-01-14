@@ -30,7 +30,13 @@ folder = 'data';
 rtime_threshold = 100000;
 catch_threshold = 1;
 n_best_sub = 0;
-allowed_nb_of_rows = [258, 288, 255, 285, 376, 470, 648, 658, 742, 752];
+allowed_nb_of_rows = [...
+    258, 288,... %exp 1, 2
+    255, 285,... %exp 3
+    376, 470,... %exp 4 
+    648, 658,... %exp 5
+    742, 752 ... %exp 6, 7
+    ];
 
 % display figures
 displayfig = 'off';
@@ -101,11 +107,21 @@ function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
     for f = filenames
         d = setfield(d, char(f), struct());
         new_d = getfield(d, char(f));
-        new_d.sub_ids = ...
-            DataExtraction.exclude_subjects(...
+        
+        before_sub_ids = DataExtraction.exclude_subjects(...
             dd{i}, sub_ids{i}, idx, catch_threshold, rtime_threshold,...
             n_best_sub, allowed_nb_of_rows);
+        
+        [cho, out, cfout, corr2, con, p1, p2, rew, rt, ev1, ev2, error_exclude] = ...
+            DataExtraction.extract_learning_data(...
+                dd{i}, before_sub_ids, idx, [0, 1]);
+            
+        to_select = 1:length(before_sub_ids);
+        to_select(error_exclude) = [];
+        
+        new_d.sub_ids = before_sub_ids(to_select);
         new_d.data = dd{i};
+        
         new_d.nsub = length(new_d.sub_ids);
         d = setfield(d, char(f), new_d);
 

@@ -21,12 +21,12 @@ for exp_name = filenames
         session = 0;
     end
     exp_name = char(exp_name);
-    
+    nsub = d.(exp_name).nsub;
+   
     [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, session);
     
-    nsub = size(cho, 1);
 
     quest_filename = sprintf('data/questionnaire_%s', exp_name);
     
@@ -88,13 +88,13 @@ count_quest = 1;
 count_lot = 1;
 for exp_name = filenames
     exp_name = char(exp_name);
-    
+    nsub = d.(exp_name).nsub;
+
     [corr2, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, [0, 1]);
     
-    nsub = size(cho, 1);
-
+    
     quest_filename = sprintf('data/questionnaire_%s', exp_name);
     % ------------------------------------------------------------------------
     % Correlate corr choice rate vs quest

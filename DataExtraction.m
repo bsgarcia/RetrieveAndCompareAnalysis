@@ -55,8 +55,10 @@ classdef DataExtraction
         end
         
         
-        function [cho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = extract_learning_data(data, sub_ids, exp, session)
+        function [cho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2,...
+                error_exclude] = extract_learning_data(data, sub_ids, exp, session)
             i = 1;
+            error_exclude = [];
             for id = 1:length(sub_ids)
                 try
                 sub = sub_ids(id);
@@ -102,6 +104,7 @@ classdef DataExtraction
                             
                 i = i + 1;
                 catch
+                    error_exclude(length(error_exclude) + 1) = i;
                     fprintf('There has been an error while treating subject %d \n', i);
                 end
             end

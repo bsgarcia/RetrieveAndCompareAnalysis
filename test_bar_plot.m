@@ -4,8 +4,8 @@
 % --------------------------------------------------------------------
 init;
 % filenames{6}= 'block_complete_mixed_2s';
-% filenames{7}= 'block_complete_mixed_2s_amb_final';
-%filenames{8}= 'block_complete_mixed_2s_amb';
+% filenames{8}= 'block_complete_mixed_2s_amb_final';
+% filenames{7}= 'block_complete_mixed_2s_amb';
 
 selected_exp = 7;
 filenames = {filenames{:}};
@@ -17,27 +17,27 @@ if length(filenames) > 1
 else
     to_add = sprintf('_exp_%d', selected_exp);
 end
-plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames)
-mkdir('fig/exp', 'bar_plot_correct_choice_rate');
-saveas(gcf, ...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_%s.png', to_add));
-
+% plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames)
+% mkdir('fig/exp', 'bar_plot_correct_choice_rate');
+% saveas(gcf, ...
+%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_%s.png', to_add));
+% 
 plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
 saveas(gcf,...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_%s.png', to_add));
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_%s_+failed.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
     d, idx,  blue_color_gradient, exp_names)
    
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
+        'Exp. 4', 'Exp. 5', 'Exp. 6 (failed)', 'Exp. 6', 'Exp. 7'};
     
     i = 1;
 
     sub = 1;
     nsub = 0;
-    colors = blue_color_gradient(2:8, :, :);
+    colors = blue_color_gradient(1:8, :, :);
     
     figure('Position', [1,1,1650,1200]);
          
@@ -95,7 +95,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
-        for j = 1:7
+        for j = 1:8
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
 
@@ -174,7 +174,7 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
         hold on
 
         ax1 = gca;
-        set(gca, 'XTickLabel', {'75/25', '80/20','85/15','90/10'});
+        set(gca, 'XTickLabel', {'60/40', '70/30','80/20','90/10'});
 
         ylim(y_lim{k})
         ylabel(y_label{k});
