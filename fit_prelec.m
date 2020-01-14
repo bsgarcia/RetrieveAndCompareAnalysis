@@ -3,7 +3,7 @@
 % --------------------------------------------------------------------
 % 1: Prelec PWF
 % 2: Prelec PWF -/+
-% 3: loss aversion
+% % 3: loss aversion
 % --------------------------------------------------------------------
 close all
 clear all
@@ -59,11 +59,12 @@ for exp_name = filenames
         data = load(sprintf('%s%s', fit_folder, fit_filename));
         ll = data.data('ll');
         parameters = data.data('parameters');  %% Optimization parameters 
+        pp(exp_num, :, :) = parameters(1, :, :);
         answer = question(...
         'There is already a fit file, would you like to use it or to rerun analyses (the old file will be replaced)',...
             'Use existent fit file', 'Rerun and erase');
         if strcmp(answer, 'Rerun and erase')
-                [ll, parameters] = runfit(...
+                [ll, parameters(exp_num, :, :, :)] = runfit(...
             [1, 3],...
             cho,...
             p1,...
@@ -75,7 +76,7 @@ for exp_name = filenames
         end
     %         
     catch
-        [ll, parameters] = runfit(...
+        [ll, parameters(exp_num, :, :, :)] = runfit(...
             [1, 3],...
             cho,...
             p1,...
@@ -85,74 +86,89 @@ for exp_name = filenames
             fit_folder,...
             fit_filename);
     end
-
-
-    % --------------------------------------------------------------------
-    % Plot PWF
-    % --------------------------------------------------------------------
-    i = 1;
-    figure('Position', [1,1,900,600]);
     
-    x = linspace(0, 1, 100);
+    exp_num = exp_num + 1;
+end
+
+
+% --------------------------------------------------------------------
+% Plot PWF
+% --------------------------------------------------------------------
+%i = exp_num;
+figure('Position', [1,1,900,600]);
+x = linspace(0, 1, 100);
     plot(x, x, 'Color', 'k', 'LineStyle', '--',...
         'LineWidth', 1.2, 'HandleVisibility','off');
 
-    y_exp = exp(-parameters(i, 1, 1).*(-log(x)).^parameters(i, 2, 1));
-    y_desc = exp(-parameters(i, 3, 1).*(-log(x)).^parameters(i, 4, 1));
+for i = 1:exp_num-1
+     
+    y_exp = exp(-pp(i, 1, 1).*(-log(x)).^pp(i, 2, 1));
+    y_desc = exp(-pp(i, 3, 1).*(-log(x)).^pp(i, 4, 1));
     hold on
     pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
     hold on
     pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
-
-    clear y_exp y_desc
-    
-    legend({'Description', 'Experience'},'Location', 'southeast');
-    xlabel('p');
-    ylabel('W(p)');
-    title(sprintf('Exp. %d', exp_num));
-    set(gca, 'FontSize', 21);
-    box off
-    
-    set(gca,'TickDir','out')
-
-    
-    mkdir('fig/exp', 'prelec');
-    saveas(gcf, sprintf('fig/exp/prelec/fig_exp_%d.png', exp_num));
-    
-    % --------------------------------------------------------------------
-    % Plot PWF Loss Aversion
-    % --------------------------------------------------------------------
-    figure('Position', [1,1,900,600]);
-    x = linspace(0, 1, 100);
-    plot(x, x, 'Color', 'k', 'LineStyle', '--',...
-        'LineWidth', 0.8, 'HandleVisibility','off');
-
-    y_exp = exp(-parameters(i, 1, 3).*(-log(x)).^parameters(i, 2, 3));
-    y_desc = exp(-parameters(i, 3, 3).*(-log(x)).^parameters(i, 4, 3));
     hold on
-    pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
-    hold on
-    pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
-
-    legend({
-        sprintf('Description, \\lambda=%.2f', parameters(1, 9, 3)),...
-        sprintf('Experience, \\lambda=%.2f', parameters(1, 10, 3))...
-       },'Location', 'southeast');
-    xlabel('p');
-    ylabel('W(p)');
-    title(sprintf('Exp. %d', exp_num));
-        set(gca, 'FontSize', 21);
-
-    box off
     
-    set(gca,'TickDir','out')
-
-    mkdir('fig/exp', 'prelec');
-    saveas(gcf, sprintf('fig/exp/prelec/fig_loss_aversion_exp_%d.png', exp_num));
-
-    exp_num = exp_num + 1;
-
+    pl1.Color(4) = .5;
+    pl2.Color(4) = .5;
+    
+    %clear y_exp y_desc
+    
 end
+
+y_exp = exp(mean(-pp(:, 1, 1)).*(-log(x)).^mean(pp(:, 2, 1)));
+y_desc = exp(mean(-pp(:, 3, 1)).*(-log(x)).^mean(pp(:, 4, 1)));
+hold on
+pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 3);
+hold on
+pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 3);
+hold on
+legend({'Description', 'Experience'},'Location', 'southeast');
+xlabel('p');
+ylabel('W(p)');
+set(gca, 'FontSize', 21);
+box off
+     
+set(gca,'TickDir','out')
+title(sprintf('All Exp.', exp_num));
+
+mkdir('fig/exp', 'prelec');
+saveas(gcf, sprintf('fig/exp/prelec/all.png', exp_num));
+
+%     % --------------------------------------------------------------------
+%     % Plot PWF Loss Aversion
+%     % --------------------------------------------------------------------
+%     figure('Position', [1,1,900,600]);
+%     x = linspace(0, 1, 100);
+%     plot(x, x, 'Color', 'k', 'LineStyle', '--',...
+%         'LineWidth', 0.8, 'HandleVisibility','off');
+% 
+%     y_exp = exp(-parameters(i, 1, 3).*(-log(x)).^parameters(i, 2, 3));
+%     y_desc = exp(-parameters(i, 3, 3).*(-log(x)).^parameters(i, 4, 3));
+%     hold on
+%     pl1 = plot(x, y_desc, 'Color', orange_color, 'LineWidth', 1.9);
+%     hold on
+%     pl2 = plot(x, y_exp, 'Color', blue_color,  'LineWidth', 1.9);
+% 
+%     legend({
+%         sprintf('Description, \\lambda=%.2f', parameters(1, 9, 3)),...
+%         sprintf('Experience, \\lambda=%.2f', parameters(1, 10, 3))...
+%        },'Location', 'southeast');
+%     xlabel('p');
+%     ylabel('W(p)');
+%     title(sprintf('Exp. %d', exp_num));
+%         set(gca, 'FontSize', 21);
+% 
+%     box off
+%     
+%     set(gca,'TickDir','out')
+% 
+%     mkdir('fig/exp', 'prelec');
+%     saveas(gcf, sprintf('fig/exp/prelec/fig_loss_aversion_exp_%d.png', exp_num));
+% 
+%     exp_num = exp_num + 1;
+
 % figure('visible', displaywin)
 % %title('Prelec (1998)');
 % x = linspace(0, 1, 100);
