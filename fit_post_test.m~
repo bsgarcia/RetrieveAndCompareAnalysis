@@ -13,8 +13,8 @@ init;
 %exp_names = {filenames{1:3}};
 %plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
 
-exp_names = {filenames{5:7}};
-plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_color, exp_names);
+exp_names = {filenames{4:7}};
+plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
 %exp_names = {filenames{6}};
 %plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
@@ -147,15 +147,23 @@ function plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_c
             y_lim = get(gca, 'YLim');
             
             if ismember(i, [5, 6])
-                x1 = linspace(x_lim(1), x_lim(2).*.5, 10);
-                x2 = linspace(x_lim(2).*.5,  x_lim(2), 10);
-                y = linspace(-.8, -.5, 10);
+                x1 = linspace(1, 4, 10);
+                x2 = linspace(5, 8, 10);
+                y1 = linspace(-.8, -.5, 10);
+                y2 = linspace(.5, .8, 10);
+
+                plot(x1, y1, 'LineStyle', '--', 'Color', 'k');
+                plot(x2, y2, 'LineStyle', '--', 'Color', 'k');
+
+
             else
                 x = linspace(x_lim(1), x_lim(2), 10);
                 y = linspace(y_lim(1), y_lim(2), 10);
+                
+                plot(x, y, 'LineStyle', '--', 'Color', 'k');
+
             end
             
-            plot(x, y, 'LineStyle', '--', 'Color', 'k');
             hold on
 
             for sub = 1:subjecttot
@@ -384,7 +392,8 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
 
         x_lim = get(gca, 'XLim');
         y_lim = get(gca, 'YLim');
-
+        
+        
         x = linspace(x_lim(1), x_lim(2), 10);
 
         y = linspace(y_lim(1), y_lim(2), 10);
@@ -641,6 +650,17 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
             [throw, order] = sort(mean(parameters, 1));
             Y2 = parameters(:, order)';
         end
+         x_values = ev;
+    varargin = [-.8, -.6, -.4, -.2, .2, .4, .6, .8];
+    x_lim = [-1, 1];
+    
+    brickplot2(...
+        Y2,...
+        green_color.*ones(8, 1),...
+        [-1, 1], 11,...
+        '',...
+        'Symbol Expected Value',...
+        'Fitted value', varargin, 1, x_lim, x_values)
         %x = linspace(min(xlim), max(yl), 10);
         brick_comparison_plot(...
             Y1,...
@@ -659,11 +679,15 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
 
         x_lim = get(gca, 'XLim');
         y_lim = get(gca, 'YLim');
-
+        
+        
         x = linspace(x_lim(1), x_lim(2), 10);
-
         y = linspace(y_lim(1), y_lim(2), 10);
+        
         plot(x, y, 'LineStyle', '--', 'Color', 'k');
+        
+        
+     
         hold on
 
         for sub = 1:subjecttot
@@ -708,7 +732,7 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
             'Facealpha', 0.55);
         hold on
         box off
-            mkdir('fig/exp', 'correct_choice_rate_post_test');
+            mkdir('fig/exp', 'fit_post_test_desc_vs_exp');
             
         num = [4, 5, 6, 7];
         str = sprintf('fig/exp/fit_post_test_desc_vs_exp/exp_%d.png', num(i));      

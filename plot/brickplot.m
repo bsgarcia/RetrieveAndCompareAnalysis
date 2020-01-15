@@ -1,5 +1,5 @@
 function [bars, nbar, nsub] = brickplot(data,colors,y_lim,fontsize,mytitle, ... 
-    x_label,y_label,varargin, noscatter)
+    x_label,y_label,varargin, noscatter, x_lim)
 
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -88,8 +88,12 @@ end
 % axes and stuff
 ylim(y_lim);
 
+if ~exist('x_lim')
+    x_lim = [0, nbar+1];
+end
+
 set(gca,'FontSize',fontsize,...
-    'XLim', [0, nbar+1] ,...
+    'XLim', x_lim ,...
     'XTick',1:nbar,...
     'XTickLabel',varargin);
 

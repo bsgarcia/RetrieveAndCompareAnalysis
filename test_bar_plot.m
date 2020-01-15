@@ -8,7 +8,7 @@ init;
 % filenames{7}= 'block_complete_mixed_2s_amb';
 
 selected_exp = 7;
-filenames = {filenames{:}};
+filenames = {filenames{1:3}};
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
@@ -24,7 +24,7 @@ end
 % 
 plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
 saveas(gcf,...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_%s_+failed.png', to_add));
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
@@ -33,6 +33,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
     titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
         'Exp. 4', 'Exp. 5', 'Exp. 6 (failed)', 'Exp. 6', 'Exp. 7'};
     
+    n_exp = length(exp_names);
     i = 1;
 
     sub = 1;
@@ -83,7 +84,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
         end
         
         b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
-        b.CData(:, :) = colors;
+        b.CData(:, :) = colors(1:n_exp, :, :);
         hold on
 
         ax1 = gca;
@@ -95,7 +96,8 @@ function plot_bar_plot_correct_choice_rate_exp(...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
-        for j = 1:8
+        for j = 1:n_exp
+
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
 

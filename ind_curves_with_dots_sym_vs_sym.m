@@ -81,7 +81,7 @@ for f = filenames
         'visible', displayfig)
     
     pwin = psym;
-    alpha = [fliplr(linspace(.5, 1, 4)), linspace(.5, 1, 4)];
+    alpha = [fliplr(linspace(.3, 1, 4)), linspace(.3, 1, 4)];
     
     lin1 = plot(...
         linspace(0, 1, 12), ones(12)*0.5,...
@@ -89,10 +89,10 @@ for f = filenames
     
     for i = 1:length(pwin)
         
-        if ~ismember(i, [1, 8])
-            continue
-        end
-        
+%         if ~ismember(i, [1, 8])
+%             continue
+%         end
+%         
         if pwin(i) < .5
             color = red_color;
         else
@@ -100,40 +100,46 @@ for f = filenames
         end
         
         hold on
-       
+        pcue1 = pcue;
+        pcue1(i) = [];
+        prop1 = prop(i, :);
+        prop1(i) = [];
         lin3 = plot(...
-                pcue,  pp(i, :),... 
+                pcue1,  prop1,... 
                 'Color', color, 'LineWidth', 4.5 ...
                 );
         
         lin3.Color(4) = alpha(i);
         
-        hold on
        
-        sc1 = scatter(pcue, prop(i, :), 180,...
-            'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
+%         sc1 = scatter(pcue, prop(i, :), 180,...
+%             'MarkerEdgeColor', 'w',...
+%             'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
                 
-        hold on
-        ind_point = interp1(lin3.YData, lin3.XData, 0.5);
-        
-        sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
-                'MarkerEdgeColor', 'w');
- 
+%         y = lin3.YData(~isnan(lin3.YData));
+%         y1 = 1:length(lin3.YData);
+%         y1(i) = [];
+%         x = lin3.XData(y1);
+
+%         ind_point = interp1(x,y, 0.5);
+%         
+%         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
+%                 'MarkerEdgeColor', 'w');
+%  
         ylabel('P(choose experienced cue)', 'FontSize', 26);
         xlabel('Experienced cue win probability', 'FontSize', 26);
         
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
-        
-        text(...
-                ind_point + (0.05) * (1 + (-4 * (i == 1))) ,...
-                .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
+%         
+%         text(...
+%                 ind_point + (0.05) * (1 + (-4 * (i == 1))) ,...
+%                 .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
         
         box off
         set(gca, 'Fontsize', 23);
         
-        plot(pwin(i) .*  ones(10, 1), linspace(.2, .8, 10), 'Color', color, 'LineStyle', ':', 'LineWidth', 5);
+        %plot(pwin(i) .*  ones(10, 1), linspace(.2, .8, 10), 'Color', color, 'LineStyle', ':', 'LineWidth', 5);
         disp(pwin(i));
         hold on
         
@@ -145,7 +151,7 @@ for f = filenames
 
     mkdir('fig/exp', 'ind_curves');
     saveas(gcf, ...
-        sprintf('fig/exp/ind_curves/ind_curve_with_dots_exp_%d_sym_vs_sym.png',...
+        sprintf('fig/exp/ind_curves/ind_curve_exp_full_range_%d_sym_vs_sym.png',...
         exp_num));
     
     exp_num = exp_num + 1;
