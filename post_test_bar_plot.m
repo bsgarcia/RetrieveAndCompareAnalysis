@@ -16,28 +16,28 @@ filenames = {
 % Plot fig
 %------------------------------------------------------------------------
 i = 5;
-% for exp_name = filenames
-%     ttl = sprintf('Exp. %d', i);
-%     session = [0, 1];
-%     plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl, session);
-%     mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
-%     saveas(gcf, sprintf('fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d.png', i));
-%     i = i + 1;
-% end
-
 for exp_name = filenames
+    ttl = sprintf('Exp. %d', i);
     session = [0, 1];
-    for sess = session
-        ttl = sprintf('Exp. %d Sess. %d', i, sess+1);
-        plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl, sess);
-        mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
-        saveas(gcf,...
-            sprintf(...
-            'fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d_sess_%d.png',...
-            i, sess+1));
-    end
+    plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl, session);
+    mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
+    saveas(gcf, sprintf('fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d.png', i));
     i = i + 1;
 end
+
+% for exp_name = filenames
+%     session = [0, 1];
+%     for sess = session
+%         ttl = sprintf('Exp. %d Sess. %d', i, sess+1);
+%         plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl, sess);
+%         mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
+%         saveas(gcf,...
+%             sprintf(...
+%             'fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d_sess_%d.png',...
+%             i, sess+1));
+%     end
+%     i = i + 1;
+% end
 
 
 function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
@@ -87,7 +87,8 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
         
         err = [err1, err2];
                 
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         hold on
         b.CData(1, :) = blue_color;
         b.CData(2, :) = orange_color;
@@ -100,7 +101,12 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
         e = errorbar(mn, err, 'LineStyle', 'none',...
             'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
+        set(gca, 'box', 'off');
+
         title(ttl);
+        
+        yline(.5, 'LineStyle', '--');
+        hold on
         
         for j = 1:2
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
@@ -138,7 +144,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
            
         p2_1 = plot([1.55, 2.35],...
             ones(1, 2) .* mean(corr_heuristic),...
-            'Color', 'k', 'LineStyle', ':', 'LineWidth', 3);
+            'Color', orange_color, 'LineStyle', '-', 'LineWidth', 3);
         
         legend([p2_1], {'Sim. Heuristic'},...
             'Location', 'southwest');
@@ -147,7 +153,8 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
         hold off
         ylim([0, 1.08]);
         box off
-        
+        set(gca, 'box', 'off');
+
         clear corr_rate_exp_vs_exp
         clear corr_rate_desc_vs_exp
         clear nsub

@@ -163,7 +163,8 @@ function plot_reaction_times_6_7(d, idx, orange_color, blue_color, green_color, 
         err = [err1, err2, err3, err4, err5];
             %err2, 
             
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         
         hold on
         b.CData(1, :) = blue_color;
@@ -180,7 +181,7 @@ function plot_reaction_times_6_7(d, idx, orange_color, blue_color, green_color, 
                     set(gca, 'Fontsize', 18);
 
         e = errorbar(mn, err, 'LineStyle', 'none',...
-            'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+            'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         
         
         for j = 1:5
@@ -303,7 +304,8 @@ function plot_reaction_times_4_5(d, idx, orange_color, blue_color, exp_name, exp
         err = [err1, err3, err4];
             %err2, 
             
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         
         hold on
         b.CData(1, :) = blue_color;
@@ -319,7 +321,7 @@ function plot_reaction_times_4_5(d, idx, orange_color, blue_color, exp_name, exp
                     set(gca, 'Fontsize', 18);
 
         e = errorbar(mn, err, 'LineStyle', 'none',...
-            'LineWidth', 2.5, 'Color', 'k', 'HandleVisibility','off');
+            'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
         
         
         for j = 1:3
@@ -410,7 +412,8 @@ function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_name, e
         err4 = std(rtime_lot)/sqrt(length(rtime_lot));
         err = [err3, err4];
             
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         
         hold on
         b.CData(1, :) = orange_color;
@@ -423,7 +426,7 @@ function plot_reaction_times_1_2_3(d, idx, orange_color, blue_color, exp_name, e
         ylim([0, 3500])
         ylabel('Reaction time (ms)');
         e = errorbar(mn, err, 'LineStyle', 'none',...
-            'LineWidth',  2, 'Color', 'k', 'HandleVisibility','off');
+            'LineWidth',  3, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
                     set(gca, 'Fontsize', 18);
 

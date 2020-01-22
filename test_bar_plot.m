@@ -7,8 +7,8 @@ init;
 % filenames{8}= 'block_complete_mixed_2s_amb_final';
 % filenames{7}= 'block_complete_mixed_2s_amb';
 
-selected_exp = 7;
-filenames = {filenames{1:3}};
+selected_exp = 1;
+filenames = {filenames{selected_exp}};
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
@@ -17,14 +17,14 @@ if length(filenames) > 1
 else
     to_add = sprintf('_exp_%d', selected_exp);
 end
-% plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames)
-% mkdir('fig/exp', 'bar_plot_correct_choice_rate');
-% saveas(gcf, ...
-%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_%s.png', to_add));
-% 
-plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
-saveas(gcf,...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
+plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames, selected_exp)
+mkdir('fig/exp', 'bar_plot_correct_choice_rate');
+saveas(gcf, ...
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_exp_1.png', to_add));
+
+% plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
+% saveas(gcf,...
+%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
@@ -83,7 +83,10 @@ function plot_bar_plot_correct_choice_rate_exp(...
             dd = reac_time;
         end
         
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        yline(.5, 'LineStyle', '--', 2);
+        hold on
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         b.CData(:, :) = colors(1:n_exp, :, :);
         hold on
 
@@ -93,7 +96,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
         ylim(y_lim{j})
         ylabel(y_label{j});
         e = errorbar(mn, err, 'LineStyle', 'none',...
-            'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
+            'LineWidth', 3.5, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
 
         for j = 1:n_exp
@@ -129,7 +132,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
 end
 
 function plot_bar_plot_corr_choice_rate_contingencies(...
-    d, idx, blue_color_gradient, exp_names)
+    d, idx, blue_color_gradient, exp_names, exp_num)
 
     i = 1;
     sub = 1;
@@ -137,6 +140,9 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
     colors = blue_color_gradient(2:2:8, :, :);
     
     figure('Position', [1,1,1300,900]);
+    
+    titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
+        'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7', 'All Exp.'};
          
     for exp_name = {exp_names{:}}
         session = [0 , 1];
@@ -170,19 +176,25 @@ function plot_bar_plot_corr_choice_rate_contingencies(...
         mn = mean(dd{k}, 1);
         err = std(dd{k}, 1)/sqrt(size(dd{k}, 1));
 
-
-        b = bar(mn, 'EdgeColor', 'k', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        %box off
+        %set(gca, 'xtick', []);
+        %hold on
+        b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
+        box off
         b.CData(:, :) = colors;
         hold on
 
         ax1 = gca;
+        set(gca, 'xtick');
         set(gca, 'XTickLabel', {'60/40', '70/30','80/20','90/10'});
 
         ylim(y_lim{k})
         ylabel(y_label{k});
         e = errorbar(mn, err, 'LineStyle', 'none',...
-            'LineWidth', 3, 'Color', 'k', 'HandleVisibility','off');
+            'LineWidth', 3.5, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
+        title(titles{exp_num});
+        yline(.5, 'LineStyle', '--', 'LineWidth', 2);
 
         for j = 1:4
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
