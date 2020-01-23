@@ -13,7 +13,7 @@ titles = {...
 i = 1;
 
 
-for exp_name = filenames
+for exp_name = {filenames{7}}
     %subplot(2, 3, i);
     if ismember(i, [5, 6, 7])
         session = [0, 1];
@@ -43,7 +43,7 @@ for exp_name = filenames
             @(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)),...
             quest_data{:, 'sub_id'});
         crt_scores(j) = sum(...
-            quest_data{logical(mask_quest .* mask_sub), 'val'} == 2);
+            quest_data{logical(mask_quest .* mask_sub), 'val'} == 1);
     end
     
     for sub = 1:nsub
@@ -53,6 +53,8 @@ for exp_name = filenames
         corr_rate_desc_vs_exp(sub) = mean(d1);
     end
     
+    corr_rate_desc_vs_exp = corr_rate_desc_vs_exp(logical((corr_rate_desc_vs_exp<.55).*(corr_rate_desc_vs_exp>.4)));
+    crt_scores = crt_scores(logical((corr_rate_desc_vs_exp<.55).*(corr_rate_desc_vs_exp>.4)));
     figure('Position', [1,1,700,500]);
 
     scatterCorr(...
@@ -109,7 +111,7 @@ for exp_name = filenames
             @(x) strcmp(sprintf('%.f', x), sprintf('%.f', sub)),...
             quest_data{:, 'sub_id'});
         crt_scores(count_quest) = sum(...
-            quest_data{logical(mask_quest .* mask_sub), 'val'} == 2);
+            quest_data{logical(mask_quest .* mask_sub), 'val'} == 1);
         count_quest = count_quest + 1;
         
     end

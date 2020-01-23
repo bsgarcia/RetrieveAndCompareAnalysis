@@ -8,7 +8,7 @@ init;
 % filenames{7}= 'block_complete_mixed_2s_amb';
 
 selected_exp = 1;
-filenames = {filenames{selected_exp}};
+filenames = {filenames{1:3}};
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
@@ -17,14 +17,14 @@ if length(filenames) > 1
 else
     to_add = sprintf('_exp_%d', selected_exp);
 end
-plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames, selected_exp)
-mkdir('fig/exp', 'bar_plot_correct_choice_rate');
-saveas(gcf, ...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_exp_1.png', to_add));
+% plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames, selected_exp)
+% mkdir('fig/exp', 'bar_plot_correct_choice_rate');
+% saveas(gcf, ...
+%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_exp_1.png', to_add));
 
-% plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
-% saveas(gcf,...
-%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
+plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
+saveas(gcf,...
+    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
@@ -83,22 +83,22 @@ function plot_bar_plot_correct_choice_rate_exp(...
             dd = reac_time;
         end
         
-        yline(.5, 'LineStyle', '--', 2);
-        hold on
+        
         b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.6, 'FaceColor', 'flat');
         box off
         b.CData(:, :) = colors(1:n_exp, :, :);
         hold on
 
         ax1 = gca;
-        set(gca, 'XTickLabel', titles);
+        set(gca, 'XTickLabel', {titles{1:n_exp}});
 
         ylim(y_lim{j})
         ylabel(y_label{j});
         e = errorbar(mn, err, 'LineStyle', 'none',...
             'LineWidth', 3.5, 'Color', 'k', 'HandleVisibility','off');
         set(gca, 'Fontsize', 18);
-
+        yline(.5, 'LineStyle', '--', 'LineWidth', 2);
+        hold on
         for j = 1:n_exp
 
             ax(j) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
@@ -109,7 +109,7 @@ function plot_bar_plot_correct_choice_rate_exp(...
             X = ones(1, nsub)-Shuffle(linspace(-0.15, 0.15, nsub));
             s = scatter(...
                 X + (j-1),...
-                dd{j}, 110,...
+                dd{j}, 200,...
                 'filled', 'Parent', ax1, 'MarkerFaceAlpha', 0.75,...
                 'MarkerEdgeAlpha', 1,...
                 'MarkerFaceColor', b.CData(j, :),...

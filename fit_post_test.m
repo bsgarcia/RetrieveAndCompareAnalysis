@@ -10,11 +10,11 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-% exp_names = {filenames{1:3}};
-% plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
+exp_names = {filenames{1:3}};
+plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
 
-exp_names = {filenames{5:7}};
-plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_color, exp_names);
+% exp_names = {filenames{5:7}};
+% plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
 %exp_names = {filenames{6}};
 %plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
@@ -382,8 +382,8 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
         orange_color.*ones(8, 1),...
         [-1, 1], 11,...
             sprintf('Exp. %d', i),...
-        'Symbol Expected Value',...
-        'Fitted value', varargin, 1, x_lim, x_values)
+        'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values)
        
 
         hold on
@@ -435,6 +435,7 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
 
         %uistack(p1, 'bottom');
         %uistack(p2, 'bottom');
+        set(gca, 'FontSize', 19);
         clear parameters
     end
     
@@ -486,8 +487,9 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
             fprintf('h=%s, p=%d \n', h, sp);
         end
         fprintf('===================== \n');
-        b = bar(mn);
+        b = bar(mn, 'EdgeColor', 'w');
         hold on
+        box off
 
         b.FaceColor = orange_color;
         b.FaceAlpha = 0.7;
@@ -506,12 +508,13 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
             'LineStyle', 'none',...
             'LineWidth', 2, 'Color', 'k', 'HandleVisibility','off');
         
-        box off
+        %box off
         ngroups = 3;
         nbars = 1;
         % Calculating the width for each bar group
         groupwidth = min(0.8, nbars/(nbars + 1.5));
         %colors = [orange_color; blue_color];
+        yline(.5, 'LineStyle', '--');
         for b = 1:nbars
             x = (1:ngroups) - groupwidth/2 + (2*b-1) * groupwidth / (2*nbars);
             hold on
@@ -530,7 +533,7 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
         end
         uistack(e, 'top');
         if j == 1
-            ylim([.45, 1.1]);
+            %ylim([.45, 1.1]);
         end
         if j == 1
             mkdir('fig/exp', 'correct_choice_rate_post_test');
@@ -663,8 +666,8 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
             orange_color,...
             [-1, 1], 11,...
             '',...
-            'Symbol Expected Value',...
-            'Fitted value', varargin, 1, x_lim, x_values);
+            'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values);
         title(titles{i});
         hold on
 
