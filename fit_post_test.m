@@ -10,13 +10,13 @@ init;
 %------------------------------------------------------------------------
 % Plot fig 2.A
 %------------------------------------------------------------------------
-exp_names = {filenames{1:3}};
-plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
+% exp_names = {filenames{1:3}};
+% plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_names);
 
-% exp_names = {filenames{5:7}};
-% plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_color, exp_names);
-
-%exp_names = {filenames{6}};
+exp_names = {filenames{4:7}};
+plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, exp_names);
+% 
+% %exp_names = {filenames{6}};
 %plot_fitted_values_6(d, idx, fit_folder, orange_color, blue_color, exp_names);
 
 % --------------------------------------------------------------------
@@ -141,8 +141,8 @@ function plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_c
             orange_color,...
             [-1, 1], 11,...
             '',...
-            'Symbol Expected Value',...
-            'Fitted value', varargin, 1, x_lim, x_values);
+            'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values);
             title(titles{i});
             hold on
 
@@ -204,7 +204,8 @@ function plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_c
             hold on
             box off
             mkdir('fig/exp', 'fit_post_test_desc_vs_exp');
-
+            
+            set(gca, 'FontSize', 19);
             num = [5, 5, 6, 6, 7, 7];
             str = sprintf('fig/exp/fit_post_test_desc_vs_exp/exp_%d_sess_%d.png', num(i), session+1);      
 
@@ -515,6 +516,8 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
         groupwidth = min(0.8, nbars/(nbars + 1.5));
         %colors = [orange_color; blue_color];
         yline(.5, 'LineStyle', '--');
+        hold on
+        
         for b = 1:nbars
             x = (1:ngroups) - groupwidth/2 + (2*b-1) * groupwidth / (2*nbars);
             hold on
@@ -733,7 +736,9 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
             
         num = [4, 5, 6, 7];
         str = sprintf('fig/exp/fit_post_test_desc_vs_exp/exp_%d.png', num(i));      
-       
+        
+        set(gca, 'FontSize', 19);
+
         saveas(gcf, str)
         
         i = i + 1;
@@ -848,7 +853,7 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
 
         %set(gca, 'ytick', []);
         %ylim([0, 1.15]);
-
+            
         box off
         str = 'fig/exp/fit_post_test_desc_vs_exp/exp_4_5_6_7.png';  
        

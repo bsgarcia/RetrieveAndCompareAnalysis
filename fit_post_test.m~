@@ -141,8 +141,8 @@ function plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_c
             orange_color,...
             [-1, 1], 11,...
             '',...
-            'Symbol Expected Value',...
-            'Fitted value', varargin, 1, x_lim, x_values);
+            'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values);
             title(titles{i});
             hold on
 
@@ -204,7 +204,8 @@ function plot_fitted_values_all_session(d, idx, fit_folder, orange_color, blue_c
             hold on
             box off
             mkdir('fig/exp', 'fit_post_test_desc_vs_exp');
-
+            
+            set(gca, 'FontSize', 19);
             num = [5, 5, 6, 6, 7, 7];
             str = sprintf('fig/exp/fit_post_test_desc_vs_exp/exp_%d_sess_%d.png', num(i), session+1);      
 
@@ -382,8 +383,8 @@ function plot_fitted_values_desc_vs_exp(d, idx, fit_folder, orange_color, exp_na
         orange_color.*ones(8, 1),...
         [-1, 1], 11,...
             sprintf('Exp. %d', i),...
-        'Symbol Expected Value',...
-        'Fitted value', varargin, 1, x_lim, x_values)
+        'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values)
        
 
         hold on
@@ -666,8 +667,8 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
             orange_color,...
             [-1, 1], 11,...
             '',...
-            'Symbol EV',...
-            'Fitted value', varargin, 1, x_lim, x_values);
+            'Experienced Cue EV',...
+            'Fitted EV', varargin, 1, x_lim, x_values);
         title(titles{i});
         hold on
 
@@ -848,7 +849,7 @@ function plot_fitted_values_all(d, idx, fit_folder, orange_color, blue_color, ex
 
         %set(gca, 'ytick', []);
         %ylim([0, 1.15]);
-
+            
         box off
         str = 'fig/exp/fit_post_test_desc_vs_exp/exp_4_5_6_7.png';  
        
