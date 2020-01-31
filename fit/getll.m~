@@ -9,9 +9,8 @@ function lik = getll(params, s1, s2, a, cfa, r, cfr, phase, model, ntrials)
         case 2
             beta1 = params(1);
             alpha1 = params(2);
-            lambda_desc = params(3);
-            lambda_exp = params(4);
-
+            lambda_exp = params(3);
+            lambda_desc = params(4);
       
         otherwise
             error('Model does not exists');
@@ -53,7 +52,6 @@ function lik = getll(params, s1, s2, a, cfa, r, cfr, phase, model, ntrials)
                 if tt1 == 0
                     flat1 = reshape(Q', [], 1);
                 end
-                
                 switch model
                     case 1
                         % find qvalue using contingency number 
@@ -63,39 +61,39 @@ function lik = getll(params, s1, s2, a, cfa, r, cfr, phase, model, ntrials)
 
                     case 2
                         if tt1 == 0
-                            flat4 = flat1 .* (1-lambda_desc);
+                            flat1 = flat1 .* (1-lambda_desc);
                         end
                         tt1 = tt1 + 1;                       
 
-                        Q1 = flat4(s1(t));
+                        Q1 = flat1(s1(t));
                         Q2 = s2(t);
                         v = [Q1 Q2];
                 end
-                lik = lik + (beta1 * v(a(t))) -  log(...
+                lik = lik + (beta1 * v(a(t))) - log(sum([...
                             exp(beta1 * Q1)...
-                            + exp(beta1 * Q2));
+                            + exp(beta1 * Q2)]));
 
             case 3
                 if tt2 == 0
-                    flat2 = reshape(Q', [], 1);
+                    flat1 = reshape(Q', [], 1);
                 end
 
                 switch model
                     case 1
                         % find qvalue using contingency number 
-                        Q1 = flat2(s1(t));
-                        Q2 = flat2(s2(t));
+                        Q1 = flat1(s1(t));
+                        Q2 = flat1(s2(t));
                         v = [Q1 Q2];
 
                     case 2
                         
                         if tt2 == 0
-                            flat3 = flat2 .* (1-lambda_exp);
+                            flat1 = flat1 .* (1-lambda_exp);
                         end
                         tt2 = tt2 + 1;
 
-                        Q1 = flat3(s1(t));
-                        Q2 = flat3(s2(t));
+                        Q1 = flat1(s1(t));
+                        Q2 = flat1(s2(t));
                         
                         v = [Q1 Q2];
 
