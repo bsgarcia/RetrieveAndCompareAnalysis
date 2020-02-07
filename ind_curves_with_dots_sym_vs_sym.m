@@ -9,7 +9,7 @@ init;
 titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
         'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
 exp_num = 1;
-
+displayfig = 'on';
 
 for f = filenames
     
@@ -59,6 +59,7 @@ for f = filenames
             temp = temp1(...
                 logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
             prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)/sqrt(length(temp));
         end
     end
     
@@ -89,9 +90,9 @@ for f = filenames
     
     for i = 1:length(pwin)
         
-%         if ~ismember(i, [1, 8])
-%             continue
-%         end
+        if ~ismember(i, [1, 8])
+            continue
+        end
 %         
         if pwin(i) < .5
             color = red_color;
@@ -111,21 +112,12 @@ for f = filenames
         
         lin3.Color(4) = alpha(i);
         
-       
-%         sc1 = scatter(pcue, prop(i, :), 180,...
-%             'MarkerEdgeColor', 'w',...
-%             'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
-                
-%         y = lin3.YData(~isnan(lin3.YData));
-%         y1 = 1:length(lin3.YData);
-%         y1(i) = [];
-%         x = lin3.XData(y1);
-
-%         ind_point = interp1(x,y, 0.5);
-%         
-%         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
-%                 'MarkerEdgeColor', 'w');
-%  
+        sc1 = scatter(pcue, prop(i, :), 180,...
+            'MarkerEdgeColor', 'w',...
+            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
+        hold on
+        errorbar(sc1.XData, prop(i, :), err_prop(i, :), 'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
+        hold on         
         ylabel('P(choose experienced cue)', 'FontSize', 26);
         xlabel('Experienced cue win probability', 'FontSize', 26);
         

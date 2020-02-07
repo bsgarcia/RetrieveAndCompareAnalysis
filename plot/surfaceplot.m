@@ -36,8 +36,8 @@ function [newcurve, sem] = surfaceplot(data, chancelvl, color, lw, ...
     
     axis([0, ntrial + 1, ylow, yhigh]);
     set(gca, 'fontsize', font);
-    set(gca, 'TickLength', [0, 0]);
-
+    %set(gca, 'TickLength', [0, 0]);
+    set(gca, 'TickDir', 'out');
     title(titlelabel);
     xlabel(xaxislabel);
     ylabel(yaxislabel);

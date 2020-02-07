@@ -9,7 +9,7 @@ init;
 titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
         'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
 exp_num = 1;
-
+displayfig = 'on';
 
 for f = filenames
     
@@ -60,6 +60,8 @@ for f = filenames
             temp = temp1(...
                 logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
             prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)./sqrt(sum(temp==1));
+
         end
     end
     
@@ -130,6 +132,7 @@ for f = filenames
         if ismember(i, [1, 8])
             sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
                 'MarkerEdgeColor', 'w');
+            
         end
         
         %sc2.MarkerFaceAlpha = alpha(i);

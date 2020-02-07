@@ -6,19 +6,17 @@ init;
 %-------------------------------------------------------------------------
 
    
-titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
-exp_num = 1;
+selected_exp = [4.1];
+displayfig = 
 
+for exp_num = selected_exp
+    
 
-for f = filenames
-    
-    if ismember(exp_num, [5, 6, 7])
-       session = [0, 1];
-    else
-       session = 0;
-    end
-    
+    idx1 = (exp_num - round(exp_num)) * 10;
+    sess = sessions(uint64(idx1));
+   
+    % load data
+    name = char(filenames{round(exp_num)});
     %subplot(2, 3, exp_num);
     name = char(f);
     data = d.(name).data;

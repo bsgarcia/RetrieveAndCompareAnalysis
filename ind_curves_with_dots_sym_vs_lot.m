@@ -6,27 +6,25 @@ init;
 %-------------------------------------------------------------------------
 
    
-titles = {'Exp. 1', 'Exp. 2', 'Exp. 3',...
-        'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
-exp_num = 1;
+selected_exp = [4.1];
+displayfig = 'on';
+sessions = [0, 1];
 
+for exp_num = selected_exp
+    
 
-for f = filenames
-    
-    if ismember(exp_num, [5, 6, 7])
-       session = [0, 1];
-    else
-       session = 0;
-    end
-    
-    %subplot(2, 3, exp_num);
-    name = char(f);
+    idx1 = (exp_num - round(exp_num)) * 10;
+    sess = sessions(uint64(idx1));
+   
+    % load data
+    name = char(filenames{round(exp_num)});
+   
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
-            data, sub_ids, idx, session);
+            data, sub_ids, idx, sess);
     
     d.(name).nsub = size(cho, 1);
     % ----------------------------------------------------------------------
@@ -36,7 +34,7 @@ for f = filenames
     pcue = unique(p2)';
     psym = unique(p1)';
     
-    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), length(session));
+    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), 1);
     for i = 1:d.(name).nsub
         for j = 1:length(pcue)
             for k = 1:length(psym)
@@ -59,6 +57,8 @@ for f = filenames
             temp = temp1(...
                 logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
             prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)/sqrt(length(temp));
+
         end
     end
     
@@ -115,6 +115,9 @@ for f = filenames
             'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
                 
         hold on
+        
+        errorbar(sc1.XData, prop(i, :), err_prop(i, :), 'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
+
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         
         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
@@ -139,8 +142,8 @@ for f = filenames
         
     end
 
-    s1 = title(titles{exp_num});
-    set(s1, 'Fontsize', 20)
+    s1 = title(sprintf('Bhv Exp. %.1f', exp_num));
+   set(s1, 'Fontsize', 20)
     set(gca,'TickDir','out')
 
     mkdir('fig/exp', 'ind_curves');
@@ -148,7 +151,7 @@ for f = filenames
         sprintf('fig/exp/ind_curves/ind_curve_with_dots_exp_%d_sym_vs_lot.png',...
         exp_num));
     
-    exp_num = exp_num + 1;
+%     exp_num = exp_num + 1;
     
     
 end

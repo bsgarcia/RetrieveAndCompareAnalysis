@@ -55,7 +55,7 @@ classdef DataExtraction
         end
         
         
-        function [cho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2,...
+        function [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2,...
                 error_exclude] = extract_learning_data(data, sub_ids, exp, session)
             i = 1;
             error_exclude = [];
@@ -71,6 +71,8 @@ classdef DataExtraction
                 
                 tempcho = data(mask, exp.cho);
                 cho(i, :) = tempcho(trialorder);
+                
+                cfcho(i, :) = (cho(i, :) == 1) + 1;
                 
                 tempout = data(mask, exp.out);
                 out(i, :) = tempout(trialorder);
@@ -200,13 +202,13 @@ classdef DataExtraction
 
                     temp_cont1 = data(mask, exp.cont1);
                     cont1(i, :) = temp_cont1(trialorder);
-
+   
                     temp_ev2 = data(mask, exp.ev2);
                     ev2(i, :) = temp_ev2(trialorder);
-
+                    
                     temp_cont2 = data(mask, exp.cont2);
                     cont2(i, :) = temp_cont2(trialorder);
-
+  
                     temp_p1 = data(mask, exp.p1);
                     p1(i, :) = temp_p1(trialorder);
 
@@ -223,6 +225,31 @@ classdef DataExtraction
                 catch
                     fprintf('There has been an error while treating subject %d \n', i);
                 end
+            end
+            
+            if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
+                cont1(cont1==8) = 7;
+                cont1(cont1==2) = 3;
+                
+                cont1(cont1==18) = 8;
+                cont1(cont1==11) = 2;
+                
+                cont1(cont1==17) = 6;
+                cont1(cont1==12) = 4;
+                
+            end
+            
+            if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
+                
+                cont2(cont2==8) = 7;
+                cont2(cont2==2) = 3;
+                
+                cont2(cont2==18) = 8;
+                cont2(cont2==11) = 2;
+                
+                cont2(cont2==17) = 6;
+                cont2(cont2==12) = 4;
+                
             end
         end
         
@@ -259,12 +286,37 @@ classdef DataExtraction
                 temp_cont1 = data(mask, exp.cont1);
                 cont1(i, :) = temp_cont1(trialorder);
                 
+%                 if any(ismember(cont1, [18, 11, 12, 17]))
+%                     
+%                     cont1(i, cont1(i, :)==8) = 7;
+%                     cont1(i, cont1(i, :)==2) = 3;
+% 
+%                     cont1(i, cont1(i, :)==18) = 8;
+%                     cont1(i, cont1(i, :)==11) = 2;
+% 
+%                     cont1(i, cont1(i, :)==17) = 6;
+%                     cont1(i, cont1(i, :)==12) = 4;
+%                     
+%                 end
+
+                
                 temp_ev2 = data(mask, exp.ev2);
                 ev2(i, :) = temp_ev2(trialorder);
                 
                 temp_cont2 = data(mask, exp.cont2);
                 cont2(i, :) = temp_cont2(trialorder);
-                
+%                 
+%                 if any(ismember(cont2, [18, 11, 12, 17]))
+%                     cont2(i, cont2(i, :)==8) = 7;
+%                     cont2(i, cont2(i, :)==2) = 3;
+% 
+%                     cont2(i, cont2(i, :)==18) = 8;
+%                     cont2(i, cont2(i, :)==11) = 2;
+% 
+%                     cont2(i, cont2(i, :)==17) = 6;
+%                     cont2(i, cont2(i, :)==12) = 4;
+%                 end
+             
                 temp_p1 = data(mask, exp.p1);
                 p1(i, :) = temp_p1(trialorder);
                 
@@ -279,6 +331,32 @@ classdef DataExtraction
                 
                 i = i + 1;
             end
+               
+            if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
+                cont1(cont1==8) = 7;
+                cont1(cont1==2) = 3;
+                
+                cont1(cont1==18) = 8;
+                cont1(cont1==11) = 2;
+                
+                cont1(cont1==17) = 6;
+                cont1(cont1==12) = 4;
+                
+            end
+            
+            if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
+                
+                cont2(cont2==8) = 7;
+                cont2(cont2==2) = 3;
+                
+                cont2(cont2==18) = 8;
+                cont2(cont2==11) = 2;
+                
+                cont2(cont2==17) = 6;
+                cont2(cont2==12) = 4;
+                
+            end
+            
         end
         
          function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
@@ -394,26 +472,78 @@ classdef DataExtraction
                 i = i + 1;
             end
          end
-        function [cho, out, corr, con, q, p1, p2, ev, phase] = extract_sim_data(...
-                data, models, sim)
-            
-            for i = 1:length(data)
-                for j = models
-                
-                    cho(i, j, :) = data{i}(:, sim.cho, j);
-                    out(i, j, :) = data{i}(:, sim.out, j);
-                    con(i, j, :) = data{i}(:, sim.cond, j);
-                    corr(i, j, :) = data{i}(:, sim.corr, j);
-                    p1(i, j, :) = data{i}(:, sim.p1, j);
-                    p2(i, j, :) = data{i}(:, sim.p2, j);
-                    ev(i, j, :) = data{i}(:, sim.ev, j);
-                    q(i, j, :) = data{i}(:, sim.q, j);
-                    phase(i, j, :) = data{i}(:, sim.phase, j);
+         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                extract_estimated_probability_post_test(data, sub_ids, exp, session)
+            i = 1;
+            for id = 1:length(sub_ids)
+                try 
+                    sub = sub_ids(id);
 
-                    
+                    mask_eli = data(:, exp.elic) == 2;
+                    mask_sub = data(:, exp.sub) == sub;
+                    mask_catch = data(:, exp.catch) == 0;
+                    %mask_vs_lot = ismember(data(:, exp.op2), [0, -1]);
+                    mask_sess = ismember(data(:, exp.sess), session);
+                    mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
+
+                    [noneed, trialorder] = sort(data(mask, exp.trial));
+
+                    temp_corr = data(mask, exp.corr);
+                    corr(i, :) = temp_corr(trialorder);
+
+                    temp_cho = data(mask, exp.cho);
+                    cho(i, :) = temp_cho(trialorder);
+
+                    temp_out = data(mask, exp.out);
+                    out(i, :) = temp_out(trialorder);
+
+                    temp_ev1 = data(mask, exp.ev1);
+                    ev1(i, :) = temp_ev1(trialorder);
+
+                    temp_catch = data(mask, exp.catch);
+                    ctch(i, :) = temp_catch(trialorder);
+
+                    temp_cont1 = data(mask, exp.cont1);
+                    cont1(i, :) = temp_cont1(trialorder);
+
+                    temp_ev2 = data(mask, exp.ev2);
+                    ev2(i, :) = temp_ev2(trialorder);
+
+                    temp_cont2 = data(mask, exp.cont2);
+                    cont2(i, :) = temp_cont2(trialorder);
+
+                    temp_p1 = data(mask, exp.p1);
+                    p1(i, :) = temp_p1(trialorder);
+
+                    temp_p2 = data(mask, exp.p2);
+                    p2(i, :) = temp_p2(trialorder);
+
+                    temp_dist = data(mask, exp.dist);
+                    dist(i, :) = temp_dist(trialorder)./100;
+
+                    temp_rtime = data(mask, exp.rtime);
+                    rtime(i, :) = temp_rtime(trialorder);
+
+                    i = i + 1;
+                catch
+                    fprintf('There has been an error while treating subject %d \n', i);
                 end
             end
-            
+        end
+         function [corr, cho, out, p1, p2, ev1, ev2] = extract_sim_data(...
+                 params, selected_phase)
+             
+             [corr, cho, out, p1, p2, ev1, ev2, phase] = sim(params);
+             for i = 1:length(params(1, :))
+                corr(i, :) = corr(i,  phase==selected_phase);
+                cho(i, :) = cho(i,  phase==selected_phase);
+                out(i, :) = out(i,  phase==selected_phase);
+                p1(i, :) = p1(i,  phase==selected_phase);
+                p2(i, :) = p2(i,  phase==selected_phase);
+                ev1(i, :) = ev1(i, phase==selected_phase);
+                ev2(i, :) = ev2(i, phase==selected_phase);
+             end
+             
         end
                 
     end
