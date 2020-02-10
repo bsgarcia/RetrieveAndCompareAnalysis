@@ -92,23 +92,22 @@ for exp_num = selected_exp
 %     alpha1 = parameters{1}(:, 2);
 %     beta1 = parameters{1}(:, 1);
 %         
-%     Q = get_qvalues(exp_name, sess, cho, cfcho, con, out, cfout, size(con, 2), 1);
+%     Q = get_qvalues({beta1, alpha1}, cho, cfcho, con, out, cfout, size(con, 2), 1);
 %     
 %     figure('Position', [1,1,900,600]);
 % 
-%     plot_Q(Q,  blue_color, exp_num);
-% 
+%     plot_Q(Q, p1, p2, blue_color, exp_num);
+
     alpha1 = parameters{2}(:, 2);
     alpha2 = parameters{2}(:, 3);
     beta1 = parameters{2}(:, 1);
           
-    Q = get_qvalues(...
-        exp_name, sess,...
-        cho, cfcho, con, out, cfout, ntrials, 2);
+    Q = get_qvalues({beta1, alpha1, alpha2}, cho, cfcho, con, out, cfout, size(con, 2), 2);
+    
     
     figure('Position', [1,1,900,600]);
 
-    plot_Q(Q, blue_color, exp_num);
+    plot_Q(Q, p1, p2, blue_color, exp_num);
 
     clear cho con out cfcho cfout
 end
@@ -493,14 +492,17 @@ function barplot_model_comparison(post)
 end
 
 
-function plot_Q(qvalues,  blue_color, exp_num)
+function plot_Q(qvalues, ev1, ev2, blue_color, exp_num)
     
     qvalues = sort_Q(qvalues);
     
+    ev1 = unique(ev1)';
+    ev2 = unique(ev2)';
+    ev = sort([ev1 ev2]);
+    
+    x_values = ev;
     varargin = [.1, .2, .3, .4, .6, .7, .8, .9];
-    x_values = varargin;
     x_lim = [0, 1];
-    ev  = varargin;
     
     brickplot2(...
         qvalues',...
@@ -530,7 +532,7 @@ function plot_Q(qvalues,  blue_color, exp_num)
     hold on
     
     for sub = 1:size(qvalues, 1)
-        X = varargin;
+        X = ev;
         Y = qvalues(sub, :);
         [r(1, sub, :), thrw1, thrw2] = glmfit(X, Y);
         b = glmfit(ev, Y);

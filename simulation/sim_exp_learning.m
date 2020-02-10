@@ -15,18 +15,18 @@ function [corr, con] = sim_exp_learning(...
     
     switch model
         case 1
-            alpha1 = parameters(1, :, 2);
-            beta1 = parameters(1, :, 1);
+            alpha1 = parameters{1}(:, 2);
+            beta1 = parameters{1}(:, 1);
             
         case 2           
-            alpha1 = parameters(2, :, 2);
-            alpha2 = parameters(2, :, 3);
-            beta1 = parameters(2, :, 1);
+            alpha1 = parameters{2}(:, 2);
+            alpha2 = parameters{2}(:, 3);
+            beta1 = parameters{2}(:, 1);
     end
     
     nsub = length(alpha1);
     ntrials = length(cho(1, :));
-    Q = zeros(nsub*nagent, 4, 2); 
+    Q = zeros(nsub*nagent, 4, 2)+.5; 
     
     i = 1;
     for agent = 1:nagent
@@ -42,15 +42,15 @@ function [corr, con] = sim_exp_learning(...
                 pp = softmaxfn(...
                     Q(i, s(t), :).*1+(1- Q(i, s(t), :))*-1, beta1(sub));
                 
-                a(i,t) = randsample(...
+                a(t) = randsample(...
                     [1, 2],... % randomly drawn action 1 or 2
                     1,... % number of element picked
                     true,...% replacement
                     pp... % probabilities
                 );
                 
-                cfa(t) = 3-a(i,t);
-                if a(i,t) == cho(t)
+                cfa(t) = 3-a(t);
+                if a(t) == cho(t)
                     r = out(t);
                     cfr = cfout(t);
                 else
@@ -58,31 +58,36 @@ function [corr, con] = sim_exp_learning(...
                     cfr = out(t);
                 end
                 
-                deltaI = (r==1) - Q(i, s(t), a(i,t));
-                cfdeltaI = (cfr==1) - Q(i, s(t), cfa(t));
+                deltaI = (r==1) - Q(i, s(t), a(t));
+                
+                if cfcho(t) ~= -2
+                    cfdeltaI = (cfr==1) - Q(i, s(t), cfa(t));
+                end
 
                 switch model
                     case 1
-                        Q(i, s(t), a(i,t)) = ...
-                            Q(i, s(t), a(i,t)) + alpha1(sub) * deltaI;
+                        Q(i, s(t), a(t)) = ...
+                            Q(i, s(t), a(t)) + alpha1(sub) * deltaI;
                         if cfcho(t) ~= -2
                             Q(i, s(t), cfa(t)) = ...
                                 Q(i, s(t), cfa(t)) + alpha1(sub) * cfdeltaI;
                         end
                     case 2
-%                         Q(i, s(t), a(i,t)) = ...
-%                             Q(i, s(t), a(i,t)) + alpha1(sub) * (deltaI>0)...
-%                             + alpha2(sub) * (deltaI;
-%                         if cfcho(t) ~= -2
-%                             Q(i, s(t), cfa(t)) = ...
-%                                 Q(i, s(t), cfa(t)) + alpha1(sub) * cfdeltaI;
-%                         end
+                         Q(i, s(t), a(t)) = Q(i, s(t), a(t)) + ...
+                         alpha1(sub) * deltaI * (deltaI>0) + ...
+                         alpha2(sub) * deltaI * (deltaI<0);
+                        if cfcho(t) ~= -2
+                            Q(i, s(t), cfa(t)) = Q(i, s(t), cfa(t)) + ...
+                                alpha2(sub) * cfdeltaI * (cfdeltaI>0) + ...
+                                alpha1(sub) * cfdeltaI * (cfdeltaI<0);
+                        end
+
                         
                 end
                                         
                 v = [ev1(sub, t), ev2(sub, t)];
                 
-                corr(i, t) = v(a(i,t)) > v(3-a(i,t));
+                corr(i, t) = v(a(t)) > v(3-a(t));
                 
             end
             i = i + 1;

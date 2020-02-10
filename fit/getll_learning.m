@@ -34,11 +34,12 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model)
                     Q(s(t), cfa(t)) = Q(s(t), cfa(t)) + alpha1 * cfdeltaI;
                 end
             case 2
-                Q(s(t), a(t)) = ...
-                    Q(s(t), a(t)) + alpha1 * (deltaI>0) + alpha2 * (deltaI<0);
+               Q(s(t), a(t)) = Q(s(t), a(t)) + alpha1 * deltaI * ...
+                        (deltaI > 0) + alpha2 * deltaI * (deltaI < 0);
                 if cfa(t) ~= -2
-                    Q(s(t), cfa(t)) = ...
-                        Q(s(t), cfa(t)) + alpha1 * (cfdeltaI<0) + alpha2 * (cfdeltaI>0);
+                    Q(s(t), cfa(t)) = Q(s(t), cfa(t)) + ...
+                        alpha2 * cfdeltaI * (cfdeltaI > 0) + ...
+                        alpha1 * cfdeltaI * (cfdeltaI < 0);
                 end
         end
         

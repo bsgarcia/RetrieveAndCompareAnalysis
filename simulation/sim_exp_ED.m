@@ -1,4 +1,4 @@
-function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess, def, nagent, varargin)
+function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess, def, nagent, varargin, model)
     
     %[a, out, con, p1, p2, ev1, ev2, Q] = sim_exp_learning(exp_name, d, idx, sess);
     
@@ -6,12 +6,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess
         DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
         
-    data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
-    parameters = data.data('parameters');
-    
-    alpha1 = parameters(1, :, 2);
-    ntrials = size(cho, 2);
-    beta1 = parameters(1, :, 1);
+    ntrials = size(cho, 1);
     
     if def
         data = load(sprintf('data/fit/%s_PT_%d', exp_name, sess));
@@ -25,7 +20,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess
     if numel(varargin)
         Q = cell2mat(varargin); 
     else
-        Q = get_qvalues(alpha1, cfcho, cho, con, out, cfout, ntrials);
+        [Q, params] = get_qvalues(exp_name, sess, cfcho, cho, con, out, cfout, ntrials, model);
     end
     
     clear cho cfcho out cfout corr con p1 p2 rew rtime ev1 ev2
@@ -38,6 +33,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess
     %beta1 = parameters(1, :, 1);
     %beta1 = 1;
     nsub = d.(exp_name).nsub;
+    
     ntrials = length(cho(1, :));
      
      % map con to contingencies number
@@ -46,8 +42,11 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_name, d, idx, sess
     for nagent = 1:nagent
         
         for sub = 1:nsub
-            
-            b = beta1(sub);
+            try
+                b = params{1}(sub);
+            catch
+                
+            end
                       
             Qsub(1:4, 1:2) = Q(sub, :, :);
                 

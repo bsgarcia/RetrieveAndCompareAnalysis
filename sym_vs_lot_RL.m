@@ -3,7 +3,7 @@ init;
 %-------------------------------------------------------------------------
 
 
-selected_exp = [1, 2, 3, 4,  5.1, 5.2,  6.1, 6.2, 7.1, 7.2];
+selected_exp = [5.1, 5.2,  6.1, 6.2, 7.1, 7.2];
 %selected_exp = selected_exp(7);
 displayfig = 'on';
 sessions = [0, 1];
@@ -21,22 +21,23 @@ for exp_num = selected_exp
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     
-    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(name, d, idx, sess, 0, 100);
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
+        sim_exp_ED(name, d, idx, sess, 0, 100, [], 2);
 % 
 %     
 %     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
 %         DataExtraction.extract_sym_vs_lot_post_test(...
 %         data, sub_ids, idx, sess);
 %     
-    d.(name).nsub = size(cho, 1);
+    %d.(name).nsub = size(cho, 1);
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     pcue = unique(p2)';
     psym = unique(p1)';
     
-    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), 1);
-    for i = 1:d.(name).nsub
+    chose_symbol = zeros(size(cho, 1), length(pcue), length(psym), 1);
+    for i = 1:size(cho, 1)
         for j = 1:length(pcue)
             for k = 1:length(psym)
                 temp = ...
@@ -94,7 +95,7 @@ for exp_num = selected_exp
             continue
         end
         
-        if pwin(i) < .5
+        if pwin(i) > .5
             color = red_color;
         else
             color = blue_color;
@@ -116,13 +117,9 @@ for exp_num = selected_exp
             'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
         
         hold on
-        try
-            errorbar(sc1.XData, prop(i, :), err_prop(i, :), 'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
-        catch
-            
-            
-            
-        end
+        
+       errorbar(sc1.XData, prop(i, :), err_prop(i, :), 'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
+        
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         
         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
@@ -135,7 +132,7 @@ for exp_num = selected_exp
         xlim([-0.08, 1.08]);
         
         text(...
-            ind_point + (0.05) * (1 + (-4 * (i == 1))) ,...
+            ind_point + (0.05) * (1 + (-4 * (i == 8))) ,...
             .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
         
         box off
