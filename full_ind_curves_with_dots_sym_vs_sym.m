@@ -21,7 +21,6 @@ for exp_num = selected_exp
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     
-      
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_sym_post_test(...
             data, sub_ids, idx, sess);

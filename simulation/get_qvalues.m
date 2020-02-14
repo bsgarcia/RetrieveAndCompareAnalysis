@@ -1,11 +1,11 @@
-function [Q, params] = get_qvalues(exp_name, sess, cho, cfcho, con, out, cfout, ntrials, model)
+function [Q, params] = get_qvalues(exp_name, sess, cho, cfcho, con, out, cfout, ntrials, fit_cf, model)
 
     
     data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
     parameters = data.data('parameters');
     
     switch model
-        case 1
+        case {1, 3}
             alpha1 = parameters{model}(:, 2);
             beta1 = parameters{model}(:, 1);
             params = {beta1, alpha1};
@@ -15,7 +15,8 @@ function [Q, params] = get_qvalues(exp_name, sess, cho, cfcho, con, out, cfout, 
             alpha2 = parameters{model}(:, 3);
             params = {beta1, alpha1, alpha2};
     end
-   
+    
+ 
     % ----------------------------------------------------------%
     % Parameters                                                %
     % ----------------------------------------------------------%
@@ -32,7 +33,7 @@ function [Q, params] = get_qvalues(exp_name, sess, cho, cfcho, con, out, cfout, 
     sim_params.cho = cho;
     sim_params.cfcho = cfcho;
     sim_params.model = model;
-
+    sim_params.fit_cf = fit_cf;
     Q = simulation(sim_params);
     % ---------------------------------------------------------%
 end

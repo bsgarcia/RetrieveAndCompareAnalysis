@@ -18,10 +18,8 @@ for exp_num = selected_exp
     % LEARNING
     % -------------------------------------------------------------------%
     idx1 = (exp_num - round(exp_num)) * 10;
-    if idx1 == 0
-        idx1 = 1;
-    end
-    idx1 = idx1 * ((idx==0) + 1);
+  
+    idx1 = idx1 + (idx1==0);
     sess = sessions(uint64(idx1));
    
     % load data
@@ -30,7 +28,8 @@ for exp_num = selected_exp
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     
-    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(name, d, idx, sess, def, nagent);
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
+        name, d, idx, sess, def, nagent, [], 1);
     
     nsub = size(cho, 1);
     % ----------------------------------------------------------------------

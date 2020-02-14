@@ -5,24 +5,21 @@
 init;
 % -------------------------------------------------------------------%
 
-selected_exp = [1, 2, 3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
+selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
+%selected_exp = [3];
+
 sessions = [0, 1];
 
-learning_model = [1, 2];
+learning_model = [3];
 post_test_model = [1, 2];
 
 
 fit_folder = 'data/fit/';
 
-models = {'RW', 'RW_{\lambda}'};
-
-paramlabels = {
-    {'\beta', '\alpha'},...
-    {'\beta', '\alpha', '\lambda_{D}', 'lambda_{E}'}};
 
 nfpm = [2, 4];
 
-force = 0;
+force = 1;
 
 for exp_num = selected_exp
     
@@ -32,37 +29,39 @@ for exp_num = selected_exp
     % LEARNING
     % -------------------------------------------------------------------%
     idx1 = (exp_num - round(exp_num)) * 10;
-    if idx1 == 0
-        idx1 = 1;
-    end
+    idx1 = idx1 + (idx1==0);
     sess = sessions(uint64(idx1));
-
+        
     % load data
     exp_name = char(filenames{round(exp_num)});
-    fit_filename = exp_name;
 
     [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
         DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
     
-    if exp_num < 3
-        cfcho = ones(size(cfcho)) .* -2;
-    end
-    
     % set parameters
-    ntrials = size(cho, 2);
+    fit_params.cho = cho;
+    fit_params.cfcho = cfcho;
+    fit_params.out = out;
+    fit_params.cfout = cfout;
+    fit_params.con = con;
+    fit_params.fit_cf = (exp_num > 2);
+    fit_params.ntrials = size(cho, 2);
+    fit_params.models = learning_model;
+    fit_params.nsub = d.(exp_name).nsub;
+    fit_params.sess = sess;
+    fit_params.exp_num = num2str(exp_num);
     
-    nmodel = length(learning_model);
-    nsub = d.(exp_name).nsub;
-    nparam = length(paramlabels);
+    save_params.fit_file = sprintf(...
+        '%s%s%s%d', fit_folder, exp_name,  '_learning_', sess);
     
-    init_value = {[0, .5], [0, .5, .5]};
-    lb = {[0, 0], [0, 0, 0]};
-    ub = {[100, 1], [100, 1, 1]};
+    % fmincon params
+    fmincon_params.init_value = {[0, .5], [0, .5, .5],[0, .5]};
+    fmincon_params.lb = {[0, 0], [0, 0, 0], [0, 0]};
+    fmincon_params.ub = {[100, 1], [100, 1, 1], [100, 1]};
     
     try
-        data = load(sprintf('%s%s_learning_%d',...
-            fit_folder, fit_filename, sess));
+        data = load(save_params.fit_file);
         
         %lpp = data.data('lpp');
         parameters = data.data('parameters');  %% Optimization parameters
@@ -73,42 +72,34 @@ for exp_num = selected_exp
         end
     catch
         [parameters, ll] = runfit_learning(...
-                nsub,...
-                learning_model,...
-                con,...
-                cho,...
-                cfcho,...
-                out,...
-                cfout,...
-                ntrials,...
-                init_value,...
-                lb,...
-                ub,...
-                fit_folder,...
-                fit_filename, sess);
+            fit_params, save_params, fmincon_params);
         
     end
     
-%     alpha1 = parameters{1}(:, 2);
-%     beta1 = parameters{1}(:, 1);
-%         
-%     Q = get_qvalues({beta1, alpha1}, cho, cfcho, con, out, cfout, size(con, 2), 1);
-%     
-%     figure('Position', [1,1,900,600]);
-% 
-%     plot_Q(Q, p1, p2, blue_color, exp_num);
-
-    alpha1 = parameters{2}(:, 2);
-    alpha2 = parameters{2}(:, 3);
-    beta1 = parameters{2}(:, 1);
-          
-    Q = get_qvalues({beta1, alpha1, alpha2}, cho, cfcho, con, out, cfout, size(con, 2), 2);
-    
+    alpha1 = parameters{3}(:, 2);
+    beta1 = parameters{3}(:, 1);
+        
+    Q = get_qvalues(...
+        exp_name, sess,...
+        fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
+        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 3);    
     
     figure('Position', [1,1,900,600]);
 
-    plot_Q(Q, p1, p2, blue_color, exp_num);
+    plot_Q(Q, p1, p2, blue_color, exp_num, 1);
 
+%     alpha1 = parameters{2}(:, 2);
+%     alpha2 = parameters{2}(:, 3);
+%     beta1 = parameters{2}(:, 1);
+%           
+%     Q = get_qvalues(...
+%         exp_name, sess,...
+%         fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
+%         fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 2);
+%     
+%     figure('Position', [1,1,900,600]);
+% 
+%     plot_Q(Q, p1, p2, blue_color, exp_num, 2);
     clear cho con out cfcho cfout
 end
     % -------------------------------------------------------------------%
@@ -316,8 +307,7 @@ end
 % FUNCTIONS USED IN THIS SCRIPT
 % --------------------------------------------------------------------
 function [parameters,ll] = ...
-    runfit_learning(nsub, whichmodel, con, cho, cfcho, out,...
-    cfout, ntrials, init_value, lb, ub, folder, fit_filename, sess)
+    runfit_learning(fit_params, save_params, fmincon_params)
 
    
     options = optimset(...
@@ -329,15 +319,15 @@ function [parameters,ll] = ...
 
     w = waitbar(0, 'Fitting subject');
     
-    for sub = 1:nsub
+    for sub = 1:fit_params.nsub
         
         waitbar(...
-            sub/nsub,...  % Compute progression
+            sub/fit_params.nsub,...  % Compute progression
             w,...
-            sprintf('%s%d', 'Fitting subject ', sub)...
+            sprintf('%s%d%s%s', 'Fitting subject ', sub, ' in Exp. ', fit_params.exp_num)...
             );
         
-        for model = whichmodel
+        for model = fit_params.models
          
             
             [
@@ -349,28 +339,38 @@ function [parameters,ll] = ...
             ] = fmincon(...
                 @(x) getlpp_learning(...
                     x,...
-                    con(sub, :),...
-                    cho(sub, :),...
-                    cfcho(sub, :),...
-                    out(sub, :),...
-                    cfout(sub, :),...
-                    ntrials, model),...
-                init_value{model},...
+                    fit_params.con(sub, :),...
+                    fit_params.cho(sub, :),...
+                    fit_params.cfcho(sub, :),...
+                    fit_params.out(sub, :),...
+                    fit_params.cfout(sub, :),...
+                    fit_params.ntrials, model,...
+                    fit_params.fit_cf),...
+                fmincon_params.init_value{model},...
                 [], [], [], [],...
-                lb{model},...
-                ub{model},...
+                fmincon_params.lb{model},...
+                fmincon_params.ub{model},...
                 [],...
                 options...
                 );
-            parameters{model}(sub, :) = p1;
-            ll(model, sub) = l1;
+            parameters2{model}(sub, :) = p1;
+            ll2(model, sub) = l1;
 
         end
     end
     % Save the data
+   data = load(save_params.fit_file);
+        
+        %lpp = data.data('lpp');
+   parameters = data.data('parameters');  %% Optimization parameters
+   ll = data.data('ll');
+   
+   parameters{3} = parameters2{3};
+   ll(3, :) = ll2(3, :);
+   %hessian = data.data('hessian');
     data = containers.Map({'parameters', 'll'},...
         {parameters, ll});
-    save(sprintf('%s%s_learning_%d', folder, fit_filename, sess), 'data');
+    save(save_params.fit_file, 'data');
      close(w);
 %     
 end
@@ -492,17 +492,15 @@ function barplot_model_comparison(post)
 end
 
 
-function plot_Q(qvalues, ev1, ev2, blue_color, exp_num)
+function plot_Q(qvalues, p1, p2, blue_color, exp_num, model)
     
     qvalues = sort_Q(qvalues);
     
-    ev1 = unique(ev1)';
-    ev2 = unique(ev2)';
-    ev = sort([ev1 ev2]);
+    x_values = sort([unique(p2), unique(p1)]);
     
-    x_values = ev;
     varargin = [.1, .2, .3, .4, .6, .7, .8, .9];
     x_lim = [0, 1];
+    ev  = varargin;
     
     brickplot2(...
         qvalues',...
@@ -532,7 +530,7 @@ function plot_Q(qvalues, ev1, ev2, blue_color, exp_num)
     hold on
     
     for sub = 1:size(qvalues, 1)
-        X = ev;
+        X = varargin;
         Y = qvalues(sub, :);
         [r(1, sub, :), thrw1, thrw2] = glmfit(X, Y);
         b = glmfit(ev, Y);
@@ -561,6 +559,6 @@ function plot_Q(qvalues, ev1, ev2, blue_color, exp_num)
     box off
     set(gca, 'FontSize', 22);
     mkdir('fig/exp', 'test_fitted_p');
-    saveas(gcf, sprintf('fig/exp/test_fitted_p/exp_%s.png', num2str(exp_num)));
+    saveas(gcf, sprintf('fig/exp/test_fitted_p/exp_%s_model_%d.png', num2str(exp_num), model));
  end
 

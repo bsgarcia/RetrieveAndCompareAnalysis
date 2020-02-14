@@ -4,12 +4,12 @@ init;
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
-selected_exp = [1, 2, 3, 4, 5.1, 5.2 6.1, 6.2, 7.1, 7.2];
-model = [1, 2];
+selected_exp = [3, 4, 5.1, 5.2 6.1, 6.2, 7.1, 7.2];
+model = [1, 2, 3];
 
 displayfig = 'on';
 sessions = [0, 1];
-nagent = 2;
+nagent = 1;
 
 for exp_num = selected_exp
     
@@ -55,42 +55,43 @@ for exp_num = selected_exp
         sc1 = scatter(1:30, mn, 180,...
             'LineWidth', 1.7,...
             'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', blue_color, 'MarkerFaceAlpha', 0.7);
+            'MarkerFaceColor', 'k', 'MarkerFaceAlpha', 0.7);
 
         hold on
 
-        errorbar(1:30, mn, err, 'Color',  blue_color,... %'Alpha', alphas(i),...
-            'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
+        errorbar(1:30, mn, err, 'Color',  'k',... %'Alpha', alphas(i),...
+            'LineStyle', 'none', 'LineWidth', 1.7, 'HandleVisibility', 'off');%, 'CapSize', 2);
         hold on
         
-        alphas = [0.4, 0.8];
+        cc = {blue_color, green_color, red_color};
+        
         for m = model
+            
+            color = cc{m};
 
             [corr2, con2] = ...
                 sim_exp_learning(exp_name, exp_num, d, idx, sess, nagent, m);
+            
             for isub = 1:size(corr2, 1)
-
                 for icond = 1:4
-
                     dd2 = corr2(isub, (con2(isub, :) == icond));
-
                     for t = 1:30
-
                         sim_corr(icond, isub, t) = dd2(t);
-
                     end
-
                 end
             end
+            
             dd2 = reshape(mean(sim_corr, 1), [size(corr2, 1), 30]);
 
-            surfaceplot(dd2', 0.5 .* ones(3, 1), blue_color, 1,  alphas(m),...
+            surfaceplot(dd2', 0.5 .* ones(3, 1), color, 1, 0.4,...
                 -0.08 , 1.08, 20, '', 'Trial', 'Correct choice rate');
             hold on
             
             clear bhv_corr sim_corr dd1 dd2 corr1 corr2
 
         end
+        
+        legend('data', 'RW', 'RW_{+-}', 'RW_r', 'location', 'SouthEast');
 
         title(sprintf('Exp. %s', num2str(exp_num)));
         mkdir('fig/exp', 'learning_curves');

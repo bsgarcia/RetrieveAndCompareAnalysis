@@ -6,7 +6,7 @@ function Q = simulation(sim_params)
     for sub = 1:sim_params.nsub    
         
         switch sim_params.model
-            case 1
+            case {1, 3}
                 alpha1 = sim_params.params{2}(sub);
             case 2
                 alpha1 = sim_params.params{2}(sub);
@@ -18,27 +18,32 @@ function Q = simulation(sim_params)
         r = sim_params.out(sub, :);
         a = sim_params.cho(sub, :);
         cfa = sim_params.cfcho(sub, :);
+        fit_cf = sim_params.fit_cf;
         
         for t = 1:sim_params.ntrials
             
-            deltaI = (r(t)==1) - Q(sub, s(t), a(t));
-
-            if cfa(t) ~= -2
+            if sim_params.model == 3
+                deltaI = (r(t)==1) - (cfr(t)==1) - Q(sub, s(t), a(t));          
+            else
+                deltaI = (r(t)==1) - Q(sub, s(t), a(t));
+            end
+          
+            if fit_cf && (sim_params.model ~= 3)
                 cfdeltaI = (cfr(t)==1) - Q(sub, s(t), cfa(t));
             end
             
             switch sim_params.model
-                case 1
+                case {1, 3}
                     Q(sub, s(t), a(t)) = Q(sub, s(t), a(t)) + alpha1 * deltaI;
-                    if cfa(t) ~= -2
+                    if fit_cf && (sim_params.model ~= 3)
                         Q(sub, s(t), cfa(t)) = Q(sub, s(t), cfa(t)) + alpha1 * cfdeltaI;
                     end
                 case 2
 
                     Q(sub, s(t), a(t)) = Q(sub, s(t), a(t)) + ...
                          alpha1 * deltaI * (deltaI>0) + alpha2 * deltaI * (deltaI<0);
-                    if cfa(t) ~= -2
-                        Q(sub, s(t), cfa(t)) = Q(sub, s(t), a(t)) + ...
+                    if fit_cf
+                        Q(sub, s(t), cfa(t)) = Q(sub, s(t), cfa(t)) + ...
                             alpha1 * cfdeltaI * (cfdeltaI<0) + alpha2 * cfdeltaI * (cfdeltaI>0);
                     end
             end

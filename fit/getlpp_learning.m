@@ -1,4 +1,4 @@
-function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model)
+function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
 
     addpath './'
     
@@ -6,7 +6,7 @@ function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model)
    
     p = -sum(p);
 
-    l = getll_learning(params, s, a, cfa, r, cfr, ntrials, model);
+    l = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf);
     lpp = p + l;
 end
 
@@ -14,7 +14,7 @@ end
 function p = getp(params, model)
     %% log prior of parameters
     switch model
-        case 1
+        case {1, 3}
             beta1 = params(1); % choice temphiature
             alpha1 = params(2); % policy or factual learning rate
             %% the parameters based on the first optimzation

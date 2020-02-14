@@ -72,7 +72,7 @@ classdef DataExtraction
                 tempcho = data(mask, exp.cho);
                 cho(i, :) = tempcho(trialorder);
                 
-                cfcho(i, :) = (cho(i, :) == 1) + 1;
+                cfcho(i, :) = 3 - cho(i, :);
                 
                 tempout = data(mask, exp.out);
                 out(i, :) = tempout(trialorder);
@@ -190,6 +190,8 @@ classdef DataExtraction
 
                     temp_cho = data(mask, exp.cho);
                     cho(i, :) = temp_cho(trialorder);
+                    
+                    cfcho(i, :) = 3 - cho(i, :);
 
                     temp_out = data(mask, exp.out);
                     out(i, :) = temp_out(trialorder);
@@ -273,6 +275,8 @@ classdef DataExtraction
                 
                 temp_cho = data(mask, exp.cho);
                 cho(i, :) = temp_cho(trialorder);
+                
+                cfcho(i, :) = 3 - cho(i, :);
                 
                 temp_out = data(mask, exp.out);
                 out(i, :) = temp_out(trialorder);
@@ -530,21 +534,6 @@ classdef DataExtraction
                 end
             end
         end
-         function [corr, cho, out, p1, p2, ev1, ev2] = extract_sim_data(...
-                 params, selected_phase)
-             
-             [corr, cho, out, p1, p2, ev1, ev2, phase] = sim(params);
-             for i = 1:length(params(1, :))
-                corr(i, :) = corr(i,  phase==selected_phase);
-                cho(i, :) = cho(i,  phase==selected_phase);
-                out(i, :) = out(i,  phase==selected_phase);
-                p1(i, :) = p1(i,  phase==selected_phase);
-                p2(i, :) = p2(i,  phase==selected_phase);
-                ev1(i, :) = ev1(i, phase==selected_phase);
-                ev2(i, :) = ev2(i, phase==selected_phase);
-             end
-             
-        end
-                
+    
     end
 end

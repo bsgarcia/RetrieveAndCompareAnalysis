@@ -2,11 +2,12 @@
 init;
 %-------------------------------------------------------------------------
 
-
-selected_exp = [5.1, 5.2,  6.1, 6.2, 7.1, 7.2];
+selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.2];
 %selected_exp = selected_exp(7);
 displayfig = 'on';
 sessions = [0, 1];
+nagent = 1;
+model = [1, 3];
 
 for exp_num = selected_exp
     
@@ -20,61 +21,56 @@ for exp_num = selected_exp
     
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
-    
-    [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
-        sim_exp_ED(name, d, idx, sess, 0, 100, [], 2);
-% 
-%     
-%     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-%         DataExtraction.extract_sym_vs_lot_post_test(...
-%         data, sub_ids, idx, sess);
+  
+    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+        DataExtraction.extract_sym_vs_lot_post_test(...
+        data, sub_ids, idx, sess);
 %     
     %d.(name).nsub = size(cho, 1);
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
-    pcue = unique(p2)';
-    psym = unique(p1)';
-    
-    chose_symbol = zeros(size(cho, 1), length(pcue), length(psym), 1);
-    for i = 1:size(cho, 1)
-        for j = 1:length(pcue)
-            for k = 1:length(psym)
+    p_lot = unique(p2)';
+    p_sym = unique(p1)';
+    nsub = d.(name).nsub;
+    chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
+    for i = 1:nsub
+        for j = 1:length(p_lot)
+            for k = 1:length(p_sym)
                 temp = ...
-                    cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
-                for l = 1:length(temp)
-                    chose_symbol(i, j, k, l) = temp(l) == 1;
-                end
+                    cho(i, logical(...
+                    (p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));             
+                chose_symbol(i, j, k) = temp == 1;           
             end
         end
     end
-    
-    nsub = size(cho, 1);
-    k = 1:nsub;
-    
-    prop = zeros(length(psym), length(pcue));
-    temp1 = cho(k, :);
-    for j = 1:length(pcue)
-        for l = 1:length(psym)
+        
+    prop = zeros(length(p_sym), length(p_lot));
+    temp1 = cho(:, :);
+    for i = 1:length(p_sym)
+        for j = 1:length(p_lot)
             temp = temp1(...
-                logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
-            prop(l, j) = mean(temp == 1);
-            err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
+                logical((p2(:, :) == p_lot(j)) .* (p1(:, :) == p_sym(i))));
+            prop(i, j) = mean(temp == 1);
+            err_prop(i, j) = std(temp == 1)./sqrt(length(temp));
             
         end
     end
     
     X = reshape(...
-        repmat(pcue, size(k, 2), size(chose_symbol, 4)), [], 1....
-        );
+        repmat(p_lot, nsub, 1), [], 1....
+    );
     
-    pp = zeros(length(psym), length(pcue));
+    pp = zeros(length(p_sym), length(p_lot));
     
-    for i = 1:length(psym)
-        Y = reshape(chose_symbol(k, :, i, :), [], 1);
-        [logitCoef, dev] = glmfit(...
-            X, Y, 'binomial','logit');
-        pp(i, :) = glmval(logitCoef, pcue', 'logit');
+    for i = 1:length(p_sym)
+        
+        Y = reshape(chose_symbol(:, :, i), [], 1);      
+        
+        [logitCoef, dev] = glmfit(X, Y, 'binomial','logit');
+        
+        pp(i, :) = glmval(logitCoef, p_lot', 'logit');
+        
     end
     
     figure(...
@@ -82,20 +78,19 @@ for exp_num = selected_exp
         'Position', [961, 1, 900, 550],...
         'visible', displayfig)
     
-    pwin = psym;
     alpha = [fliplr(linspace(.5, 1, 4)), linspace(.5, 1, 4)];
     
     lin1 = plot(...
         linspace(0, 1, 12), ones(12)*0.5,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     
-    for i = 1:length(pwin)
+    for i = 1:length(p_sym)
         
         if ~ismember(i, [1, 8])
             continue
         end
         
-        if pwin(i) > .5
+        if p_sym(i) < .5
             color = red_color;
         else
             color = blue_color;
@@ -104,26 +99,33 @@ for exp_num = selected_exp
         hold on
         
         lin3 = plot(...
-            pcue,  pp(i, :),...
-            'Color', color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
-            );
+            p_lot,  pp(i, :),...
+            'Color', color, 'LineWidth', 4.5,...% 'LineStyle', '--' ...
+            'handlevisibility', 'off');
         
-        lin3.Color(4) = 0.5;
+        lin3.Color(4) = 0;
         
         hold on
         
-        sc1 = scatter(pcue, prop(i, :), 180,...
+        if i == 8
+            hv = 'on';
+        else
+            hv = 'off';
+        end
+        
+        sc1 = scatter(p_lot, prop(i, :), 180,...
             'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65);
+            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65, 'handlevisibility', hv);
         
         hold on
         
-       errorbar(sc1.XData, prop(i, :), err_prop(i, :), 'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7);%, 'CapSize', 2);
+       errorbar(sc1.XData, prop(i, :), err_prop(i, :),...
+           'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7, 'handlevisibility', 'off');%, 'CapSize', 2);
         
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         
         sc2 = scatter(ind_point, 0.5, 200, 'MarkerFaceColor', 'k',...
-            'MarkerEdgeColor', 'w');
+            'MarkerEdgeColor', 'w', 'handlevisibility', 'off');
         
         ylabel('P(choose experienced cue)', 'FontSize', 26);
         xlabel('Described cue win probability', 'FontSize', 26);
@@ -132,98 +134,195 @@ for exp_num = selected_exp
         xlim([-0.08, 1.08]);
         
         text(...
-            ind_point + (0.05) * (1 + (-4 * (i == 8))) ,...
+            ind_point + (0.05) * (1 + (-4 * (i == 1))) ,...
             .55, sprintf('%.2f', ind_point), 'Color', 'k', 'FontSize', 25);
         
         box off
         set(gca, 'Fontsize', 23);
         
-        plot(pwin(i) .*  ones(10, 1), linspace(.2, .8, 10), 'Color', color, 'LineStyle', ':', 'LineWidth', 3.5);
+        plot(p_sym(i) .*  ones(10, 1), linspace(.2, .8, 10), 'Color', color,...
+            'LineStyle', ':', 'LineWidth', 3.5, 'handlevisibility', 'off');
         hold on
         
     end
-    clear pp pcue psym temp err_prop prop i p1 p2 cho
+    clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
+  
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
+        sim_exp_ED(exp_num, name, d, idx, sess, [], model(1));  
+  
+    nsub = size(cho, 1);
+    % ----------------------------------------------------------------------
+    % Compute for each symbol p of chosing depending on described cue value
+    % ------------------------------------------------------------------------
+    p_lot = unique(p2)';
+    p_sym = unique(p1)';
+       
+    chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
+    for i = 1:nsub
+        for j = 1:length(p_lot)
+            for k = 1:length(p_sym)
+                temp = ...
+                    cho(i, logical((p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));
+                for l = 1:length(temp)
+                    chose_symbol(i, j, k, l) = temp(l) == 1;
+                    
+                end
+            end
+        end
+    end
     
+    nsub = size(cho, 1);
+    k = 1:nsub;
     
-%     [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(name, d, idx, sess, 0, 100);
-%     
-%     nsub = size(cho, 1);
-%     % ----------------------------------------------------------------------
-%     % Compute for each symbol p of chosing depending on described cue value
-%     % ------------------------------------------------------------------------
-%     pcue = unique(p2)';
-%     psym = unique(p1)';
-%        
-%     chose_symbol = zeros(nsub, length(pcue), length(psym));
-%     for i = 1:nsub
-%         for j = 1:length(pcue)
-%             for k = 1:length(psym)
-%                 temp = ...
-%                     cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
-%                 for l = 1:length(temp)
-%                     chose_symbol(i, j, k, l) = temp(l) == 1;
-%                     
-%                 end
-%             end
-%         end
-%     end
-%     
-%     nsub = size(cho, 1);
-%     k = 1:nsub;
-%     
-%     prop = zeros(length(psym), length(pcue));
-%     temp1 = cho(k, :);
-%     for j = 1:length(pcue)
-%         for l = 1:length(psym)
-%             temp = temp1(...
-%                 logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
-%             prop(l, j) = mean(temp == 1);
-%             err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
-%             
-%         end
-%     end
-%     
-%     X = reshape(...
-%         repmat(pcue, size(k, 2), size(chose_symbol, 4)), [], 1....
-%         );
-%     
-%     pp = zeros(length(psym), length(pcue));
-%     
-%     for i = 1:length(psym)
-%         Y = reshape(chose_symbol(k, :, i, :), [], 1);
-%         [logitCoef, dev] = glmfit(...
-%             X, Y, 'binomial','logit');
-%         pp(i, :) = glmval(logitCoef, pcue', 'logit');
-%     end
-%     
-%     pwin = psym;
-%     
-%     for i = 1:length(pwin)
-%         
-%         if ~ismember(i, [1, 8])
-%             continue
-%         end
-%         
-%         % WHY????
-%         if pwin(i) < .5
-%             color = red_color;
-%         else
-%             color = blue_color;
-%         end
-%         
-%         hold on
-%         
-%         lin3 = plot(...
-%             pcue,  pp(i, :),...
-%             'Color', color, 'LineWidth', 4.5... % 'LineStyle', '--' ...
-%             );
-%         
-%         lin3.Color(4) = 0.5;
-%         
-%         hold on
-%     end
-%     
-%     clear pp pcue psym temp err_prop prop i
+    prop = zeros(length(p_sym), length(p_lot));
+    err_prop = zeros(size(prop));
+    temp1 = cho(k, :);
+    for j = 1:length(p_lot)
+        for l = 1:length(p_sym)
+            temp = temp1(...
+                logical((p2(k, :) == p_lot(j)) .* (p1(k, :) == p_sym(l))));
+            prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
+            
+        end
+    end
+    
+    X = reshape(...
+        repmat(p_lot, size(k, 2), size(chose_symbol, 4)), [], 1....
+        );
+    
+    pp = zeros(length(p_sym), length(p_lot));
+    
+    for i = 1:length(p_sym)
+        Y = reshape(chose_symbol(k, :, i, :), [], 1);
+        [logitCoef, dev] = glmfit(...
+            X, Y, 'binomial','logit');
+        pp(i, :) = glmval(logitCoef, p_lot', 'logit');
+    end
+    
+    pwin = p_sym;
+    
+    for i = 1:length(pwin)
+        
+        if ~ismember(i, [1, 8])
+            continue
+        end
+        
+        if pwin(i) < .5
+            color = red_color;
+        else
+            color = blue_color;
+        end
+        
+        hold on
+        if i == 8
+            hv = 'on';
+        else
+            hv = 'off';
+        end
+        
+        
+        lin3 = plot(...
+            p_lot,  pp(i, :),...
+            'Color', color, 'LineWidth', 4.5, 'handlevisibility', hv... % 'LineStyle', '--' ...
+            );
+        
+        lin3.Color(4) = 0.6;
+        
+        hold on
+    end
+    
+    clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
+
+    
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
+        sim_exp_ED(exp_num, name, d, idx, sess, [], model(2));
+    
+  
+    nsub = size(cho, 1);
+    % ----------------------------------------------------------------------
+    % Compute for each symbol p of chosing depending on described cue value
+    % ------------------------------------------------------------------------
+    p_lot = unique(p2)';
+    p_sym = unique(p1)';
+       
+    chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
+    for i = 1:nsub
+        for j = 1:length(p_lot)
+            for k = 1:length(p_sym)
+                temp = ...
+                    cho(i, logical((p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));
+                for l = 1:length(temp)
+                    chose_symbol(i, j, k, l) = temp(l) == 1;
+                    
+                end
+            end
+        end
+    end
+    
+    nsub = size(cho, 1);
+    k = 1:nsub;
+    
+    prop = zeros(length(p_sym), length(p_lot));
+    err_prop = zeros(size(prop));
+    temp1 = cho(k, :);
+    for j = 1:length(p_lot)
+        for l = 1:length(p_sym)
+            temp = temp1(...
+                logical((p2(k, :) == p_lot(j)) .* (p1(k, :) == p_sym(l))));
+            prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
+            
+        end
+    end
+    
+    X = reshape(...
+        repmat(p_lot, size(k, 2), size(chose_symbol, 4)), [], 1....
+        );
+    
+    pp = zeros(length(p_sym), length(p_lot));
+    
+    for i = 1:length(p_sym)
+        Y = reshape(chose_symbol(k, :, i, :), [], 1);
+        [logitCoef, dev] = glmfit(...
+            X, Y, 'binomial','logit');
+        pp(i, :) = glmval(logitCoef, p_lot', 'logit');
+    end
+    
+    pwin = p_sym;
+    
+    for i = 1:length(pwin)
+        
+        if ~ismember(i, [1, 8])
+            continue
+        end
+        
+        if pwin(i) < .5
+            color = red_color;
+        else
+            color = blue_color;
+        end
+        
+        hold on
+        
+        if i == 8
+            hv = 'on';
+        else
+            hv = 'off';
+        end
+        
+        lin3 = plot(...
+            p_lot,  pp(i, :),...
+            'Color', color, 'LineWidth', 4.5, 'LineStyle', '--',  'handlevisibility', hv...
+            );
+        
+        lin3.Color(4) = 0.6;
+        
+        hold on
+    end
+    
+    legend('data', 'RW', 'RW_{r}', 'location', 'southwest');
+    clear pp p_lot p_sym temp err_prop prop i
     
     s1 = title(sprintf('Exp. %s', num2str(exp_num)));
     set(s1, 'Fontsize', 20)
@@ -236,7 +335,7 @@ for exp_num = selected_exp
     
     %     exp_num = exp_num + 1;
     
-    clear pp pcue psym temp err_prop prop i
-    
+    clear pp p_lot p_sym temp err_prop prop i
+
 end
 
