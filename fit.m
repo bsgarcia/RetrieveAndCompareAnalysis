@@ -5,8 +5,8 @@
 init;
 % -------------------------------------------------------------------%
 
-selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-%selected_exp = [3];
+%selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
+selected_exp = [3];
 
 sessions = [0, 1];
 
@@ -78,6 +78,8 @@ for exp_num = selected_exp
     
     alpha1 = parameters{3}(:, 2);
     beta1 = parameters{3}(:, 1);
+    
+    
         
     Q = get_qvalues(...
         exp_name, sess,...

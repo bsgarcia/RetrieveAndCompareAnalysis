@@ -13,16 +13,26 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
     ll = 0;
     ncond = length(unique(s));
     Q = zeros(ncond, 2)+.5;
+    ps = 0;
     
     for t = 1:ntrials
         
         
         if model == 3
-            v = Q(s(t), 1);
-            v = v * (-1 + (a(t) == 1));                                                 
-            ll = ll + log(1/(1+(exp(-(v*beta1)))); 
             
-            deltaI = ((r(t)==1) - (cfr(t)==1)) - Q(s(t), 1);          
+            if ps == s(t)
+                v = Q(s(t), 1)*beta1;
+                p1 = 1/(1+exp(-v));
+                %p = [p1, 1-p1];
+                %logP = log(p(a(t)));
+                logP = log(p1);
+            else
+                logP = log(0.5);
+                ps = s(t);
+            end
+            ll = ll + logP; 
+            
+            deltaI = (r(t)==1) - (cfr(t)==1) - Q(s(t), 1);          
 
         else
             D(a(t)) = Q(s(t), a(t))*1 + (1-Q(s(t), a(t)))*-1;
@@ -40,7 +50,7 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
         switch model 
             case 1
                 Q(s(t), a(t)) = Q(s(t), a(t)) + alpha1 * deltaI;
-                if fit_cf && model ~= 3
+                if fit_cf
                     Q(s(t), cfa(t)) = Q(s(t), cfa(t)) + alpha1 * cfdeltaI;
                 end
             case 2
@@ -53,7 +63,6 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
                 end
             case 3
                Q(s(t), 1) = Q(s(t), 1) + alpha1 * deltaI;
-%                %µQ(s(t), 2) = 1 - Q(s(t), 1);
 
         end
         

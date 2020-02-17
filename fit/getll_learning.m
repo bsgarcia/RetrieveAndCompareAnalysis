@@ -13,16 +13,26 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
     ll = 0;
     ncond = length(unique(s));
     Q = zeros(ncond, 2)+.5;
+    ps = 0;
     
     for t = 1:ntrials
         
         
         if model == 3
-            v = Q(s(t), 1);
-            v = v * (-1 + (a(t) == 1));                                                 
-            ll = ll + log(1/(1+(exp(-(v*beta1)))); 
             
-            deltaI = ((r(t)==1) - (cfr(t)==1)) - Q(s(t), 1);          
+            if ps == s(t)
+                v = Q(s(t), 1)*beta1;
+                p1 = 1/(1+exp(-v));
+                %p = [p1, 1-p1];
+                %logP = log(p(a(t)));
+                logP = log(p1);
+            else
+                logP = log(0.5*beta1);
+                ps = s(t);
+            end
+            ll = ll + logP; 
+            
+            deltaI = (r(t)==1) - (cfr(t)==1) - Q(s(t), 1);          
 
         else
             D(a(t)) = Q(s(t), a(t))*1 + (1-Q(s(t), a(t)))*-1;

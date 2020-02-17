@@ -38,20 +38,21 @@ function [corr, con] = sim_exp_learning(...
 %             cfa = 3-cho(sub, :);
             %flatQ = mean(Q(:, :, :)).*1 + (1- mean(Q(:, :, :)))*-1;
             %alpha1(sub) = 0.5;
+            ps = 0;
             
             for t = 1:ntrials
                
                 if model == 3
-                    a1 = Q(s(t), 1)*beta1(sub);
-                    a2 = -Q(s(t), 1)*beta1(sub);
-                    if t == 1
-                        pp = [1/(1+exp(-a1)),...
-                            1/(1+exp(a2))];
+                    if ps == s(t)
+                        a1 = Q(sub, s(t), 1)*beta1(sub);
+                        p = 1/(1+exp(-a1));
+                        pp = [p, 1-p];
+                        
                     else
-                        pp = [1/(1+exp(-a1)),...
-                            1/(1+exp(-a2))];
+                        pp = [.5, .5];
+                        ps = s(t);
+
                     end
-                    disp(pp);
                 else
                     pp = softmaxfn(...
                         Q(sub, s(t), :).*1 + (1- Q(sub, s(t), :))*-1,...

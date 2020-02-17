@@ -42,15 +42,13 @@ function [corr, con] = sim_exp_learning(...
             for t = 1:ntrials
                
                 if model == 3
-                    a1 = Q(s(t), 1)*beta1(sub);
-                    a2 = -Q(s(t), 1)*beta1(sub);
                     if t == 1
-                        pp = [1/(1+exp(-a1)),...
-                            1/(1+exp(-a2))];
+                        pp = [0.5, 0.5];
                     else
-                        pp = [1/(1+exp(-a1)),...
-                            1/(1+exp(-a2))];
-                    disp(pp);
+                        a1 = Q(sub, s(t), 1)*beta1(sub);
+                        p = 1/(1+exp(-a1));
+                        pp = [p, 1-p];
+                    end
                 else
                     pp = softmaxfn(...
                         Q(sub, s(t), :).*1 + (1- Q(sub, s(t), :))*-1,...
