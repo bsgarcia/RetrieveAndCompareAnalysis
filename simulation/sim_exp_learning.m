@@ -34,10 +34,6 @@ function [corr, con] = sim_exp_learning(...
         for sub = 1:nsub
             
             s = con(sub, :);
-%             a = cho(sub, :);
-%             cfa = 3-cho(sub, :);
-            %flatQ = mean(Q(:, :, :)).*1 + (1- mean(Q(:, :, :)))*-1;
-            %alpha1(sub) = 0.5;
             ps = 0;
             
             for t = 1:ntrials
@@ -49,7 +45,9 @@ function [corr, con] = sim_exp_learning(...
                         pp = [p, 1-p];
                         
                     else
-                        pp = [.5, .5];
+                        qq = [.5, .5] .* beta1(sub);
+                        pp = exp(qq)./sum(exp(qq));
+                        
                         ps = s(t);
 
                     end

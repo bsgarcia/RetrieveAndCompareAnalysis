@@ -6,11 +6,11 @@ init;
 % -------------------------------------------------------------------%
 
 %selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [3];
+selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
 
 sessions = [0, 1];
 
-learning_model = [3];
+learning_model = [1];
 post_test_model = [1, 2];
 
 
@@ -19,7 +19,7 @@ fit_folder = 'data/fit/';
 
 nfpm = [2, 4];
 
-force = 1;
+force = 0;
 
 for exp_num = selected_exp
     
@@ -76,15 +76,15 @@ for exp_num = selected_exp
         
     end
     
-    alpha1 = parameters{3}(:, 2);
-    beta1 = parameters{3}(:, 1);
+    alpha1 = parameters{1}(:, 2);
+    beta1 = parameters{1}(:, 1);
     
     
         
     Q = get_qvalues(...
         exp_name, sess,...
         fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
-        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 3);   
+        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1);   
     
     
     figure('Position', [1,1,900,600]);

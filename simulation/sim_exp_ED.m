@@ -21,7 +21,22 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
                 i = i + 1;          
             end
         end
+    elseif model == 5
+        
+        for sub = 1:size(cho, 1)
+            i = 1;      
+            icon = [1, 2, 3, 4, 4, 3, 2, 1];
+            for p = [unique(p2)',  unique(p1)']
+                if i < 5
+                    Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==2);
+                else
+                    Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==1);
+                end
+                i = i + 1;          
+            end
+        end
     else
+        
         [Q, params] = get_qvalues(...
             exp_name, sess, cho, cfcho, con, out, cfout, ntrials, (exp_num>2), model);
         Q = sort_Q(Q);
@@ -36,6 +51,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
     
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
+    
+    
 %     for nagent = 1:nagent
     i = 1;  
     for sub = 1:nsub

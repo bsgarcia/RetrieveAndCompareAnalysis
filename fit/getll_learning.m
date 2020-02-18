@@ -23,13 +23,15 @@ function ll = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
             if ps == s(t)
                 v = Q(s(t), 1)*beta1;
                 p1 = 1/(1+exp(-v));
-                %p = [p1, 1-p1];
-                %logP = log(p(a(t)));
-                logP = log(p1);
-            else
-                logP = log(0.5*beta1);
+                p = [p1, 1-p1];
+                logP = log(p(a(t)));
+                %logP = log(p1);
+            else         
+                p = exp(Q(s(t), 1)*beta1)/sum(exp(Q(s(t), :)*beta1));
+                logP = log(p);
                 ps = s(t);
             end
+            
             ll = ll + logP; 
             
             deltaI = (r(t)==1) - (cfr(t)==1) - Q(s(t), 1);          

@@ -4,7 +4,7 @@ init;
 
 titles = {
         'Exp. 4'};
-selected_exp = [3, 4, 5.2, 6.2, 7.2];
+selected_exp = [1, 2, 3, 4, 5.2, 6.2, 7.2];
 sessions = [0, 1];
 
 

@@ -1,11 +1,12 @@
 init;   
 
-selected_exp = [4, 5.1, 5.2,  6.1, 6.2, 7.1,  7.2];
-selected_exp = selected_exp(end-1);
+selected_exp = [4,  5.2,  6.2,7.2];
+%selected_exp = selected_exp(end-1);
 displayfig = 'on';
 sessions = [0, 1];
 def = 0;
-nagent = 100;
+nagent = 1;
+model = 1;
 
 for exp_num = selected_exp
     
@@ -110,7 +111,7 @@ for exp_num = selected_exp
                 'Color', color, 'LineWidth', 4.5 ...
                 );
         
-        lin3.Color(4) =  0;
+        lin3.Color(4) =  0.8;
         
         sc1 = scatter(pcue, prop(i, :), 180,...
             'MarkerEdgeColor', 'w',...
@@ -143,7 +144,8 @@ for exp_num = selected_exp
     
     clear pp pcue psym temp err_prop prop i
 
-    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(name, d, idx, sess, def, nagent);
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(name, exp_num,...
+        d, idx, sess,  4);
     
     nsub = size(cho, 1);
     
@@ -223,10 +225,10 @@ for exp_num = selected_exp
         
         lin3 = plot(...
                 pcue1,  prop1,... 
-                'Color', color, 'LineWidth', 4.5 ...
+                'Color', color, 'LineWidth', 4.5, 'LineStyle', '--' ...
                 );
         
-        lin3.Color(4) =  0.5;
+        lin3.Color(4) =  0.6;
         box off
         
     end
@@ -238,9 +240,9 @@ for exp_num = selected_exp
     set(gca,'TickDir','out')
 %   
     title(sprintf('Exp. %s', num2str(exp_num)));
-    mkdir('fig/exp', 'ind_curves');
+    mkdir('fig/exp', 'ind_curves_sym_vs_sym_likert');
     saveas(gcf, ...
-        sprintf('fig/exp/ind_curves/exp_%s_sym_vs_sym.png',...
+        sprintf('fig/exp/ind_curves_sym_vs_sym_likert/exp_%s_sym_vs_sym.png',...
         num2str(exp_num)));
     
 %     exp_num = exp_num + 1;

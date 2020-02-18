@@ -3,7 +3,7 @@ init;
 %-------------------------------------------------------------------------
 
 
-selected_exp = [1, 2, 3, 4,  5.1, 5.2,  6.1, 6.2, 7.1, 7.2];
+selected_exp = [1, 2, 3, 4, 5.2, 6.2, 7.2];
 %selected_exp = selected_exp(7);
 displayfig = 'on';
 sessions = [0, 1];
@@ -170,7 +170,7 @@ for exp_num = selected_exp
         Q(sub, 4, 2) = qvalues(sub, 4);
     end
     nagent = 100;
-    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(name, d, idx, sess, 0, nagent, Q);
+    [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(name, exp_num, d, idx, sess, 0, 1, Q, 1);
     
     nsub = size(cho, 1);
     % ----------------------------------------------------------------------

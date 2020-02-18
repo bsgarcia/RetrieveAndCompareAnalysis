@@ -8,16 +8,41 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
     
     ntrials = size(cho, 2);
 
-    if numel(varargin)
-        Q = cell2mat(varargin); 
-        Q = sort_Q(Q);
+    if model == 4
+       [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                DataExtraction.extract_estimated_probability_post_test(...
+                d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+
+        for sub = 1:size(cho, 1)
+            i = 1;      
+
+            for p = unique(p1)'
+                Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
+                i = i + 1;          
+            end
+        end
+    elseif model == 5
+        for sub = 1:size(cho, 1)
+            i = 1;      
+            icon = [1, 2, 3, 4, 4, 3, 2, 1];
+            for p = [unique(p2),  unique(p1)'
+                if i < 5
+                    Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==1);
+                else
+                    Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==2);
+                end
+                i = i + 1;          
+            end
+        end
     else
+        
         [Q, params] = get_qvalues(...
             exp_name, sess, cho, cfcho, con, out, cfout, ntrials, (exp_num>2), model);
         Q = sort_Q(Q);
     end
     
-    clear cho cfcho out cfout corr con p1 p2 rew rtime ev1 ev2
+    
+    clear cho cfcho out cfout corr con p1 p2 rew rtime ev1 ev2 i
   
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
@@ -25,11 +50,13 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
     
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
+    
+    
 %     for nagent = 1:nagent
     i = 1;  
     for sub = 1:nsub
 
-        beta1 = params{1}(sub);
+%        beta1 = params{1}(sub);
 
         %Qsub(1:4, 1:2) = Q(sub, :, :);
 
