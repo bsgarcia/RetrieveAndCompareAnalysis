@@ -1,4 +1,4 @@
-function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(exp_name, exp_num, d, idx, sess, model)
+function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num, d, idx, sess, model)
 
     [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
         DataExtraction.extract_learning_data(...
@@ -47,7 +47,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(exp_name, exp_num, d, 
 
     ntrials = length(cho(1, :));
     
- 
+    ll = zeros(1, nsub);
     i = 1;
 %     for agent = 1:nagent
         for sub = 1:nsub    
@@ -64,6 +64,10 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(exp_name, exp_num, d, 
                 
                 
                 [throw, a(sub, t)] = max(v);
+                p = (a(sub, t) == cho(sub, t));
+     
+
+                ll(sub) = ll(sub) + p;
 
 %                 
 %                 pp = softmaxfn(v, b);
@@ -81,7 +85,6 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_EE(exp_name, exp_num, d, 
 
         end
 %     end
-    
 %     cont1 = repmat(cont1, 20, 1);
 %     cont2 = repmat(cont2, nagent, 1);
 %     p1 = repmat(p1, nagent, 1);

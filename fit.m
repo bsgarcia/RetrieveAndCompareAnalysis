@@ -6,7 +6,7 @@ init;
 % -------------------------------------------------------------------%
 
 %selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
+selected_exp = [4, 5.2, 6.2, 7.2];
 
 sessions = [0, 1];
 
@@ -76,20 +76,161 @@ for exp_num = selected_exp
         
     end
     
-    alpha1 = parameters{1}(:, 2);
-    beta1 = parameters{1}(:, 1);
-    
-    
-        
-    Q = get_qvalues(...
-        exp_name, sess,...
-        fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
-        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1);   
-    
-    
-    figure('Position', [1,1,900,600]);
+%         
+%     Q = get_qvalues(...
+%         exp_name, sess,...
+%         fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
+%         fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1);   
 
-    plot_Q(Q, p1, p2, blue_color, exp_num, 1);
+    clear ll
+    
+    ll = zeros(2, 2, d.(exp_name).nsub);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 2, :)] = sim_exp_ED(...
+       exp_name, exp_num, d, idx, sess, 5);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 2, :)] = sim_exp_ED(...
+        exp_name, exp_num, d, idx, sess,  4);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 1, :)] = sim_exp_EE(...
+       exp_name, exp_num, d, idx, sess, 5);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 1, :)] = sim_exp_EE(...
+        exp_name, exp_num, d, idx, sess,  4);
+    
+    
+    % --------------------------------------------------------------------
+    % MODEL SELECTION PROCEDURE
+    % --------------------------------------------------------------------
+    % Compute information criteria
+    % -------------------------------------------------------------------- 
+%     
+%     for n = post_test_model
+%         bic(n, :) = -2 * -ll(n, :) + nfpm(n) * log(ntrials);
+%         aic(n, :) = -2 * -ll(n, :) + 2 * nfpm(n);
+%     end
+%    
+    %models = {'RW', 'RW_{degradation}'};
+    
+    figNames = {'AIC', 'BIC', 'log_{LL}'};
+    i = 0;
+    clear post mn err eF
+%     for criterium = {-ll}
+%         i = i + 1;
+%         
+% %         options.modelNames = models{post_test_model};
+% %         options.figName = figNames{i};
+% %         options.DisplayWin = 0;
+% %       
+%         [postr, out] = VBA_groupBMC(cell2mat(criterium));%, options);
+%         
+%         post(i, :, :) = postr.r;
+%         mn(i, :) = mean(postr.r, 2);
+%         err(i, :) = std(postr.r, 1, 2)/sqrt(size(postr.r, 2));
+%         eF(i, :) = out.Ef;
+%     end
+%     
+    % --------------------------------------------------------------------
+    % Plot P(M|D)
+    % --------------------------------------------------------------------
+%     figure(...%'Renderer', 'painters',...
+%         'Position', [927,131,726,447])
+%     mn = mean(ll, 3);
+%     err(1) = std(ll(1, :))/sqrt(d.(exp_name).nsub);
+%     err(2) = std(ll(2, :))/sqrt(d.(exp_name).nsub);
+%     err = err';
+%     
+%       cc = [0    0.4470    0.7410;
+%         0.8500    0.3250    0.0980;
+%         0.9290    0.6940    0.1250];
+%     
+% 
+%     %err = err';
+%     b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55);
+%     b.CData(1, :) = cc(1, :);
+%     b.CData(2, :) = cc(3, :);
+% 
+%     hold on 
+%     
+%         
+%     box off
+%     nsub = d.(exp_name).nsub;
+%     hold on
+%     ax1 = gca;
+%    
+%   
+%     for i = 1:2
+% %         ax(i) = axes('Position',get(ax1,'Position'),'XAxisLocation','top',...
+% %                 'YAxisLocation','right','Color','none','XColor','k','YColor','k');
+% %         
+% %         hold(ax(i), 'all');
+% %         
+%         X = ones(1, nsub)-Shuffle(linspace(-0.2, 0.2, nsub));
+%         s = scatter(...
+%                 X + (i-1),...
+%                 ll(i, :), 115,...
+%                 'filled', 'Parent', ax1,...
+%                 'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+%                 'MarkerFaceColor', cc(1, :),...
+%                 'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+%         box off
+%     end
+%     clear ax
+%     
+%     errorbar(mn, err, 'LineStyle', 'none', 'LineWidth',...
+%             2.5, 'Color', 'k', 'HandleVisibility','off');
+%    
+%     box off
+%     set(gca, 'XTickLabel', {'P. Trace', 'D. Trace'});
+%     ylabel('Likelihood');
+%     set(gca, 'Fontsize', 20);
+%     title(sprintf('Exp. %s', num2str(exp_num)));
+
+    figure('Renderer', 'painters',...
+        'Position', [927,131,726,447], 'visible', 'on')
+        nsub = d.(exp_name).nsub;
+
+    mn = mean(ll, 3);
+    err = std(ll, 0, 3)/sqrt(nsub);
+    
+    b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55, 'FaceColor', 'Flat');
+    hold on
+    ngroups = 2;
+    nbars = 2;
+    % Calculating the width for each bar group
+    groupwidth = min(0.8, nbars/(nbars + 1.5));
+    cc = [0    0.4470    0.7410;
+        0.8500    0.3250    0.0980;
+        0.9290    0.6940    0.1250];
+    count = 0;
+    for i = 1:nbars
+        x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+        hold on
+        for j = 1:length(x)
+            count = count + 1;
+            b(i).CData(j, :) = cc(i, :);
+            s = scatter(...
+                x(j).*ones(1, nsub)-Shuffle(linspace(-0.07, 0.07, nsub)),...
+                ll(j, i, :), 115,...
+                'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+                'MarkerFaceColor', cc(i, :),...
+                'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+        end
+        errorbar(x, mn(:, i), err(:,i), 'LineStyle', 'none', 'LineWidth',...
+            2.5, 'Color', 'k', 'HandleVisibility','off');
+    end
+    hold off
+    %ylim([0, 1.08]);
+ 
+    box off
+    set(gca, 'XTickLabel', {'P. Trace', 'D. Trace'});
+    ylabel('Likelihood');
+    set(gca, 'Fontsize', 20);
+    set(gca,'TickDir','out'); % The only other option is 'in'
+    
+%     figure('Position', [1,1,900,600]);
+% 
+%     plot_Q(Q, p1, p2, blue_color, exp_num, 1);
 
 %     alpha1 = parameters{2}(:, 2);
 %     alpha2 = parameters{2}(:, 3);

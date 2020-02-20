@@ -1,6 +1,6 @@
 classdef DataExtraction
     
-    methods
+    methods (Static)
         
         function [data, sub_ids, exp, sim] = get_data(filename)
             

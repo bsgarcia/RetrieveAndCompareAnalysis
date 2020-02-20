@@ -1,4 +1,4 @@
-function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, idx, sess, varargin, model)
+function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num, d, idx, sess, model)
     
     %[a, out, con, p1, p2, ev1, ev2, Q] = sim_exp_learning(exp_name, d, idx, sess);
     
@@ -52,6 +52,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
     
+    ll = zeros(1, nsub);
     
 %     for nagent = 1:nagent
     i = 1;  
@@ -74,6 +75,12 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
             what_sym = p_range(p1(sub, t)==unique(p1));
             v = [flatQ(what_sym), s2(t)];
             [throw, a(sub, t)] = max(v);
+            
+            p = a(sub, t) == cho(sub, t);
+             
+
+            ll(sub) = ll(sub) + p;
+
             %
             %                  pp = softmaxfn(v, beta1);
             % %
@@ -88,8 +95,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(exp_num, exp_name, d, 
         end
         i = i + 1;
     end
-        
-%     end
+    
+    %     end
 %     
 %     cont1 = repmat(cont1, 20, 1);
 %     cont2 = repmat(cont2, nagent, 1);
