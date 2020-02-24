@@ -1,12 +1,14 @@
-function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf)
+function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model, decision_rule,fit_cf)
 
     addpath './'
     
-    p = getp(params, model);
-   
-    p = -sum(p);
+    model_str = {'QLearning', 'AsymmetricQLearning'};
+    
+    p = -sum(getp(params, model));
 
-    l = getll_learning(params, s, a, cfa, r, cfr, ntrials, model, fit_cf);
+    model = models.(model_str{model})(params, 0.5, 4, 2, ntrials, decision_rule);
+    l = model.fit(s, a, r, cfr, fit_cf);
+    
     lpp = p + l;
 end
 

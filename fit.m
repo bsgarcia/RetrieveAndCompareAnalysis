@@ -6,7 +6,7 @@ init;
 % -------------------------------------------------------------------%
 
 %selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [4, 5.2, 6.2, 7.2];
+selected_exp = [3]%, 5.2, 6.2, 7.2];
 
 sessions = [0, 1];
 
@@ -51,6 +51,7 @@ for exp_num = selected_exp
     fit_params.nsub = d.(exp_name).nsub;
     fit_params.sess = sess;
     fit_params.exp_num = num2str(exp_num);
+    fit_params.decision_rule = 3;
     
     save_params.fit_file = sprintf(...
         '%s%s%s%d', fit_folder, exp_name,  '_learning_', sess);
@@ -76,12 +77,17 @@ for exp_num = selected_exp
         
     end
     
-%         
-%     Q = get_qvalues(...
-%         exp_name, sess,...
-%         fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
-%         fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1);   
+        
+    Q = get_qvalues(...
+        exp_name, sess,...
+        fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
+        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1); 
+    
+    figure('Position', [1,1,900,600]);
+    plot_Q(Q, p1, p2, blue_color, exp_num, 1);
 
+    return 
+    
     clear ll
     
     ll = zeros(2, 2, d.(exp_name).nsub);
@@ -488,7 +494,7 @@ function [parameters,ll] = ...
                     fit_params.cfcho(sub, :),...
                     fit_params.out(sub, :),...
                     fit_params.cfout(sub, :),...
-                    fit_params.ntrials, model,...
+                    fit_params.ntrials, model, fit_params.decision_rule,...
                     fit_params.fit_cf),...
                 fmincon_params.init_value{model},...
                 [], [], [], [],...
@@ -497,24 +503,18 @@ function [parameters,ll] = ...
                 [],...
                 options...
                 );
-            parameters2{model}(sub, :) = p1;
-            ll2(model, sub) = l1;
+            parameters{model}(sub, :) = p1;
+            ll(model, sub) = l1;
 
         end
     end
     % Save the data
-   data = load(save_params.fit_file);
-        
-        %lpp = data.data('lpp');
-   parameters = data.data('parameters');  %% Optimization parameters
-   ll = data.data('ll');
-   
-   parameters{3} = parameters2{3};
-   ll(3, :) = ll2(3, :);
+   %data = load(save_params.fit_file);
+      
    %hessian = data.data('hessian');
-    data = containers.Map({'parameters', 'll'},...
-        {parameters, ll});
-    save(save_params.fit_file, 'data');
+   data = containers.Map({'parameters', 'll'},...
+            {parameters, ll});
+   save(save_params.fit_file, 'data');
      close(w);
 %     
 end
