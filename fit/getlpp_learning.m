@@ -1,4 +1,4 @@
-function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model, decision_rule,fit_cf)
+function lpp = getlpp_learning(params, s, a, cfa, r, cfr, q, ntrials, model, decision_rule,fit_cf)
 
     addpath './'
     
@@ -6,8 +6,8 @@ function lpp = getlpp_learning(params, s, a, cfa, r, cfr, ntrials, model, decisi
     
     p = -sum(getp(params, model));
 
-    model = models.(model_str{model})(params, 0.5, 4, 2, ntrials, decision_rule);
-    l = model.fit(s, a, r, cfr, fit_cf);
+    model = models.(model_str{model})(params, q, 4, 2, ntrials, decision_rule);
+    l = model.fit(s, a, cfa, r, cfr, fit_cf);
     
     lpp = p + l;
 end

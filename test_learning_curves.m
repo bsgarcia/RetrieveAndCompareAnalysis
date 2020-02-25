@@ -4,8 +4,8 @@ init;
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
-selected_exp = [1, 2]%, 5.1]% 5.2 6.1, 6.2, 7.1, 7.2];
-model = [1,2];
+selected_exp = [3, 4]%, 5.1]% 5.2 6.1, 6.2, 7.1, 7.2];
+model = [1, 4];
 
 displayfig = 'on';
 sessions = [0, 1];
@@ -63,15 +63,15 @@ for exp_num = selected_exp
             'LineStyle', 'none', 'LineWidth', 1.7, 'HandleVisibility', 'off');%, 'CapSize', 2);
         hold on
         
-        cc = {blue_color, green_color, red_color};
+        cc = {blue_color, green_color, red_color, green_color};
         
         for m = model
-            
             color = cc{m};
 
             [corr2, con2] = ...
-                sim_exp_learning(exp_name, exp_num, d, idx, sess, nagent, m);
+                sim_exp_learning(exp_name, exp_num, d, idx, sess, m);
             
+                
             for isub = 1:size(corr2, 1)
                 for icond = 1:4
                     dd2 = corr2(isub, (con2(isub, :) == icond));
@@ -91,7 +91,7 @@ for exp_num = selected_exp
 
         end
         
-        legend('data', 'RW', 'RW_{+-}', 'RW_r', 'location', 'SouthEast');
+        legend('data', 'RW', 'D. Trace', 'location', 'SouthEast');
 
         title(sprintf('Exp. %s', num2str(exp_num)));
         mkdir('fig/exp', 'learning_curves');

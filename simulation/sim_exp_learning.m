@@ -1,135 +1,115 @@
 function [corr, con] = sim_exp_learning(...
-    exp_name, exp_num, d, idx, sess, nagent, model)
-       
-     [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
-        DataExtraction.extract_learning_data(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
-    
-    clear corr
-    if exp_num < 3
-        cfcho = ones(size(cfcho)) .* -2;
-    end
-    
+    exp_name, exp_num, d, idx, sess, model)
+
     data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
     parameters = data.data('parameters');
-    
+
     switch model
         case {1, 3}
             alpha1 = parameters{model}(:, 2);
             beta1 = parameters{model}(:, 1);
-            
-        case 2           
+            decision_rule = 1;
+
+        case 2
             alpha1 = parameters{2}(:, 2);
             alpha2 = parameters{2}(:, 3);
             beta1 = parameters{2}(:, 1);
-    end
-    
-    nsub = length(alpha1);
-    ntrials = length(cho(1, :));
-    Q = zeros(nsub*nagent, 4, 2)+.5; 
-    
-    i = 1;
-    for agent = 1:nagent
-
-        for sub = 1:nsub
             
-            s = con(sub, :);
-            ps = 0;
-            
-            for t = 1:ntrials
-               
-                if model == 3
-                    if ps == s(t)
-                        a1 = Q(sub, s(t), 1)*beta1(sub);
-                        p = 1/(1+exp(-a1));
-                        pp = [p, 1-p];
-                        
-                    else
-                        qq = [.5, .5] .* beta1(sub);
-                        pp = exp(qq)./sum(exp(qq));
-                        
-                        ps = s(t);
+            decision_rule = 1;
 
+        case 4
+            [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                DataExtraction.extract_estimated_probability_post_test(...
+                d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+
+            p = fliplr(unique(p1)');
+            for sub = 1:size(cho, 1)
+                i = 1;
+                for pp = p(1:4) 
+                    try 
+                    Q(sub, i, 1) = cho(sub, (p1(sub, :) == pp))./100;
+                    catch
+                        
                     end
-                else
-                    pp = softmaxfn(...
-                        Q(sub, s(t), :).*1 + (1- Q(sub, s(t), :))*-1,...
-                        beta1(sub) ...
-                    );
+                    i = i + 1;
                 end
-                
-                a(t) = randsample(...
-                    [1, 2],... % randomly drawn action 1 or 2
-                    1,... % number of element picked
-                    true,...% replacement
-                    pp... % probabilities
-                );
-                
-                cfa(t) = 3-a(t);
-                if a(t) == cho(sub, t)
-                    r = out(sub, t);
-                    cfr = cfout(sub, t);
-                else
-                    r = cfout(sub, t);
-                    cfr = out(sub, t);
+                i = 1;
+                for pp = fliplr(p(5:8)) 
+                    Q(sub, i, 2) = cho(sub, (p1(sub, :) == pp))./100;
+                    i = i + 1;
                 end
-              
-                if model == 3
-                    deltaI = ((r==1) - (cfr==1)) - Q(sub, s(t), 1); 
-                else
-                    deltaI = (r==1) - Q(sub, s(t), a(t));
-                end
-                
-                if (cfcho(t) ~= -2) && (model ~= 3)
-                    cfdeltaI = (cfr==1) - Q(sub, s(t), cfa(t));
-                end
-
-                switch model
-                    case 1
-                        Q(sub, s(t), a(t)) = ...
-                            Q(sub, s(t), a(t)) + alpha1(sub) * deltaI;
-                        if (cfcho(t) ~= -2) && (model ~= 3)
-                            Q(sub, s(t), cfa(t)) = ...
-                                Q(sub, s(t), cfa(t)) + alpha1(sub) * cfdeltaI;
-                        end
-                    case 2
-                         Q(sub, s(t), a(t)) = Q(sub, s(t), a(t)) + ...
-                         alpha1(sub) * deltaI * (deltaI>0) + ...
-                         alpha2(sub) * deltaI * (deltaI<0);
-                        if cfcho(t) ~= -2
-                            Q(sub, s(t), cfa(t)) = Q(sub, s(t), cfa(t)) + ...
-                                alpha2(sub) * cfdeltaI * (cfdeltaI>0) + ...
-                                alpha1(sub) * cfdeltaI * (cfdeltaI<0);
-                        end
-                    case 3
-                        
-                        Q(sub, s(t), 1) =  Q(sub, s(t), 1) + alpha1(sub) * deltaI;
-                        
-                end
-                                        
-                v = [ev1(sub, t), ev2(sub, t)];
-                
-                corr(sub, t) = v(a(t)) > v(3-a(t));
-                
             end
-            i = i + 1;
-            clear cfa a
-        end
-        
+            
+            beta1 = zeros(1, size(cho, 1));
+            alpha1 = zeros(1, size(cho, 1));
+            decision_rule = 3;
+            
+            clear corr cho out p1 p2 ev1 ev2 ctch cont1 cont2 dist rtime
+
+    %     case 5
+    %         for sub = 1:size(cho, 1)
+    %             i = 1;
+    %             icon = [1, 2, 3, 4, 4, 3, 2, 1];
+    %             for p = [unique(p2)',  unique(p1)']
+    %                 if i < 5
+    %                     Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==2);
+    %                 else
+    %                     Q(sub, i) = mean(cho(sub, con(sub, :)==icon(i))==1);
+    %                 end
+    %                 i = i + 1;
+    %             end
+    %         end
     end
     
-    %cont1 = repmat(cont1, 20, 1);
-%     con = repmat(con, nagent, 1);
-%     p1 = repmat(p1, nagent, 1);
-%     p2 = repmat(p2, nagent, 1);
-%     ev1 = repmat(ev1, nagent, 1);
-%     ev2 = repmat(ev2, nagent, 1);
-end
+   [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+        DataExtraction.extract_learning_data(...
+        d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
 
+    clear corr
+    nsub = length(cho(:, 1));
+    ntrials = length(cho(1, :));
+    
+    fit_cf = exp_num > 2;
 
-   
-function p = softmaxfn(Q, b)
-    p = exp(Q.*b)./ sum(exp(Q.*b));
+    for sub = 1:nsub
+        
+      
+        qlearner = models.QLearning([beta1(sub), alpha1(sub)], ...
+            0.5, 4, 2, ntrials, decision_rule);
+
+        if exist('Q')
+            qlearner.Q(:, :) = Q(sub, :, :);
+        end
+
+        s = con(sub, :);
+        r = out(sub, :);
+        cfr= cfout(sub, :);
+
+        for t = 1:ntrials
+
+            a(t) = qlearner.make_choice(s(t), t);
+
+            switch model
+                case 1
+                    if a(t) == cho(sub, t)                  
+                        r1 = r(t)==1;
+                        r2 = cfr(t)==1;
+                    else
+                        r1 = cfr(t)==1;
+                        r2 = r(t)==1;
+                    end
+                    qlearner.learn(s(t), a(t), r1, r2, fit_cf);
+                otherwise
+            end
+
+            v = [ev1(sub, t), ev2(sub, t)];
+
+            corr(sub, t) = v(a(t)) > v(3-a(t));
+
+        end
+
+    end
+
 end
 
 

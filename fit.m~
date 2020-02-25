@@ -6,7 +6,7 @@ init;
 % -------------------------------------------------------------------%
 
 %selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [3]%, 5.2, 6.2, 7.2];
+selected_exp = [3, 4, 5.2, 6.2, 7.2];
 
 sessions = [0, 1];
 
@@ -19,7 +19,7 @@ fit_folder = 'data/fit/';
 
 nfpm = [2, 4];
 
-force = 1;
+force = 0;
 
 for exp_num = selected_exp
     
@@ -42,8 +42,8 @@ for exp_num = selected_exp
     % set parameters
     fit_params.cho = cho;
     fit_params.cfcho = cfcho;
-    fit_params.out = out;
-    fit_params.cfout = cfout;
+    fit_params.out = out==1;
+    fit_params.cfout = cfout==1;
     fit_params.con = con;
     fit_params.fit_cf = (exp_num > 2);
     fit_params.ntrials = size(cho, 2);
@@ -51,6 +51,10 @@ for exp_num = selected_exp
     fit_params.nsub = d.(exp_name).nsub;
     fit_params.sess = sess;
     fit_params.exp_num = num2str(exp_num);
+    fit_params.decision_rule = 3;
+    fit_params.q = 0.5;
+    fit_params.noptions = 2;
+    fit_params.ncond = 4;
     
     save_params.fit_file = sprintf(...
         '%s%s%s%d', fit_folder, exp_name,  '_learning_', sess);
@@ -78,9 +82,7 @@ for exp_num = selected_exp
     
         
     Q = get_qvalues(...
-        exp_name, sess,...
-        fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
-        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1); 
+        exp_name, sess, fit_params, 1); 
     
     figure('Position', [1,1,900,600]);
     plot_Q(Q, p1, p2, blue_color, exp_num, 1);
@@ -493,7 +495,8 @@ function [parameters,ll] = ...
                     fit_params.cfcho(sub, :),...
                     fit_params.out(sub, :),...
                     fit_params.cfout(sub, :),...
-                    fit_params.ntrials, model,...
+                    fit_params.q,...
+                    fit_params.ntrials, model, fit_params.decision_rule,...
                     fit_params.fit_cf),...
                 fmincon_params.init_value{model},...
                 [], [], [], [],...

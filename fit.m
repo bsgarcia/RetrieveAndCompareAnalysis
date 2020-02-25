@@ -6,7 +6,7 @@ init;
 % -------------------------------------------------------------------%
 
 %selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [3]%, 5.2, 6.2, 7.2];
+selected_exp = [4, 5.2, 6.2, 7.2];
 
 sessions = [0, 1];
 
@@ -19,7 +19,7 @@ fit_folder = 'data/fit/';
 
 nfpm = [2, 4];
 
-force = 0;
+force = 1;
 
 for exp_num = selected_exp
     
@@ -42,8 +42,8 @@ for exp_num = selected_exp
     % set parameters
     fit_params.cho = cho;
     fit_params.cfcho = cfcho;
-    fit_params.out = out;
-    fit_params.cfout = cfout;
+    fit_params.out = out==1;
+    fit_params.cfout = cfout==1;
     fit_params.con = con;
     fit_params.fit_cf = (exp_num > 2);
     fit_params.ntrials = size(cho, 2);
@@ -51,7 +51,10 @@ for exp_num = selected_exp
     fit_params.nsub = d.(exp_name).nsub;
     fit_params.sess = sess;
     fit_params.exp_num = num2str(exp_num);
-    fit_params.decision_rule = 3;
+    fit_params.decision_rule = 1;
+    fit_params.q = 0.5;
+    fit_params.noptions = 2;
+    fit_params.ncond = 4;
     
     save_params.fit_file = sprintf(...
         '%s%s%s%d', fit_folder, exp_name,  '_learning_', sess);
@@ -79,30 +82,27 @@ for exp_num = selected_exp
     
         
     Q = get_qvalues(...
-        exp_name, sess,...
-        fit_params.cho, fit_params.cfcho, fit_params.con, fit_params.out,...
-        fit_params.cfout, fit_params.ntrials, fit_params.fit_cf, 1); 
+        exp_name, sess, fit_params, 1); 
     
     figure('Position', [1,1,900,600]);
     plot_Q(Q, p1, p2, blue_color, exp_num, 1);
 
-    return 
-    
-    clear ll
-    
-    ll = zeros(2, 2, d.(exp_name).nsub);
-    
-    [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 2, :)] = sim_exp_ED(...
-       exp_name, exp_num, d, idx, sess, 5);
-    
-    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 2, :)] = sim_exp_ED(...
-        exp_name, exp_num, d, idx, sess,  4);
-    
-    [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 1, :)] = sim_exp_EE(...
-       exp_name, exp_num, d, idx, sess, 5);
-    
-    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 1, :)] = sim_exp_EE(...
-        exp_name, exp_num, d, idx, sess,  4);
+%     
+%     clear ll
+%     
+%     ll = zeros(2, 2, d.(exp_name).nsub);
+%     
+%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 2, :)] = sim_exp_ED(...
+%        exp_name, exp_num, d, idx, sess, 5);
+%     
+%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 2, :)] = sim_exp_ED(...
+%         exp_name, exp_num, d, idx, sess,  4);
+%     
+%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 1, :)] = sim_exp_EE(...
+%        exp_name, exp_num, d, idx, sess, 5);
+%     
+%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 1, :)] = sim_exp_EE(...
+%         exp_name, exp_num, d, idx, sess,  4);
     
     
     % --------------------------------------------------------------------
@@ -192,47 +192,47 @@ for exp_num = selected_exp
 %     set(gca, 'Fontsize', 20);
 %     title(sprintf('Exp. %s', num2str(exp_num)));
 
-    figure('Renderer', 'painters',...
-        'Position', [927,131,726,447], 'visible', 'on')
-        nsub = d.(exp_name).nsub;
-
-    mn = mean(ll, 3);
-    err = std(ll, 0, 3)/sqrt(nsub);
-    
-    b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55, 'FaceColor', 'Flat');
-    hold on
-    ngroups = 2;
-    nbars = 2;
-    % Calculating the width for each bar group
-    groupwidth = min(0.8, nbars/(nbars + 1.5));
-    cc = [0    0.4470    0.7410;
-        0.8500    0.3250    0.0980;
-        0.9290    0.6940    0.1250];
-    count = 0;
-    for i = 1:nbars
-        x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
-        hold on
-        for j = 1:length(x)
-            count = count + 1;
-            b(i).CData(j, :) = cc(i, :);
-            s = scatter(...
-                x(j).*ones(1, nsub)-Shuffle(linspace(-0.07, 0.07, nsub)),...
-                ll(j, i, :), 115,...
-                'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
-                'MarkerFaceColor', cc(i, :),...
-                'MarkerEdgeColor', 'w', 'HandleVisibility','off');
-        end
-        errorbar(x, mn(:, i), err(:,i), 'LineStyle', 'none', 'LineWidth',...
-            2.5, 'Color', 'k', 'HandleVisibility','off');
-    end
-    hold off
-    %ylim([0, 1.08]);
- 
-    box off
-    set(gca, 'XTickLabel', {'P. Trace', 'D. Trace'});
-    ylabel('Likelihood');
-    set(gca, 'Fontsize', 20);
-    set(gca,'TickDir','out'); % The only other option is 'in'
+%     figure('Renderer', 'painters',...
+%         'Position', [927,131,726,447], 'visible', 'on')
+%         nsub = d.(exp_name).nsub;
+% 
+%     mn = mean(ll, 3);
+%     err = std(ll, 0, 3)/sqrt(nsub);
+%     
+%     b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55, 'FaceColor', 'Flat');
+%     hold on
+%     ngroups = 2;
+%     nbars = 2;
+%     % Calculating the width for each bar group
+%     groupwidth = min(0.8, nbars/(nbars + 1.5));
+%     cc = [0    0.4470    0.7410;
+%         0.8500    0.3250    0.0980;
+%         0.9290    0.6940    0.1250];
+%     count = 0;
+%     for i = 1:nbars
+%         x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+%         hold on
+%         for j = 1:length(x)
+%             count = count + 1;
+%             b(i).CData(j, :) = cc(i, :);
+%             s = scatter(...
+%                 x(j).*ones(1, nsub)-Shuffle(linspace(-0.07, 0.07, nsub)),...
+%                 ll(j, i, :), 115,...
+%                 'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+%                 'MarkerFaceColor', cc(i, :),...
+%                 'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+%         end
+%         errorbar(x, mn(:, i), err(:,i), 'LineStyle', 'none', 'LineWidth',...
+%             2.5, 'Color', 'k', 'HandleVisibility','off');
+%     end
+%     hold off
+%     %ylim([0, 1.08]);
+%  
+%     box off
+%     set(gca, 'XTickLabel', {'P. Trace', 'D. Trace'});
+%     ylabel('Likelihood');
+%     set(gca, 'Fontsize', 20);
+%     set(gca,'TickDir','out'); % The only other option is 'in'
     
 %     figure('Position', [1,1,900,600]);
 % 
@@ -494,6 +494,7 @@ function [parameters,ll] = ...
                     fit_params.cfcho(sub, :),...
                     fit_params.out(sub, :),...
                     fit_params.cfout(sub, :),...
+                    fit_params.q,...
                     fit_params.ntrials, model, fit_params.decision_rule,...
                     fit_params.fit_cf),...
                 fmincon_params.init_value{model},...

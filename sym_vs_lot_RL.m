@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 selected_exp = [1, 2, 3, 4, 5.2,6.2,7.2];
-selected_exp = selected_exp(3);
+selected_exp = selected_exp(3:4);
 displayfig = 'on';
 sessions = [0, 1];
 nagent = 1;

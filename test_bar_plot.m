@@ -3,28 +3,98 @@
 % computes correct choice rate then plots the article figs
 % --------------------------------------------------------------------
 init;
-% filenames{6}= 'block_complete_mixed_2s';
-% filenames{8}= 'block_complete_mixed_2s_amb_final';
-% filenames{7}= 'block_complete_mixed_2s_amb';
 
-selected_exp = 1;
-filenames = {filenames{1:3}};
+
+selected_exp = [3, 4, 5.2 6.2, 7.2];
+sessions = [0, 1];
 %------------------------------------------------------------------------
 % Plot fig
 %------------------------------------------------------------------------
-if length(filenames) > 1
-    to_add = '_all';
-else
-    to_add = sprintf('_exp_%d', selected_exp);
+
+for exp_num = selected_exp
+    
+        idx1 = (exp_num - round(exp_num)) * 10;   
+        idx1 = idx1 + (idx1==0);
+
+        sess = sessions(uint64(idx1));
+
+        % load data
+        exp_name = char(filenames{round(exp_num)});
+
+        data = d.(exp_name).data;
+        sub_ids = d.(exp_name).sub_ids;
+
+        [cho, cfcho, out, cfout, corr1, con1, p1, p2, rew, rtime, ev1, ev2,...
+            error_exclude] = ...
+            DataExtraction.extract_learning_data(data, sub_ids, idx, sess);
+        
+        corr{1} = corr1;
+        i = 1;
+        for m = [1, 4]
+            
+            [corr{i}, con2] = ...
+                sim_exp_learning(exp_name, exp_num, d, idx, sess, m);
+            i = i + 1;
+        end
+        
+        for i = [1, 2, 3]
+                for sub = 1:d.(exp_name).nsub
+
+                    corr3{i}(sub) = mean(corr{i}(sub, :));
+                end
+                
+            mn(i) = mean(corr3{i});
+            err(i) = std(corr3{i})/sqrt(d.(exp_name).nsub);
+        end
+    
+
+%     figure('Renderer', 'painters',...
+%         'Position', [927,131,726,447], 'visible', 'on')
+%         nsub = d.(exp_name).nsub;
+%     
+%     for i = [1, 2, 3]
+%         err = std(corr{i}, 0, 'all')/sqrt(d.(exp_name).nsub);
+%     end
+%     
+%     b = bar(mn, 'EdgeColor', 'w', 'FaceAlpha', 0.55, 'FaceColor', 'Flat');
+%     hold on
+%     ngroups = 2;
+%     nbars = 2;
+%     % Calculating the width for each bar group
+%     groupwidth = min(0.8, nbars/(nbars + 1.5));
+%     cc = [0    0.4470    0.7410;
+%         0.8500    0.3250    0.0980;
+%         0.9290    0.6940    0.1250];
+%     count = 0;
+%     for i = 1:nbars
+%         x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+%         hold on
+%         for j = 1:length(x)
+%             count = count + 1;
+%             b(i).CData(j, :) = cc(i, :);
+%             s = scatter(...
+%                 x(j).*ones(1, nsub)-Shuffle(linspace(-0.07, 0.07, nsub)),...
+%                 ll(j, i, :), 115,...
+%                 'MarkerFaceAlpha', 0.65, 'MarkerEdgeAlpha', 1,...
+%                 'MarkerFaceColor', cc(i, :),...
+%                 'MarkerEdgeColor', 'w', 'HandleVisibility','off');
+%         end
+%         errorbar(x, mn(:, i), err(:,i), 'LineStyle', 'none', 'LineWidth',...
+%             2.5, 'Color', 'k', 'HandleVisibility','off');
+%     end
+%     hold off
+%     %ylim([0, 1.08]);
+        
+       
 end
-% plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames, selected_exp)
+%plot_bar_plot_corr_choice_rate_contingencies(d, idx, blue_color_gradient, filenames, selected_exp)
 % mkdir('fig/exp', 'bar_plot_correct_choice_rate');
 % saveas(gcf, ...
 %     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_cond_exp_1.png', to_add));
 
-plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
-saveas(gcf,...
-    sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
+% plot_bar_plot_correct_choice_rate_exp(d, idx,  blue_color_gradient, filenames)
+% saveas(gcf,...
+%     sprintf('fig/exp/bar_plot_correct_choice_rate/fig_exp_1_2_3.png', to_add));
 
 
 function plot_bar_plot_correct_choice_rate_exp(...
