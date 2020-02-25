@@ -26,11 +26,7 @@ function [corr, con] = sim_exp_learning(...
             for sub = 1:size(cho, 1)
                 i = 1;
                 for pp = p(1:4) 
-                    try 
                     Q(sub, i, 1) = cho(sub, (p1(sub, :) == pp))./100;
-                    catch
-                        
-                    end
                     i = i + 1;
                 end
                 i = 1;
