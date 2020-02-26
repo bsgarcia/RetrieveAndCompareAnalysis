@@ -5,6 +5,7 @@ init;
 titles = {
         'Exp. 4'};
 selected_exp = [1, 2, 3, 4, 5.2, 6.2, 7.2];
+%selected_exp = selected_exp(1);
 sessions = [0, 1];
 
 
@@ -119,6 +120,20 @@ for exp_num = selected_exp
     saveas(gcf, ...
         sprintf('fig/exp/post_test_p_likert/exp_%s.png',...
         num2str(exp_num)));
+    
+   
+    figure('Position', [1,1,900,600]);
+    
+    for i = 1:d.(name).nsub
+        p = plot(unique(p1), qvalues(i, :), 'Color', red_color);
+        p.Color(4) = 0.5;
+        hold on
+    end
+    
+    p = plot(unique(p1), mean(qvalues, 1), 'Color', red_color, 'linewidth', 4);
+    hold on
+
+    
     
 end
 %     

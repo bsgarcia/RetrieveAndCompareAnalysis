@@ -91,6 +91,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num,
 %     p2 = repmat(p2, nagent, 1);
 %     ev1 = repmat(ev1, nagent, 1);
 %     ev2 = repmat(ev2, nagent, 1);
+    ll = ll./ntrials;
+
 end
 
 

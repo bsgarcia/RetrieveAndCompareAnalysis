@@ -35,6 +35,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
                 i = i + 1;          
             end
         end
+    elseif model == 6
+        Q = zeros(size(cho, 1), 8);
     else
         params.cho = cho;
         params.cfcho = cfcho;
@@ -76,13 +78,16 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         p_range = 1:length(unique(p1));
 
         for t = 1:ntrials
-
-            what_sym = p_range(p1(sub, t)==unique(p1));
-            v = [flatQ(what_sym), s2(t)];
-            [throw, a(sub, t)] = max(v);
             
+            if model == 6
+                a(sub, t) = (ev2(sub, t) > 0) + 1;
+            else
+                what_sym = p_range(p1(sub, t)==unique(p1));
+                v = [flatQ(what_sym), s2(t)];
+                [throw, a(sub, t)] = max(v);
+            
+            end
             p = a(sub, t) == cho(sub, t);
-             
 
             ll(sub) = ll(sub) + p;
 
@@ -100,5 +105,6 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         end
         i = i + 1;
     end
+    ll = ll./ntrials;
 end
 
