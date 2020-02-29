@@ -229,30 +229,30 @@ classdef DataExtraction
                 end
             end
             
-            if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
-                cont1(cont1==8) = 7;
-                cont1(cont1==2) = 3;
-                
-                cont1(cont1==18) = 8;
-                cont1(cont1==11) = 2;
-                
-                cont1(cont1==17) = 6;
-                cont1(cont1==12) = 4;
-                
-            end
-            
-            if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
-                
-                cont2(cont2==8) = 7;
-                cont2(cont2==2) = 3;
-                
-                cont2(cont2==18) = 8;
-                cont2(cont2==11) = 2;
-                
-                cont2(cont2==17) = 6;
-                cont2(cont2==12) = 4;
-                
-            end
+%             if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
+%                 cont1(cont1==8) = 7;
+%                 cont1(cont1==2) = 3;
+%                 
+%                 cont1(cont1==18) = 8;
+%                 cont1(cont1==11) = 2;
+%                 
+%                 cont1(cont1==17) = 6;
+%                 cont1(cont1==12) = 4;
+%                 
+%             end
+%             
+%             if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
+%                 
+%                 cont2(cont2==8) = 7;
+%                 cont2(cont2==2) = 3;
+%                 
+%                 cont2(cont2==18) = 8;
+%                 cont2(cont2==11) = 2;
+%                 
+%                 cont2(cont2==17) = 6;
+%                 cont2(cont2==12) = 4;
+%                 
+%             end
         end
         
         function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...

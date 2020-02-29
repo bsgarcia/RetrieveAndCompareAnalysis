@@ -5,7 +5,7 @@
 init;
 % -------------------------------------------------------------------%
 
-selected_exp = [4, 5.2, 6.2, 7.2];
+selected_exp = [4, 5.2, 6.2];
 
 sessions = [0, 1];
 
@@ -30,19 +30,16 @@ for exp_num = selected_exp
     end
     
     [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 1, starting:ending)] = ...
-        sim_exp_ED(exp_name, exp_num, d, idx, sess, 6);
+        sim_exp_ED(exp_name, exp_num, d, idx, sess, 1);
     
     [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 2, starting:ending)] = ...
         sim_exp_ED(exp_name, exp_num, d, idx, sess,  4);
-%     
-%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(1, 3, starting:ending)] = ...
-%         sim_exp_ED(exp_name, exp_num, d, idx, sess,  6);
-%     
-%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 1, starting:ending)] = ...
-%         sim_exp_EE(exp_name, exp_num, d, idx, sess, 5);
-%     
-%     [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 2, starting:ending)] = ...
-%         sim_exp_EE(exp_name, exp_num, d, idx, sess,  4);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 1, starting:ending)] = ...
+        sim_exp_EE(exp_name, exp_num, d, idx, sess, 1);
+    
+    [a, cont1, cont2, p1, p2, ev1, ev2, ll(2, 2, starting:ending)] = ...
+        sim_exp_EE(exp_name, exp_num, d, idx, sess,  4);
     
     nsub = d.(exp_name).nsub;
     
@@ -51,18 +48,18 @@ for exp_num = selected_exp
 
 end
 
-m1(1, :) = ll(1, 1, :);
-m2(1, :) = ll(1, 2, :);
+m1([1, 2], :) = ll([1, 2], 1, :);
+m2([1, 2], :) = ll([1, 2], 2, :);
 
 skyline_comparison_plot(...
     m1, m2,...
-    [red_color;blue_color;red_color;blue_color],...
+    [blue_color;orange_color;blue_color;orange_color],...
     0,...
     1.08,...
     20, '', '',...
     'ratio of correctly predicted choices', ...
     [], 0);
-
+legend('', 'De');
 box off
 set(gca, 'XTickLabel', {'ED', 'EE'});
 set(gca, 'Fontsize', 20);

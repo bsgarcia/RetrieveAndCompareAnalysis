@@ -1,8 +1,8 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [1, 2, 3, 4, 5.2,6.2,7.2];
-selected_exp = selected_exp(3:4);
+selected_exp = [1,2,3,4, 5.2,6.2,7.2];
+%selected_exp = selected_exp(3:4);
 displayfig = 'on';
 sessions = [0, 1];
 nagent = 1;
@@ -154,7 +154,7 @@ for exp_num = selected_exp
     clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
     
     [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
-        sim_exp_ED(name, exp_num, d, idx, sess, 1);
+        sim_exp_ED(name, exp_num, d, idx, sess, 4);
     
   
     nsub = size(cho, 1);

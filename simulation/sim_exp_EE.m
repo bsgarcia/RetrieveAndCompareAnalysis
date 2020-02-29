@@ -33,9 +33,25 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num,
             end
         end
     else
+        [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+            DataExtraction.extract_learning_data(...
+                    d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+                
+        params.cho = cho;
+        params.cfcho = cfcho;
+        params.con = con;
+        params.out = out;
+        params.cfout = cfout;
+        params.ntrials = size(cho, 2);
+        params.fit_cf = (exp_num>2);
+        params.model = model;
+        params.ncond = 4;
+        params.noptions = 2;
+        params.nsub = size(cho, 1);
+        params.q = 0.5;
         
         [Q, params] = get_qvalues(...
-            exp_name, sess, cho, cfcho, con, out, cfout, ntrials, (exp_num>2), model);
+            exp_name, sess, params, model);
         Q = sort_Q(Q);
     end
     
@@ -61,12 +77,10 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num,
                 what_sym2 = p_range(p2(sub, t)==unique(p1));
                 
                 v = [flatQ(what_sym1), flatQ(what_sym2)];
-                
-                
+                              
                 [throw, a(sub, t)] = max(v);
                 p = (a(sub, t) == cho(sub, t));
      
-
                 ll(sub) = ll(sub) + p;
 
 %                 
@@ -84,14 +98,15 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num,
 %             i = i + 1;
 
         end
-%     end
+        ll = ll./ntrials;
+        %     end
 %     cont1 = repmat(cont1, 20, 1);
 %     cont2 = repmat(cont2, nagent, 1);
 %     p1 = repmat(p1, nagent, 1);
 %     p2 = repmat(p2, nagent, 1);
 %     ev1 = repmat(ev1, nagent, 1);
 %     ev2 = repmat(ev2, nagent, 1);
-    ll = ll./ntrials;
+    %ll = ll./ntrials;
 
 end
 

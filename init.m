@@ -57,6 +57,8 @@ colors = [0.3963    0.2461    0.3405;...
 blue_color = [0.0274 0.427 0.494];
 blue_color_min = [0 0.686 0.8];
 
+magenta_color = [166/255 77/255 121/255];
+
 % create a default color map ranging from blue to dark blue
 len = 8;
 blue_color_gradient = zeros(len, 3);

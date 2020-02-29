@@ -188,30 +188,15 @@ for exp_num = selected_exp
         
         lin3.Color(4) = 0.0;
                 
-        ind_point(i) = interp1(lin3.YData, lin3.XData, 0.5);
+        ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         
-        s = scatter(x_values(i), ind_point(i), 120, 'MarkerEdgeColor', 'w', ...
+        s = scatter(x_values(i), ind_point, 120, 'MarkerEdgeColor', 'w', ...
             'MarkerFaceColor', 'k');
         s.MarkerFaceAlpha = 0.7;
         hold on 
         
       
     end
-    
-    X = x_values;
-    Y = ind_point;
-    b = glmfit(x_values, Y);
-    values = glmval(b,X, 'identity');
-%     
-%     mn2 = mean(pY2, 1);
-%     err2 = std(pY2, 1)./sqrt(size(qvalues, 1));
-%     
-%     curveSup2 = (mn2 + err2);
-%     curveInf2 = (mn2 -err2);
-    
-    pl1 = plot(x_values, values, 'LineWidth', 1.7, 'Color', 'k');
-    pl1.Color(4) = .6;
-    hold on
     clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
     
     mkdir('fig/exp', 'post_test_p_likert_2');

@@ -1,12 +1,4 @@
 function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num, d, idx, sess, model)
-    
-    %[a, out, con, p1, p2, ev1, ev2, Q] = sim_exp_learning(exp_name, d, idx, sess);
-    
-   [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
-        DataExtraction.extract_learning_data(...
-            d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
-    
-    ntrials = size(cho, 2);
 
     if model == 4
        [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
@@ -23,6 +15,10 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         end
     elseif model == 5
         
+        [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+        DataExtraction.extract_learning_data(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+        
         for sub = 1:size(cho, 1)
             i = 1;      
             icon = [1, 2, 3, 4, 4, 3, 2, 1];
@@ -36,8 +32,18 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
             end
         end
     elseif model == 6
+        
+         
+        [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+        DataExtraction.extract_learning_data(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+        
         Q = zeros(size(cho, 1), 8);
     else
+        
+         [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+        DataExtraction.extract_learning_data(...
+            d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
         params.cho = cho;
         params.cfcho = cfcho;
         params.con = con;
@@ -63,6 +69,23 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         DataExtraction.extract_sym_vs_lot_post_test(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
     
+    for i = 1:d.(exp_name).nsub
+        try
+        to_keep = logical(...
+            (~ismember(ev2(sub, :), [-1, 0, 1]) .*...
+            (ev1(sub, :)  ~= ev2(sub, :))));
+        cho(i, 1:56) = cho(i, to_keep);
+        ev1(i, 1:56) = ev1(i, to_keep);
+        ev2(i, 1:56) = ev2(i, to_keep);
+        p1(i,  1:56) = p1(i, to_keep);
+        catch
+            
+        end
+    end
+    cho = cho(:, 1:56);
+    ev1 = ev1(:, 1:56);
+    ev2 = ev2(:, 1:56);
+    p1 = p1(:, 1:56);
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
     
