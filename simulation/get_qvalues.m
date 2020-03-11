@@ -1,7 +1,7 @@
 function [Q, params] = get_qvalues(exp_name, sess, sim_params, model)
 
     
-    data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
+    data = load(sprintf('data/fit/%s_learning_manual_%d', exp_name, sess));
     parameters = data.data('parameters');
     
     switch model
@@ -35,7 +35,7 @@ function Q = simulation(sim_params)
 
     Q = ones(sim_params.nsub , sim_params.ncond, sim_params.noptions)...
         .*sim_params.q;    
-
+    
     for sub = 1:sim_params.nsub    
         
         switch sim_params.model

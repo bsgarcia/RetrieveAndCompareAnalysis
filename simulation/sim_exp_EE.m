@@ -40,8 +40,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_EE(exp_name, exp_num,
         params.cho = cho;
         params.cfcho = cfcho;
         params.con = con;
-        params.out = out;
-        params.cfout = cfout;
+        params.out = out==1;
+        params.cfout = cfout==1;
         params.ntrials = size(cho, 2);
         params.fit_cf = (exp_num>2);
         params.model = model;

@@ -40,7 +40,7 @@ for n = 1:nbar
     mystd = nanstd(DataMatrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
-    width = x_lim(2)/nbar/5;
+    width = x_lim(2)/8/5;
     
     
     fill([x_values(n)-width x_values(n)+width x_values(n)+width x_values(n)-width],...

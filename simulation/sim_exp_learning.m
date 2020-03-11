@@ -1,16 +1,21 @@
 function [corr, con] = sim_exp_learning(...
     exp_name, exp_num, d, idx, sess, model)
 
-    data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
-    parameters = data.data('parameters');
 
     switch model
         case {1, 3}
+            data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
+            parameters = data.data('parameters');
+
             alpha1 = parameters{model}(:, 2);
             beta1 = parameters{model}(:, 1);
             decision_rule = 1;
 
         case 2
+            
+            data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
+            parameters = data.data('parameters');
+
             alpha1 = parameters{2}(:, 2);
             alpha2 = parameters{2}(:, 3);
             beta1 = parameters{2}(:, 1);
@@ -25,12 +30,12 @@ function [corr, con] = sim_exp_learning(...
             p = fliplr(unique(p1)');
             for sub = 1:size(cho, 1)
                 i = 1;
-                for pp = p(1:4) 
+                for pp = p(1:2) 
                     Q(sub, i, 1) = cho(sub, (p1(sub, :) == pp))./100;
                     i = i + 1;
                 end
                 i = 1;
-                for pp = fliplr(p(5:8)) 
+                for pp = fliplr(p(3:4)) 
                     Q(sub, i, 2) = cho(sub, (p1(sub, :) == pp))./100;
                     i = i + 1;
                 end
@@ -71,7 +76,7 @@ function [corr, con] = sim_exp_learning(...
         
       
         qlearner = models.QLearning([beta1(sub), alpha1(sub)], ...
-            0.5, 4, 2, ntrials, decision_rule);
+            0.5, length(unique(con)), 2, ntrials, decision_rule);
 
         if exist('Q')
             qlearner.Q(:, :) = Q(sub, :, :);

@@ -22,20 +22,23 @@ filenames = {
     'interleaved_incomplete', 'block_incomplete', 'block_complete',...
     'block_complete_mixed', 'block_complete_mixed_2s',...
     'block_complete_mixed_2s_amb_final',...
-    'block_complete_mixed_2s_amb_heuristic'};
+    'block_complete_mixed_2s_amb_heuristic', 'block_complete_simple'};
 
 folder = 'data';
 
 % exclusion criteria
 rtime_threshold = 100000;
 catch_threshold = 1;
+% if different from 0 then select the number of best sub
 n_best_sub = 0;
+
 allowed_nb_of_rows = [...
-    258, 288,... %exp 1, 2
+    258, 288,... %exp 1, 2, 8
     255, 285,... %exp 3
     376, 470,... %exp 4 
     648, 658,... %exp 5
     742, 752 ... %exp 6, 7
+    216,... %exp 8
     ];
 
 % display figures

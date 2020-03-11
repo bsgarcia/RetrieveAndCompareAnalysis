@@ -13,6 +13,9 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
                 i = i + 1;          
             end
         end
+        
+        
+        
     elseif model == 5
         
         [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
@@ -31,28 +34,30 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
                 i = i + 1;          
             end
         end
-    elseif model == 6
         
-         
+    elseif model == 6
+               
         [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
         DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
         
         Q = zeros(size(cho, 1), 8);
+    
     else
         
          [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
         DataExtraction.extract_learning_data(...
             d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
+        
         params.cho = cho;
         params.cfcho = cfcho;
         params.con = con;
-        params.out = out;
-        params.cfout = cfout;
+        params.out = out==1;
+        params.cfout = cfout==1;
         params.ntrials = size(cho, 2);
         params.fit_cf = (exp_num>2);
         params.model = model;
-        params.ncond = 4;
+        params.ncond = length(unique(con));
         params.noptions = 2;
         params.nsub = size(cho, 1);
         params.q = 0.5;
@@ -69,31 +74,14 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         DataExtraction.extract_sym_vs_lot_post_test(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
     
-    for i = 1:d.(exp_name).nsub
-        try
-        to_keep = logical(...
-            (~ismember(ev2(sub, :), [-1, 0, 1]) .*...
-            (ev1(sub, :)  ~= ev2(sub, :))));
-        cho(i, 1:56) = cho(i, to_keep);
-        ev1(i, 1:56) = ev1(i, to_keep);
-        ev2(i, 1:56) = ev2(i, to_keep);
-        p1(i,  1:56) = p1(i, to_keep);
-        catch
-            
-        end
-    end
-    cho = cho(:, 1:56);
-    ev1 = ev1(:, 1:56);
-    ev2 = ev2(:, 1:56);
-    p1 = p1(:, 1:56);
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
     
     ll = zeros(1, nsub);
     
     i = 1;  
-    for sub = 1:nsub
 
+    for sub = 1:nsub
 
         flatQ = 1.*Q(sub, :)+ -1.*(1-Q(sub,:));
 
@@ -103,10 +91,16 @@ function [a, cont1, cont2, p1, p2, ev1, ev2, ll] = sim_exp_ED(exp_name, exp_num,
         for t = 1:ntrials
             
             if model == 6
+                
                 a(sub, t) = (ev2(sub, t) > 0) + 1;
+            
             else
-                what_sym = p_range(p1(sub, t)==unique(p1));
+                
+                what_sym = p_range(...
+                    p1(sub, t)==unique(p1));
+                
                 v = [flatQ(what_sym), s2(t)];
+                
                 [throw, a(sub, t)] = max(v);
             
             end

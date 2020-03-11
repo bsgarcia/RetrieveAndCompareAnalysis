@@ -10,6 +10,7 @@ filenames = {
     'block_complete_mixed_2s',...
     'block_complete_mixed_2s_amb_final',...
     'block_complete_mixed_2s_amb_heuristic'...
+    'block_complete_simple'...
 };
 
 %------------------------------------------------------------------------
@@ -45,7 +46,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
 
     
     figure('Position', [1,1,600, 900]);
-    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7'};
+    titles = {'Exp. 4', 'Exp. 5', 'Exp. 6', 'Exp. 7', 'Exp. 8'};
          
         
         exp_name = char(exp_name);

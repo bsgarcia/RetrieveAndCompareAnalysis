@@ -140,6 +140,12 @@ classdef DataExtraction
                             mask_eli = data(:, exp.elic) == eli;
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
                             rtime{i, 3} = data(mask, exp.rtime);
+                            corr_catch{i, 3} = data(mask, exp.corr);
+%                             if  ~ismember(length(corr_catch{i, 3}), [120, 240])
+%                                 
+%                                 error('wrong number of learning trials');
+%                                
+%                             end
                         end
                     end
                     
@@ -155,11 +161,12 @@ classdef DataExtraction
             end
             for j = 1:length(to_keep)
                 mask_sub = data(:, exp.sub) == to_keep(j);
-                mask_eli = ismember(data(:, exp.elic), [0]);
+                mask_eli = ismember(data(:, exp.elic), -1);
                 mask_corr = logical(mask_sub .* mask_sess .* mask_eli .* mask_no_catch);
                 corr(j) = mean(data(mask_corr, exp.corr));
             end
             [throw, sorted_exp] = sort(corr);
+            
             to_keep = to_keep(sorted_exp);
             if n_best_sub ~= 0
                 to_keep = to_keep(end-n_best_sub+1:end);
@@ -336,30 +343,30 @@ classdef DataExtraction
                 i = i + 1;
             end
                
-            if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
-                cont1(cont1==8) = 7;
-                cont1(cont1==2) = 3;
-                
-                cont1(cont1==18) = 8;
-                cont1(cont1==11) = 2;
-                
-                cont1(cont1==17) = 6;
-                cont1(cont1==12) = 4;
-                
-            end
-            
-            if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
-                
-                cont2(cont2==8) = 7;
-                cont2(cont2==2) = 3;
-                
-                cont2(cont2==18) = 8;
-                cont2(cont2==11) = 2;
-                
-                cont2(cont2==17) = 6;
-                cont2(cont2==12) = 4;
-                
-            end
+%             if sum(ismember(cont1, [18, 11, 12, 17]), 'all')
+%                 cont1(cont1==8) = 7;
+%                 cont1(cont1==2) = 3;
+%                 
+%                 cont1(cont1==18) = 8;
+%                 cont1(cont1==11) = 2;
+%                 
+%                 cont1(cont1==17) = 6;
+%                 cont1(cont1==12) = 4;
+%                 
+%             end
+%             
+%             if sum(ismember(cont2, [18, 11, 12, 17]), 'all')
+%                 
+%                 cont2(cont2==8) = 7;
+%                 cont2(cont2==2) = 3;
+%                 
+%                 cont2(cont2==18) = 8;
+%                 cont2(cont2==11) = 2;
+%                 
+%                 cont2(cont2==17) = 6;
+%                 cont2(cont2==12) = 4;
+%                 
+%             end
             
         end
         

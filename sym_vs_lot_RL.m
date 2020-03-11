@@ -1,17 +1,13 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [1,2,3,4, 5.2,6.2,7.2];
-%selected_exp = selected_exp(3:4);
+selected_exp = [1, 2, 3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2, 8];
 displayfig = 'on';
 sessions = [0, 1];
-nagent = 1;
-model = [1];
 %-------------------------------------------------------------------------
 
-
 for exp_num = selected_exp
-     
+    
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);
     sess = sessions(uint64(idx1));
@@ -21,30 +17,31 @@ for exp_num = selected_exp
     
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
-  
+    
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
-%     
-    %d.(name).nsub = size(cho, 1);
+    
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     p_lot = unique(p2)';
     p_sym = unique(p1)';
-    nsub = d.(name).nsub;
+    
+    nsub = size(cho, 1);
+    
     chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
     for i = 1:nsub
         for j = 1:length(p_lot)
             for k = 1:length(p_sym)
                 temp = ...
                     cho(i, logical(...
-                    (p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));             
-                chose_symbol(i, j, k) = temp == 1;           
+                    (p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));
+                chose_symbol(i, j, k) = temp == 1;
             end
         end
     end
-        
+    
     prop = zeros(length(p_sym), length(p_lot));
     temp1 = cho(:, :);
     for i = 1:length(p_sym)
@@ -59,13 +56,13 @@ for exp_num = selected_exp
     
     X = reshape(...
         repmat(p_lot, nsub, 1), [], 1....
-    );
+        );
     
     pp = zeros(length(p_sym), length(p_lot));
     
     for i = 1:length(p_sym)
         
-        Y = reshape(chose_symbol(:, :, i), [], 1);      
+        Y = reshape(chose_symbol(:, :, i), [], 1);
         
         [logitCoef, dev] = glmfit(X, Y, 'binomial','logit');
         
@@ -78,18 +75,16 @@ for exp_num = selected_exp
         'Position', [961, 1, 900, 550],...
         'visible', displayfig)
     
-    alpha = [fliplr(linspace(.5, 1, 4)), linspace(.5, 1, 4)];
+    %alpha = [fli linspace(.5, 1, 2)];
     
     lin1 = plot(...
         linspace(0, 1, 12), ones(12)*0.5,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     
     for i = 1:length(p_sym)
-        
-        if ~ismember(i, [1, 8])
+        if ~ismember(i, [1, length(p_sym)])
             continue
         end
-        
         if p_sym(i) < .5
             color = red_color;
         else
@@ -97,12 +92,7 @@ for exp_num = selected_exp
         end
         
         hold on
-        
-        if i == 8
-            hv = 'on';
-        else
-            hv = 'off';
-        end
+        hv = 'on';
         
         lin3 = plot(...
             p_lot,  pp(i, :),...
@@ -121,12 +111,14 @@ for exp_num = selected_exp
         
         sc1 = scatter(p_lot, prop(i, :), 180,...
             'MarkerEdgeColor', 'w',...
-            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65, 'handlevisibility', 'off');
+            'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.65,...
+            'handlevisibility', 'off');
         
         hold on
         
-       errorbar(sc1.XData, prop(i, :), err_prop(i, :),...
-           'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7, 'handlevisibility', 'off');%, 'CapSize', 2);
+        errorbar(sc1.XData, prop(i, :), err_prop(i, :),...
+            'Color', color, 'LineStyle', 'none', 'LineWidth', 1.7,...
+            'handlevisibility', 'off');%, 'CapSize', 2);
         
         ind_point = interp1(lin3.YData, lin3.XData, 0.5);
         
@@ -151,19 +143,20 @@ for exp_num = selected_exp
         hold on
         
     end
-    clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
     
+    clear prop cho pp p_sym p_lot err_prop
+
     [cho, cont1, cont2, p1, p2, ev1, ev2] = ...
-        sim_exp_ED(name, exp_num, d, idx, sess, 4);
+        sim_exp_ED(name, exp_num, d, idx, sess, 1);
     
-  
+    
     nsub = size(cho, 1);
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     p_lot = unique(p2)';
     p_sym = unique(p1)';
-       
+    
     chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
     for i = 1:nsub
         for j = 1:length(p_lot)
@@ -211,7 +204,7 @@ for exp_num = selected_exp
     
     for i = 1:length(pwin)
         
-        if ~ismember(i, [1, 8])
+        if ~ismember(i, [1, length(p_sym)])
             continue
         end
         
@@ -237,11 +230,8 @@ for exp_num = selected_exp
         
         lin3.Color(4) = 0.6;
         
-        hold on 
+        hold on
     end
-    
-    %legend('data','Likert', 'location', 'southwest');
-    clear pp p_lot p_sym temp err_prop prop i
     
     s1 = title(sprintf('Exp. %s', num2str(exp_num)));
     set(s1, 'Fontsize', 20)
@@ -253,8 +243,7 @@ for exp_num = selected_exp
         num2str(exp_num)));
     
     %     exp_num = exp_num + 1;
+    clear prop cho pp p_sym p_lot err_prop
     
-    clear pp p_lot p_sym temp err_prop prop i
-
 end
 

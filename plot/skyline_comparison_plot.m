@@ -30,8 +30,9 @@ for n = 1:Nbar
     
     clear DataMatrix DataModel
     clear jitter jitterstrength
-    DataMatrix = DataCell{n,:}';
-    DataModel  = Model_DataCell1{n,:};
+    
+    DataMatrix = [DataCell{n,:}]';
+    DataModel  = [Model_DataCell1{n,:}]';
     
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
