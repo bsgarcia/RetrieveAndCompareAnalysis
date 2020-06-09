@@ -44,19 +44,12 @@ classdef QLearning < handle
                     s(t), a(t)...
                 );
                 
-                pe = r(t) - obj.Q(s(t), a(t));
-                
-                obj.Q(s(t), a(t)) = ...
-                    obj.Q(s(t), a(t)) + obj.alpha * pe;
+                obj.learn(s(t), a(t), r(t));
                 
                 if fit_cf
-                    pe = cfr(t) - obj.Q(s(t), cfa(t));
-                    
-                    obj.Q(s(t), cfa(t)) = ...
-                        obj.Q(s(t), cfa(t)) + obj.alpha * pe;
+                     obj.learn(s(t), cfa(t), cfr(t));
                 end
-                
-                
+                             
             end
             nll = -obj.ll;
         end
@@ -66,7 +59,7 @@ classdef QLearning < handle
                 case 1
                     ev = obj.Q(s, :).*1 + -1.*(1-obj.Q(s,:));
                     % logLL softmax
-                    p = (obj.beta * ev(a)) ...
+                    p = (obj.beta .* ev(a)) ...
                     - log(sum(exp(obj.beta .* ev)));
                 case 2
                     ev = obj.Q(s, :).*1 + -1.*(1-obj.Q(s,:));
@@ -91,7 +84,7 @@ classdef QLearning < handle
                 case {1, 2}
                     ev = obj.Q(s, :).*1 + -1.*(1-obj.Q(s, :));
                     % LL softmax
-                    p = exp(obj.beta * ev) ...
+                    p = exp(obj.beta .* ev) ...
                     ./sum(exp(obj.beta .* ev));
                 case 3
                     % LL argmax
@@ -117,18 +110,36 @@ classdef QLearning < handle
             choice = obj.a(t);
         end
         
-        function learn(obj, s, a, r, cfr, fit_cf)
+        function choice = make_choice_between_two_values(obj, v1, v2)
+            switch obj.which_decision_rule
+                case 1
+                    p = exp(obj.beta .* [v1, v2]) ...
+                    ./sum(exp(obj.beta .* [v1, v2]));
+                    
+                case 2
+                    if v1 ~= v2
+                        [throw, am] = max([v1, v2]);
+                        p = (am == [1, 2]);
+                    else
+                        p = [0.5, 0.5];
+                    end
+                    
+            end
+ 
+            choice = randsample(...
+                1:length(p),... % randomly drawn action
+                1,... % number of element picked
+                true,...% replacement
+                p... % probabilities
+                );
+            
+        end
+        
+        function learn(obj, s, a, r)
             pe = r - obj.Q(s, a);
             
             obj.Q(s, a) = obj.Q(s, a) + obj.alpha * pe;
-            
-            if fit_cf
-                pe = cfr - obj.Q(s, 3-a);
-                
-                obj.Q(s, 3-a) = obj.Q(s, 3-a) + obj.alpha * pe;
-            end
-            
-            
+                   
         end
         
         

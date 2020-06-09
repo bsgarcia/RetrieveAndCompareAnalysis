@@ -8,9 +8,7 @@ init;
 % overwrite filenames variable
 filenames = {
     'block_complete_mixed_2s',...
-    'block_complete_mixed_2s_amb_final',...
     'block_complete_mixed_2s_amb_heuristic'...
-    'block_complete_simple'...
 };
 
 %------------------------------------------------------------------------
@@ -22,7 +20,7 @@ for exp_name = filenames
     session = [0, 1];
     plot_bar_plot_correct_choice_rate(d, idx, orange_color, blue_color, exp_name, ttl, session);
     mkdir('fig/exp', 'bar_plot_correct_choice_rate_post_test');
-    saveas(gcf, sprintf('fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d.png', i));
+    saveas(gcf, sprintf('fig/exp/bar_plot_correct_choice_rate_post_test/exp_%d.svg', i));
     i = i + 1;
 end
 
@@ -104,7 +102,7 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
         set(gca, 'Fontsize', 18);
         set(gca, 'box', 'off');
 
-        title(ttl);
+        %title(ttl);
         
         yline(.5, 'LineStyle', '--');
         hold on
@@ -147,8 +145,8 @@ function plot_bar_plot_correct_choice_rate(d, idx, orange_color,...
             ones(1, 2) .* mean(corr_heuristic),...
             'Color', orange_color, 'LineStyle', '-', 'LineWidth', 3);
         
-        legend([p2_1], {'Sim. Heuristic'},...
-            'Location', 'southwest');
+%         legend([p2_1], {'Sim. Heuristic'},...
+%             'Location', 'southwest');
 
         box off
         hold off

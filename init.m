@@ -19,10 +19,10 @@ format shortg
 %------------------------------------------------------------------------
 % filenames and folders
 filenames = {
-    'interleaved_incomplete', 'block_incomplete', 'block_complete',...
-    'block_complete_mixed', 'block_complete_mixed_2s',...
+    'interleaved_incomplete', 'block_incomplete', 'block_complete', 'block_complete_simple',...
+    'block_complete_mixed',  'block_complete_mixed_2s',...
     'block_complete_mixed_2s_amb_final',...
-    'block_complete_mixed_2s_amb_heuristic', 'block_complete_simple'};
+    'block_complete_mixed_2s_amb_heuristic'};
 
 folder = 'data';
 
@@ -57,8 +57,17 @@ colors = [0.3963    0.2461    0.3405;...
     0.7089    0.3476    0.0876;...
     0.2952    0.3013    0.3569;...
     0.1533    0.4964    0.2730];
-blue_color = [0.0274 0.427 0.494];
+
+%blue_color = [0.0274 0.427 0.494];
+blue_color = [0    0.4470    0.7410];
+%blue_color = [14/255, 151/255, 165/255];
+%blue_color = colors(1, :);
 blue_color_min = [0 0.686 0.8];
+
+light_blue = [141/255 160/255 203/255];
+light_orange = [252/255 141/255 98/255];
+light_magenta = [231/255,138/255,195/255];
+light_green = [102/255,194/255,165/255];
 
 magenta_color = [166/255 77/255 121/255];
 
@@ -82,6 +91,12 @@ red_to_blue(:, 2) = ...
     linspace(red_color(2),blue_color(2),len)';
 red_to_blue(:, 3) = ...
     linspace(red_color(3),blue_color(3),len)';
+
+%-------------------------------------------------------------------------
+% Plot parameters
+%------------------------------------------------------------------------
+fontsize = 20;
+
 
 
 %-------------------------------------------------------------------------

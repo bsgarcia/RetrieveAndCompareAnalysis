@@ -1,18 +1,16 @@
 % -------------------------------------------------------------------%
 % This script finds the best fitting Values for each exp             %
-% then plots the figs                                                %
+% then plots the option value                                        %
 % -------------------------------------------------------------------%
 init;
 % -------------------------------------------------------------------%
 
-%selected_exp = [3, 4, 5.1, 5.2, 6.1, 6.2, 7.1, 7.2];
-selected_exp = [4, 5.2, 6.2, 7.2];
-
+selected_exp = [6.1, 6.2, 7.1, 7.2];
+selected_exp = selected_exp(1);
 sessions = [0, 1];
 
 learning_model = [1];
 post_test_model = [1, 2];
-
 
 fit_folder = 'data/fit/';
 
@@ -54,35 +52,35 @@ for exp_num = selected_exp
     fit_params.decision_rule = 1;
     fit_params.q = 0.5;
     fit_params.noptions = 2;
-    fit_params.ncond = 4;
+    fit_params.ncond = length(unique(con));
     
     save_params.fit_file = sprintf(...
         '%s%s%s%d', fit_folder, exp_name,  '_learning_', sess);
     
     % fmincon params
-    fmincon_params.init_value = {[0, .5], [0, .5, .5],[0, .5]};
-    fmincon_params.lb = {[0, 0], [0, 0, 0], [0, 0]};
+    fmincon_params.init_value = {[1, .5], [0, .5, .5],[0, .5]};
+    fmincon_params.lb = {[0.001, 0.001], [0, 0, 0], [0, 0]};
     fmincon_params.ub = {[100, 1], [100, 1, 1], [100, 1]};
     
     try
         data = load(save_params.fit_file);
         
         %lpp = data.data('lpp');
-        parameters = data.data('parameters');  %% Optimization parameters
+        fit_params.params = data.data('parameters');  %% Optimization parameters
         ll = data.data('ll');
         %hessian = data.data('hessian');
         if force
             error('Force = True');
         end
     catch
-        [parameters, ll] = runfit_learning(...
+        [fit_params.params, ll] = runfit_learning(...
             fit_params, save_params, fmincon_params);
         
     end
     
-        
-    Q = get_qvalues(...
-        exp_name, sess, fit_params, 1); 
+    fit_params.alpha1 = fit_params.params{1}(:, 2);
+    
+    Q = get_qvalues(fit_params); 
     
     figure('Position', [1,1,900,600]);
     plot_Q(Q, p1, p2, blue_color, exp_num, 1);
@@ -469,6 +467,7 @@ function [parameters,ll] = ...
 
     w = waitbar(0, 'Fitting subject');
     
+    tStart = tic;
     for sub = 1:fit_params.nsub
         
         waitbar(...
@@ -504,11 +503,34 @@ function [parameters,ll] = ...
                 [],...
                 options...
                 );
+            
+            
+%              [
+%                 p1,...
+%                 l1...              
+%             ] = bads(...
+%                 @(x) getlpp_learning(...
+%                     x,...
+%                     fit_params.con(sub, :),...
+%                     fit_params.cho(sub, :),...
+%                     fit_params.cfcho(sub, :),...
+%                     fit_params.out(sub, :),...
+%                     fit_params.cfout(sub, :),...
+%                     fit_params.q,...
+%                     fit_params.ntrials, model, fit_params.decision_rule,...
+%                     fit_params.fit_cf),...
+%                 fmincon_params.init_value{model},...
+%                 fmincon_params.lb{model},...
+%                 fmincon_params.ub{model},...
+%                 [],...
+%                 []...
+%                 );
             parameters{model}(sub, :) = p1;
             ll(model, sub) = l1;
 
         end
     end
+   toc(tStart);
     % Save the data
    %data = load(save_params.fit_file);
       

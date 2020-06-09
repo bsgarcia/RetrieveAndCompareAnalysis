@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 8, 3];
+selected_exp = [1, 2, 3, 4];
 sessions = [0, 1];
 
 displayfig = 'on';
@@ -68,7 +68,7 @@ end
 %     if exp_num == 8
 %         exp_num = 4;
 %     end
-figure('Position', [1,1,900,600]);
+figure('Position', [1,1,900,600], 'renderer', 'painters');
 
 y0 = yline(0.5, 'LineStyle', ':', 'LineWidth', 0.3);
 hold on
@@ -238,7 +238,7 @@ clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
 
 mkdir('fig/exp', 'post_test_p_likert_2');
 saveas(gcf, ...
-    sprintf('fig/exp/post_test_p_likert_2/exp_%s.png',...
+    sprintf('fig/exp/post_test_p_likert_2/full.svg',...
     num2str(exp_num)));
 
 %
@@ -387,13 +387,13 @@ saveas(gcf, ...
 %
 %     end
 %
-%   s1 = title(sprintf('Sim (likert estimated P(win)) Exp. %.1f', exp_num));
-%    set(s1, 'Fontsize', 20)
-%     set(gca,'TickDir','out')
-%
-%     mkdir('fig/exp', 'sim_Likert_ind_curves');
-%     saveas(gcf, ...
-%         sprintf('fig/exp/sim_Likert_ind_curves/ind_curve_with_dots_exp_%d_sym_vs_lot.png',...
-%         exp_num));
+  s1 = title(sprintf('Sim (likert estimated P(win)) Exp. %.1f', exp_num));
+   set(s1, 'Fontsize', 20)
+    set(gca,'TickDir','out')
+
+    mkdir('fig/exp', 'sim_Likert_ind_curves');
+    saveas(gcf, ...
+        sprintf('fig/exp/sim_Likert_ind_curves/ind_curve_with_dots_exp_%d_sym_vs_lot.png',...
+        exp_num));
 %
 % end

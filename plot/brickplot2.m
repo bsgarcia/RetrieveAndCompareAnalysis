@@ -1,5 +1,5 @@
 function [bars, nbar, nsub] = brickplot2(data,colors,y_lim,fontsize,mytitle, ... 
-    x_label,y_label,varargin, noscatter, x_lim, x_values)
+    x_label,y_label,varargin, noscatter, x_lim, x_values, width1)
 
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -13,6 +13,11 @@ end
 
 if ~exist('noscatter')
     noscatter = 0;
+end
+
+if ~exist('width1')
+    width1 = .8;
+    
 end
 
 % number of factors/groups/conditions
@@ -40,8 +45,7 @@ for n = 1:nbar
     mystd = nanstd(DataMatrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
-    width = x_lim(2)/8/5;
-    
+    width = x_lim(2)*width1/5;
     
     fill([x_values(n)-width x_values(n)+width x_values(n)+width x_values(n)-width],...
         [curve-sem curve-sem curve+sem curve+sem],...
@@ -66,10 +70,16 @@ for n = 1:nbar
 %     hold on
 %         
     if ~noscatter
-        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, 10,...
+        try
+        scatter((ones(size(DataMatrix)).*n)+Shuffle(linspace(-0.1, .1, nsub))', DataMatrix, 10,...
             colors(n,:),'filled',...
             'marker','o',...
             'MarkerFaceAlpha',0.4);
+        catch
+            
+        
+        end
+        
         hold on
     end
     
@@ -95,6 +105,7 @@ end
 if ~exist('x_values')
     x_values = 1:nbar;
 end
+disp(fontsize);
 set(gca,'FontSize',fontsize,...
     'XLim', x_lim ,...
     'XTick',varargin,...

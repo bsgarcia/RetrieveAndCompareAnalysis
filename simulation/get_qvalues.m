@@ -1,32 +1,65 @@
-function [Q, params] = get_qvalues(exp_name, sess, sim_params, model)
-
-    
-    data = load(sprintf('data/fit/%s_learning_manual_%d', exp_name, sess));
-    parameters = data.data('parameters');
-    
-    switch model
-        case {1, 3}
-            alpha1 = parameters{model}(:, 2);
-            beta1 = parameters{model}(:, 1);
-            params = {beta1, alpha1};
-        case 2
-            beta1 = parameters{model}(:, 1);
-            alpha1 = parameters{model}(:, 2);
-            alpha2 = parameters{model}(:, 3);
-            params = {beta1, alpha1, alpha2};
-    end
-    
- 
+function [Q, params] = get_qvalues(sim_params)
+   
     % ----------------------------------------------------------%
     % Parameters                                                %
     % ----------------------------------------------------------%
 
     sim_params.show_window = true;
-    %sim_params.beta1 = beta1;
-    sim_params.params = params;
-    sim_params.model = model;
     
-    Q = simulation(sim_params);
+    switch sim_params.model
+        case 1
+            
+            [cho, cfcho, out, cfout, corr, con, p1, p2, rew, rtime, ev1, ev2] = ...
+            DataExtraction.extract_learning_data(...
+                sim_params.d.(sim_params.exp_name).data,...
+                sim_params.d.(sim_params.exp_name).sub_ids, sim_params.idx,...
+            sim_params.sess);
+
+            params.cho = cho;
+            params.cfcho = cfcho;
+            params.con = con;
+            params.out = out==1;
+            params.cfout = cfout==1;
+            params.ntrials = size(cho, 2);
+            params.fit_cf = (sim_params.exp_num>2);
+            params.model = sim_params.model;
+            params.ncond = length(unique(con));
+            params.noptions = 2;
+            params.decision_rule = 1;
+            params.nsub = size(cho, 1);
+            params.q = 0.5;
+            data = load(sprintf('data/fit/%s_learning_%d', ...
+                sim_params.exp_name, sim_params.sess));
+            parameters = data.data('parameters');
+
+            params.alpha1 = parameters{1}(:, 2);
+            params.beta1 = parameters{1}(:, 1);
+            
+            Q = sort_Q(simulation(params));
+
+        case 2
+            
+            [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                DataExtraction.extract_estimated_probability_post_test(...
+                sim_params.d.(sim_params.exp_name).data,...
+                sim_params.d.(sim_params.exp_name).sub_ids, sim_params.idx, sim_params.sess);
+        
+            data = load(sprintf('data/fit/%s_learning_%d', ...
+                sim_params.exp_name, sim_params.sess));
+            parameters = data.data('parameters');
+
+            params.alpha1 = parameters{1}(:, 2);
+            params.beta1 = parameters{1}(:, 1);
+        for sub = 1:size(cho, 1)
+            i = 1;      
+
+            for p = unique(p1)'
+                Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
+                i = i + 1;          
+            end
+        end
+    end
+            
     % ---------------------------------------------------------%
 end
 
@@ -37,15 +70,7 @@ function Q = simulation(sim_params)
         .*sim_params.q;    
     
     for sub = 1:sim_params.nsub    
-        
-        switch sim_params.model
-            case {1, 3}
-                alpha1 = sim_params.params{2}(sub);
-            case 2
-                alpha1 = sim_params.params{2}(sub);
-                alpha2 = sim_params.params{3}(sub);
-        end
-        
+               
         s = sim_params.con(sub, :);
         cfr = sim_params.cfout(sub, :);
         r = sim_params.out(sub, :);
@@ -53,37 +78,19 @@ function Q = simulation(sim_params)
         cfa = sim_params.cfcho(sub, :);
         fit_cf = sim_params.fit_cf;
         
-        for t = 1:sim_params.ntrials
-            
-            if sim_params.model == 3
-                deltaI = r(t) - cfr(t) - Q(sub, s(t), a(t));          
-            else
-                deltaI = r(t) - Q(sub, s(t), a(t));
-            end
-          
-            if fit_cf && (sim_params.model ~= 3)
-                cfdeltaI = cfr(t) - Q(sub, s(t), cfa(t));
-            end
-            
-            switch sim_params.model
-                case {1, 3}
-                    Q(sub, s(t), a(t)) = Q(sub, s(t), a(t)) + alpha1 * deltaI;
-                    if fit_cf && (sim_params.model ~= 3)
-                        Q(sub, s(t), cfa(t)) = Q(sub, s(t), cfa(t)) + alpha1 * cfdeltaI;
-                    end
-                case 2
+        qlearner = models.QLearning([NaN, sim_params.alpha1(sub)], sim_params.q,...
+           sim_params.ncond, sim_params.noptions,...
+           sim_params.ntrials, sim_params.decision_rule);
 
-                    Q(sub, s(t), a(t)) = Q(sub, s(t), a(t)) + ...
-                         alpha1 * deltaI * (deltaI>0) + alpha2 * deltaI * (deltaI<0);
-                    if fit_cf
-                        Q(sub, s(t), cfa(t)) = Q(sub, s(t), cfa(t)) + ...
-                            alpha1 * cfdeltaI * (cfdeltaI<0) + alpha2 * cfdeltaI * (cfdeltaI>0);
-                    end
-                    
-            end
-            
+        for t = 1:sim_params.ntrials            
+             qlearner.learn(s(t), a(t), r(t));
+             if fit_cf
+                 qlearner.learn(s(t), cfa(t), cfr(t));
+             end                         
         end
         
+        Q(sub, :, :) = qlearner.Q(:, :);
+
     end
     
 end

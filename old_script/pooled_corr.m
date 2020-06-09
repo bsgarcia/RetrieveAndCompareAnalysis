@@ -11,82 +11,31 @@ i_learn = 0;
 i_eli = 0;
 i_quest = 0;
 i_opt = 0;
-for conf1 = {'block', 'interleaved'}
-    for feedback1 = {'complete', 'incomplete'}
-        conf = conf1{:};
-        feedback = feedback1{:};
-        if strcmp(conf, 'interleaved') && strcmp(feedback, 'complete')
-        else
-            name = sprintf('%s_%s', conf, feedback);
-            optimism = 1;
-            rtime_threshold = 100000;
-            catch_threshold = 1;
-            n_best_sub = 0;
-            allowed_nb_of_rows = [258, 288, 255, 285];
-            displayfig = 'on';
-            
-            colors = [0.3963    0.2461    0.3405;...
-                1 0 0;...
-                0.7875    0.1482    0.8380;...
-                0.4417    0.4798    0.7708;...
-                0.5992    0.6598    0.1701;...
-                0.7089    0.3476    0.0876;...
-                0.2952    0.3013    0.3569;...
-                0.1533    0.4964    0.2730];
-            
-            %---------------------------------------------------------------
-            
-            folder = 'data/';
-            data_filename = name;
-            fit_folder = 'data/fit/';
-            fit_filename = name;
-            quest_filename = sprintf('data/questionnaire_%s', name);
-            
-            %------------------------------------------------------------------------
-            [data, sub_ids, exp, sim] = DataExtraction.get_data(...
-                sprintf('%s%s', folder, data_filename));
-            
-            %------------------------------------------------------------------------
-            % Exclude subjects and retrieve data
-            %------------------------------------------------------------------------
-            [sub_ids, corr_catch] = DataExtraction.exclude_subjects(...
-                data, sub_ids, exp, catch_threshold, rtime_threshold, n_best_sub,...
-                allowed_nb_of_rows...
-                );
-            
-            nsub = length(sub_ids);
-            fprintf('name = %s \n', name);
+for exp_num = selected_exp
+    selected_exp = [1, 2, 3, 4];
+%selected_exp = [4];
+model = [1];
 
-            fprintf('N = %d \n', nsub);
-            fprintf('Catch threshold = %.2f \n', catch_threshold);
-            
-            [cho1, out1, cfout1, corr1, con1, p11, p21, rew] = ...
-                DataExtraction.extract_learning_data(data, sub_ids, exp);
-            
-            [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-                DataExtraction.extract_elicitation_data(data, sub_ids, exp, 0);
-            
-            [corr3, cho3, out3, p13, p23, ev13, ev23, ctch3, cont13, cont23, dist3] = ...
-                DataExtraction.extract_elicitation_data(data, sub_ids, exp, 2);
-            
-            %-------------------------------------------------------------
-            % Optimism
-            %-------------------------------------------------------------
-            if optimism
-                data2 = load(sprintf('%s%s', fit_folder, fit_filename));
-                parameters = data2.data('parameters');
-                d_alpha = parameters(:, 2, 2) - parameters(:, 3, 2);
-                for sub = 1:size(d_alpha, 1)
-                    i_opt = i_opt + 1;
-                    delta_alpha(i_opt) = parameters(sub, 2, 2) - parameters(sub, 3, 2);
-                    a1(i_opt) = parameters(sub, 2, 2);
-                    a2(i_opt) = parameters(sub, 3, 2);
-                end
-            end
-            %------------------------------------------------------------------------
-            % Compute corr choice rate learning
-            %------------------------------------------------------------------------
-            %corr_rate_learning = zeros(size(corr1, 1), size(corr1, 2)/4, 4);
+displayfig = 'on';
+sessions = [0, 1];
+nagent = 10;
+
+for exp_num = selected_exp
+    
+        idx1 = (exp_num - round(exp_num)) * 10;   
+        idx1 = idx1 + (idx1==0);
+
+        sess = sessions(uint64(idx1));
+
+        % load data
+        exp_name = char(filenames{round(exp_num)});
+
+        data = d.(exp_name).data;
+        sub_ids = d.(exp_name).sub_ids;
+
+        [cho, cfcho, out, cfout, corr1, con1, p1, p2, rew, rtime, ev1, ev2,...
+            error_exclude] = ...
+            DataExtraction.extract_learning_data(data, sub_ids, idx, sess);
             
             for sub = 1:size(corr1, 1)
                 i_learn = i_learn + 1;

@@ -10,6 +10,7 @@ function lpp = getlpp_learning(params, s, a, cfa, r, cfr, q, ntrials, model, dec
     l = model.fit(s, a, cfa, r, cfr, fit_cf);
     
     lpp = p + l;
+    
 end
 
 
@@ -21,7 +22,7 @@ function p = getp(params, model)
             alpha1 = params(2); % policy or factual learning rate
             %% the parameters based on the first optimzation
             pbeta1 = log(gampdf(beta1, 1.2, 5.0));
-            palpha1 = log(betapdf(alpha1, 1.1, 1.1));
+            palpha1 = log(betapdf(alpha1, 1, 1));
             p = [pbeta1, palpha1];
         case 2
             beta1 = params(1); % choice temphiature

@@ -1,5 +1,5 @@
 function [corr, con] = sim_exp_learning(...
-    exp_name, exp_num, d, idx, sess, model)
+    exp_name, exp_num, d, idx, sess, model, nagent)
 
 
     switch model
@@ -7,8 +7,9 @@ function [corr, con] = sim_exp_learning(...
             data = load(sprintf('data/fit/%s_learning_%d', exp_name, sess));
             parameters = data.data('parameters');
 
-            alpha1 = parameters{model}(:, 2);
-            beta1 = parameters{model}(:, 1);
+            alpha1 = parameters{1}(:, 2);
+            
+            beta1 = parameters{1}(:, 1);
             decision_rule = 1;
 
         case 2
@@ -71,45 +72,57 @@ function [corr, con] = sim_exp_learning(...
     ntrials = length(cho(1, :));
     
     fit_cf = exp_num > 2;
-
-    for sub = 1:nsub
+    count = 0;
+    
+    for agent = 1:nagent
         
-      
-        qlearner = models.QLearning([beta1(sub), alpha1(sub)], ...
-            0.5, length(unique(con)), 2, ntrials, decision_rule);
+        for sub = 1:nsub
+            count = count + 1;
+            qlearner = models.QLearning([beta1(sub), alpha1(sub)], ...
+                0.5, length(unique(con)), 2, ntrials, decision_rule);
 
-        if exist('Q')
-            qlearner.Q(:, :) = Q(sub, :, :);
-        end
-
-        s = con(sub, :);
-        r = out(sub, :);
-        cfr= cfout(sub, :);
-
-        for t = 1:ntrials
-
-            a(t) = qlearner.make_choice(s(t), t);
-
-            switch model
-                case 1
-                    if a(t) == cho(sub, t)                  
-                        r1 = r(t)==1;
-                        r2 = cfr(t)==1;
-                    else
-                        r1 = cfr(t)==1;
-                        r2 = r(t)==1;
-                    end
-                    qlearner.learn(s(t), a(t), r1, r2, fit_cf);
-                otherwise
+            if exist('Q')
+                qlearner.Q(:, :) = Q(sub, :, :);
             end
 
-            v = [ev1(sub, t), ev2(sub, t)];
+            s = con(sub, :);
+            r = out(sub, :);
+            cfr= cfout(sub, :);
 
-            corr(sub, t) = v(a(t)) > v(3-a(t));
+            for t = 1:ntrials
+
+                a(t) = qlearner.make_choice(s(t), t);
+
+                switch model
+                    case {1, 3}
+                        if a(t) == cho(sub, t)                  
+                            r1 = r(t)==1;
+                            r2 = cfr(t)==1;
+                        else
+                            r1 = cfr(t)==1;
+                            r2 = r(t)==1;
+                        end
+                        qlearner.learn(s(t), a(t), r1);
+                        if fit_cf
+                            qlearner.learn(s(t), 3-a(t), r2);
+                        end
+                    otherwise
+                end
+
+                v = [ev1(sub, t), ev2(sub, t)];
+
+                corr(count, t) = v(a(t)) > v(3-a(t));
+
+            end
 
         end
-
     end
+    
+    con = repmat(con, nagent, 1);
+    p1 = repmat(p1, nagent, 1);
+    p2 = repmat(p2, nagent, 1);
+    ev1 = repmat(ev1, nagent, 1);
+    ev2 = repmat(ev2, nagent, 1);
 
 end
 
