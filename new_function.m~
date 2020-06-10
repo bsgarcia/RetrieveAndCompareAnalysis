@@ -2,13 +2,11 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [3];
+selected_exp = [1,2,3,4];
 
-displayfig = 'off';
+displayfig = 'on';
 sessions = [0, 1];
 
-figure('Renderer', 'painters',...
-    'Position', [145,157,900,600], 'visible', 'on')
 
 for exp_num = selected_exp
     
@@ -26,9 +24,9 @@ for exp_num = selected_exp
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
     
-    % ----------------------------------------------------------------------
+    % --------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
-    % ------------------------------------------------------------------------
+    % ----------------------------
     
     pcue = unique(p2)';
     psym = unique(p1)';
@@ -69,41 +67,66 @@ for exp_num = selected_exp
         
         for i = 1:length(psym)
             Y(i, :) = reshape(chose_symbol(sub, :, i, 1), [], 1);
-            X(i, :) = pcue-psym(i);
+            X(i, :) = pcue;
         end
         
-        options = optimset(...
-            'Algorithm',...
-            'interior-point',...
-            'Display', 'off',...
-            'MaxIter', 10000,...
-            'MaxFunEval', 10000);
-        
-        beta1(sub) = fmincon(...
-            @(x) tofit(x, X, Y),...
-            [1],...
-            [], [], [], [],...
-            [0],...
-            [inf],...
-            [],...
-            options...
+        try 
+             param = load(...
+                 sprintf('data/post_test_fitparam_ED_exp_%s', num2str(exp_num)));
+             beta1 = param.beta1;
+             shift = param.shift;
+             tosave = false;
+        catch
+            tosave = true;
+            options = optimset(...
+                'Algorithm',...
+                'interior-point',...
+                'Display', 'off',...
+                'MaxIter', 10000,...
+                'MaxFunEval', 10000);
+
+            beta1(sub) = fmincon(...
+                @(x) tofit(x, X, Y),...
+                [1],...
+                [], [], [], [],...
+                [0],...
+                [inf],...
+                [],...
+                options...
             );
+
+            options = optimset('Display','off');
+
+            for i = 1:length(psym)
+                shift(sub, i) = lsqcurvefit(...
+                    @(shift, x) (fun(x, shift, beta1(sub))),...
+                    [0], X(i, :)', Y(i, :)', [0], [1], options);
+            end
+      
+        end
         
-        options = optimset('Display','off');
-        
-        for i = 1:length(psym)
-            shift(sub, i) = lsqcurvefit(...
-                @(shift, x) (fun(x, shift, beta1(sub))),...
-                [0], X(i, :)', Y(i, :)', [-1], [1], options);
+        for i = 1:length(psym)         
             pp(sub, i, :) = fun(X(i, :)', shift(sub, i), beta1(sub));
         end
         
     end
     
+    if tosave
+        param.shift = shift;
+        param.beta1 = beta1;
+        
+        save(sprintf('data/post_test_fitparam_ED_exp_%s', num2str(exp_num)),...
+            '-struct', 'param');
+    end
+    
+      
     for i = 1:length(psym)
         pp1(i, :) = mean(pp(:, i, :));
     end
     
+    figure('Renderer', 'painters',...
+    'Position', [145,157,1200,900], 'visible', 'on')
+
     pwin = psym;
     
     alpha = linspace(.15, .95, length(psym));
@@ -112,54 +135,61 @@ for exp_num = selected_exp
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     hold on
     
-    
+    subplot(1, 2, 1)
     for i = 1:length(pwin)
-        %subplot(4, 2, i)
+               
+        lin3 = plot(...
+            pcue,  prop(i, :),...
+            'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+            );
         
-        for sub = 1:nsub
-            
-            lin3 = plot(...
-                pcue,  pp1(i, :),...
-                'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
-                );
-            lin3.Color(4) = alpha(i);
-            
-            hold on
-            
-        end
+        lin3.Color(4) = alpha(i);
         
-        
+        %ind_point1(i) = interp1(lin3.YData,lin3.XData, 0.5);
+
         hold on
-        
-        %         ylabel('P(choose experienced cue)');
-        %         xlabel('Described cue win probability');
-        
+
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
-        title(pwin(i));
         box off
+    end
+
+    
+    subplot(1, 2, 2)
+    for i = 1:length(pwin)
+               
+        lin3 = plot(...
+            pcue,  pp1(i, :),...
+            'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+            );
+        
+        lin3.Color(4) = alpha(i);
+        
+        ind_point2(i) = interp1(lin3.YData,lin3.XData, 0.5);
+        hold on
+
+        ylim([-0.08, 1.08]);
+        xlim([-0.08, 1.08]);
+        box off
+        
     end
     
     set(gca,'TickDir','out')
-    %set(gca, 'FontSize', fontsize);
-    
-    clear pp pcue psym temp err_prop prop i
-    
 end
-
 
 function sumres = tofit(temp, X, Y)
+    options = optimset('Display','off');
+    for i = 1:size(Y, 1)
+        [throw, throw2, residuals(i, :)] = lsqcurvefit(...
+            @(shift, x) (fun(x, shift, temp)),...
+            [0], X(i, :)', Y(i, :)', [0], [1], options);
 
-options = optimset('Display','off');
-for i = 1:size(Y, 1)
-    [throw, throw2, residuals(i, :)] = lsqcurvefit(...
-        @(shift, x) (fun(x, shift, temp)),...
-        [0], X(i, :)', Y(i, :)', [-1], [1], options);
-    
-end
-sumres = sum(residuals.*residuals, 'all');
+    end
+    sumres = sum(residuals.*residuals, 'all');
 end
 
 function p = fun(x, shift, temp)
-p = 1./(1+exp(temp.*(x+shift(1))));
+    p = 1./(1+exp(temp.*(x-shift(1))));
 end
+
+ 
