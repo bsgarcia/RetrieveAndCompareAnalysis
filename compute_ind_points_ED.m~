@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [7];
+selected_exp = [1,2,3,4,5,6,7];
 
 displayfig = 'on';
 sessions = [0, 1];
@@ -21,7 +21,7 @@ for exp_num = selected_exp
     sub_ids = d.(name).sub_ids;
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_sym_post_test(...
+        DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
     
     % --------------------------------------------------------------------
@@ -62,9 +62,7 @@ for exp_num = selected_exp
     pp = zeros(nsub, length(psym), length(pcue));
     
     for sub = 1:nsub
-        
-        disp(sub);
-        
+                
         for i = 1:length(psym)
             Y(i, :) = reshape(chose_symbol(sub, :, i, 1), [], 1);
             X(i, :) = pcue;
@@ -72,8 +70,7 @@ for exp_num = selected_exp
         
         try 
              param = load(...
-                 sprintf(...
-                 'data/post_test_fitparam_EE_exp_%s', num2str(exp_num)));
+                 sprintf('data/post_test_fitparam_ED_exp_%s', num2str(exp_num)));
              beta1 = param.beta1;
              shift = param.shift;
              tosave = false;
@@ -117,7 +114,7 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.res = res;
         
-        save(sprintf('data/post_test_fitparam_EE_exp_%s',...
+        save(sprintf('data/post_test_fitparam_ED_exp_%s',...
             num2str(exp_num)),...
             '-struct', 'param');
     end

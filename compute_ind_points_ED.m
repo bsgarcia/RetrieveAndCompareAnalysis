@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3,4];
+selected_exp = [1,2,3,4,5,6,7,8];
 
 displayfig = 'on';
 sessions = [0, 1];
@@ -62,6 +62,7 @@ for exp_num = selected_exp
     pp = zeros(nsub, length(psym), length(pcue));
     
     for sub = 1:nsub
+        disp(sub);
                 
         for i = 1:length(psym)
             Y(i, :) = reshape(chose_symbol(sub, :, i, 1), [], 1);
@@ -83,7 +84,7 @@ for exp_num = selected_exp
                 'MaxIter', 10000,...
                 'MaxFunEval', 10000);
 
-            beta1(sub) = fmincon(...
+            [beta1(sub), res(sub)] = fmincon(...
                 @(x) tofit(x, X, Y),...
                 [1],...
                 [], [], [], [],...
@@ -112,6 +113,7 @@ for exp_num = selected_exp
     if tosave
         param.shift = shift;
         param.beta1 = beta1;
+        param.res = res;
         
         save(sprintf('data/post_test_fitparam_ED_exp_%s',...
             num2str(exp_num)),...
@@ -174,6 +176,8 @@ for exp_num = selected_exp
     end
     
     set(gca,'TickDir','out')
+    
+    clear X Y
 end
 
 function sumres = tofit(temp, X, Y)
