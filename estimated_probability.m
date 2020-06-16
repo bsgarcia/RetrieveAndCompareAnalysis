@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4];
+selected_exp = [6.2];
 sessions = [0, 1];
 
 displayfig = 'on';
@@ -26,11 +26,7 @@ for exp_num = selected_exp
     
     [corr, cho_, out, p1_, p2_, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
         DataExtraction.extract_estimated_probability_post_test(data, sub_ids, idx, sess);
-    if exp_num == 8
-        order = [1, 4, 5, 8];
-    else
-        order = 1:8;
-    end
+   
     for sub = 1:nsub
         i = 1;
         count_sub = count_sub + 1;

@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3,4,5,6,7,8];
+selected_exp = [5, 6.2, 7.2, 8.2];
 
 displayfig = 'on';
 sessions = [0, 1];
@@ -71,7 +71,7 @@ for exp_num = selected_exp
         
         try 
              param = load(...
-                 sprintf('data/post_test_fitparam_ED_exp_%s', num2str(exp_num)));
+                 sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat', round(exp_num), sess));
              beta1 = param.beta1;
              shift = param.shift;
              tosave = false;
@@ -110,13 +110,12 @@ for exp_num = selected_exp
         
     end
     
-    if tosave
+    if tosavew
         param.shift = shift;
         param.beta1 = beta1;
         param.res = res;
         
-        save(sprintf('data/post_test_fitparam_ED_exp_%s',...
-            num2str(exp_num)),...
+        save(sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat', round(exp_num), sess),...
             '-struct', 'param');
     end
     

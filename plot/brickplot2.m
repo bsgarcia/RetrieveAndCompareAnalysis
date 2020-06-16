@@ -105,7 +105,6 @@ end
 if ~exist('x_values')
     x_values = 1:nbar;
 end
-disp(fontsize);
 set(gca,'FontSize',fontsize,...
     'XLim', x_lim ,...
     'XTick',varargin,...
@@ -114,6 +113,21 @@ set(gca,'FontSize',fontsize,...
 title(mytitle);
 xlabel(x_label);
 ylabel(y_label);
+
+x_lim = get(gca, 'XLim');
+y_lim = get(gca, 'YLim');
+
+y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
+    ones(10).*0.5, 'LineStyle', ':', 'Color', [0 0 0]);
+
+hold on
+
+x = linspace(x_lim(1), x_lim(2), 10);
+
+y = linspace(y_lim(1), y_lim(2), 10);
+p0 = plot(x, y, 'LineStyle', '--', 'Color', 'k');
+p0.Color(4) = .45;
+hold on
 
 
 
