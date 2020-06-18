@@ -2,13 +2,15 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.2, 7.2, 8.2];
+selected_exp = [8.2];
 
 displayfig = 'on';
 sessions = [0, 1];
 
 
 for exp_num = selected_exp
+    
+    clear pp pp1
     
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);

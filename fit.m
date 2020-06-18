@@ -60,7 +60,7 @@ for exp_num = selected_exp
     % fmincon params
     fmincon_params.init_value = {[1, .5], [0, .5, .5],[0, .5]};
     fmincon_params.lb = {[0.001, 0.001], [0, 0, 0], [0, 0]};
-    fmincon_params.ub = {[100, 1], [100, 1, 1], [100, 1]};
+    fmincon_params.ub = {[100, 1]1:52 / 9:45, [100, 1, 1], [100, 1]};
     
     try
         data = load(save_params.fit_file);

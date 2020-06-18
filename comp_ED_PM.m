@@ -2,19 +2,16 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [6.2];
+selected_exp = [5, 6.2, 7.2];
 sessions = [0, 1];
 
 displayfig = 'on';
-
-figure('Renderer', 'painters',...
-    'Position', [145,157,900,600], 'visible', 'on')
 
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
     
-    clear qvalues b pY2 ind_point Y
+    clear qvalues b pY2 ind_point Y pp pp1
     
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);
@@ -26,8 +23,8 @@ for exp_num = selected_exp
     sub_ids = d.(name).sub_ids;
     nsub = d.(name).nsub;
        
-    param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_6_2', num2str(exp_num)));
+     param = load(...
+        sprintf('data/post_test_fitparam_ED_exp_%d_%d', round(exp_num), sess));
     shift1 = param.shift;
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
@@ -81,7 +78,7 @@ for exp_num = selected_exp
     %set(gca, 'ytick', [0:10]./10);
     set(gca,'TickDir','out')
     
-    title('Exp. 6.2');
+    title(sprintf('Exp. %s', num2str(exp_num)));
     
     
     figure('Renderer', 'painters',...
@@ -103,7 +100,7 @@ for exp_num = selected_exp
     set(gca, 'tickdir', 'out');
     box off
     
-    title('Exp. 6.2');
+    title(sprintf('Exp. %s', num2str(exp_num)));
     
 %    figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')

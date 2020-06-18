@@ -24,12 +24,14 @@ for exp_num = selected_exp
     nsub = d.(name).nsub;
        
     param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_%d_%d', round(exp_num), sess));
+        sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
+        round(exp_num), sess));
     shift1 = param.shift;
     beta1 = param.beta1;
       
     param = load(...
-        sprintf('data/post_test_fitparam_EE_exp_%d_%d', round(exp_num), sess));
+        sprintf('data/post_test_fitparam_EE_exp_%d_%d',...
+        round(exp_num), sess));
     shift2 = param.shift;
     beta2 = param.beta1;
     
