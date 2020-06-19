@@ -48,10 +48,12 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
                 degradors = options.degradors(sub,:);
             else
                 degradors = [1, 1];
-            end    
-            
+            end
+                        
             v1 = v1 .* degradors(1);
             v2 = v2 .* degradors(2);
+            
+            
                     
             for t = 1:ntrials
                 

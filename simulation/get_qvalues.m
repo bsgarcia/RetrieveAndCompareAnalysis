@@ -29,13 +29,16 @@ function [Q, params] = get_qvalues(sim_params)
             params.nsub = size(cho, 1);
             params.q = 0.5;
             
-            if ~exist('params.alpha1')
+            if ~isfield(sim_params, 'alpha1')
                 data = load(sprintf('data/fit/%s_learning_%d', ...
                     sim_params.exp_name, sim_params.sess));
                 parameters = data.data('parameters');
 
                 params.alpha1 = parameters{1}(:, 2);
                 params.beta1 = parameters{1}(:, 1);
+            else
+                params.alpha1 = sim_params.alpha1;
+                params.beta1 = sim_params.beta1;
             end
             
             Q = sort_Q(simulation(params));

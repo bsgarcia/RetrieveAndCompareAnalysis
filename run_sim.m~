@@ -1,0 +1,28 @@
+%-------------------------------------------------------------------------
+init;
+%-------------------------------------------------------------------------
+exp_num = 3;
+sess = 0;
+model = 1;
+decision_rule = 1;
+
+% load data
+name = char(filenames{round(exp_num)});
+
+data = d.(name).data;
+sub_ids = d.(name).sub_ids;
+
+beta_dist = [1, 1];
+gam_dist = [1.2, 5];
+
+options.alpha1 = betarnd(beta_dist(1),...
+                        beta_dist(2), [d.(name).nsub, 1]);
+options.beta1 = gamrnd(gam_dist(1),...
+                         gam_dist(2), [d.(name).nsub, 1]);
+options.degradors = nan(d.(name).nsub, 
+      
+[a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
+    name, exp_num, d, idx, sess, model, decision_rule, options)
+
+
+degrade
