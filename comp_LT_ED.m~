@@ -26,7 +26,7 @@ for exp_num = selected_exp
     param = load(...
         sprintf('data/post_test_fitparam_ED_exp_%d',...
         round(exp_num)));
-    shift1(1:nsub, :) = param.shift(1:nsub, :);
+    shift1 = param.shift(1:nsub, :);
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
@@ -134,11 +134,25 @@ slope_lt = {bigdd{2,:}}';
 
 % T = array2table([slope_lt; slope_ed],...
 % 'variablenames', {'exp_1', 'exp_2', 'exp_3', 'exp_4', 'modality'});
-T = table('subject', 'exp_num', 'slope', 'modality');
+T = table();
+i = 0;
 for c = 1:4
     for row = 1:length(slope_ed{c})
-        T1 = table(row, c, slope_ed{c}(row), 1, 'variablenames', {'subject', 'exp_num', 'slope', 'modality'}
-writetable(T, 'data/LT_ED_anova.csv');
+        i = i +1;
+        T1 = table(i, c, slope_ed{c}(row), 1, 'variablenames', {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+i = 0;
+for c = 1:4
+    for row = 1:length(slope_pm{c})
+        i = i + 1;
+        T1 = table(i, c, slope_pm{c}(row), 0, 'variablenames', {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+
+writetable(T, 'data/ED_PM_anova.csv');
     
 %     skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
 %         [orange_color; blue_color],...

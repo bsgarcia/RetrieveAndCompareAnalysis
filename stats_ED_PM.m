@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3,4]
+selected_exp = [1, 2, 3, 4, 5, 6.2, 7.2];
 sessions = [0, 1];
 
 displayfig = 'on';
@@ -11,7 +11,7 @@ num = 0;
 for exp_num = selected_exp
     num = num + 1;
     
-    clear qvalues b pY2 ind_point Y pp pp1
+    clear qvalues b pY2 ind_point Y pp pp1 dd
     
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);
@@ -22,12 +22,33 @@ for exp_num = selected_exp
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     nsub = d.(name).nsub;
-       
-     param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_%d_%d', round(exp_num), sess));
+    
+    try
+         param = load(...
+            sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
+            round(exp_num), sess));
+    catch 
+
+         param = load(...
+            sprintf('data/post_test_fitparam_ED_exp_%d',...
+            round(exp_num)));
+    end
+    
     shift1 = param.shift;
     
-   
+    params.exp_name = name;
+    params.exp_num = exp_num;
+    params.model = 2;
+    params.d = d;
+    params.idx = idx;
+    params.sess = sess;
+    [shift2, throw] = get_qvalues(params);
+    
+    if size(shift1) ~= size(shift2)
+        error('ERROR');
+        
+    end
+    
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
@@ -44,16 +65,21 @@ for exp_num = selected_exp
     brick_comparison_plot2(...
         shift1',shift2',...
         orange_color, magenta_color, ...
-        [0, 1], generated11,...
+        [0, 1], fontsize,...
         '',...
         '',...
         '', varargin, 1, x_lim, x_values);
     
     ylabel('Indifference point')
     
+    
     slope1 = add_linear_reg(shift1, ev, orange_color);
     slope2 = add_linear_reg(shift2, ev, magenta_color);
         
+     if size(slope1) ~= size(slope2)
+        error('ERROR');
+        
+    end
    
     xlabel('Experienced cue win probability');
     box off
@@ -72,6 +98,10 @@ for exp_num = selected_exp
     
     dd(1, :) = slope1(:, 2)';
     dd(2, :) = slope2(:, 2)';
+      
+    bigdd{1, num} = dd(1,:)';
+    bigdd{2, num} = dd(2, :)';
+    
     skylineplot(dd,...
         [orange_color; magenta_color],...
         min(dd,[],'all')-.08,...
@@ -110,3 +140,29 @@ for exp_num = selected_exp
 %     title('Exp. 6.2');
   
 end
+slope_ed = {bigdd{1,:}}';
+slope_pm = {bigdd{2,:}}';
+
+
+T = table();
+i = 0;
+for c = 1:length(selected_exp)
+    for row = 1:length(slope_ed{c})
+        i = i +1;
+        T1 = table(i, c, slope_ed{c}(row), 0, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+i = 0;
+for c = 1:length(selected_exp)
+    for row = 1:length(slope_pm{c})
+        i = i + 1;
+        T1 = table(i, c, slope_pm{c}(row), 1, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+
+writetable(T, 'data/ED_PM_anova.csv');
+    

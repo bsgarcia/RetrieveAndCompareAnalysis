@@ -2,13 +2,14 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,3,4];
+selected_exp = [1,2,3,4];
 sessions = [0, 1];
 
 displayfig = 'on';
 
 num = 0;
 for exp_num = selected_exp
+    disp(exp_num)
     num = num + 1;
     
     clear qvalues b pY2 ind_point Y dd slope1 slope2  dd shift1 shift2
@@ -26,7 +27,7 @@ for exp_num = selected_exp
     param = load(...
         sprintf('data/post_test_fitparam_ED_exp_%d',...
         round(exp_num)));
-    shift1(1:nsub, :) = param.shift(1:nsub, :);
+    shift1 = param.shift;
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
@@ -45,7 +46,7 @@ for exp_num = selected_exp
     sim_params.model = 1;
     
     shift2 = get_qvalues(sim_params);
-    shift2(nsub+1:end, :) = [];
+    %shift2(nsub+1:end, :) = [];
     
     
     figure('Renderer', 'painters',...
@@ -136,17 +137,20 @@ slope_lt = {bigdd{2,:}}';
 % 'variablenames', {'exp_1', 'exp_2', 'exp_3', 'exp_4', 'modality'});
 T = table();
 i = 0;
-for c = 1:3
+for c = 1:4
     for row = 1:length(slope_ed{c})
         i = i +1;
-        T1 = table(i, c, slope_ed{c}(row), 1, 'variablenames', {'subject', 'exp_num', 'slope', 'modality'});
+        T1 = table(i, c, slope_ed{c}(row), 1, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
         T = [T; T1];
     end
 end
-for c = 1:3
+i = 0;
+for c = 1:4
     for row = 1:length(slope_lt{c})
         i = i + 1;
-        T1 = table(i, c, slope_lt{c}(row), 0, 'variablenames', {'subject', 'exp_num', 'slope', 'modality'});
+        T1 = table(i, c, slope_lt{c}(row), 0, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
         T = [T; T1];
     end
 end
