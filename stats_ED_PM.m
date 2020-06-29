@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4, 5, 6.2, 7.2];
+selected_exp = [1, 2, 3, 4];
 sessions = [0, 1];
 
 displayfig = 'on';
@@ -99,8 +99,8 @@ for exp_num = selected_exp
     dd(1, :) = slope1(:, 2)';
     dd(2, :) = slope2(:, 2)';
       
-    bigdd{1, num} = dd(1,:)';
-    bigdd{2, num} = dd(2, :)';
+    bigdd{1, num} = dd(1,:);
+    bigdd{2, num} = dd(2, :);
     
     skylineplot(dd,...
         [orange_color; magenta_color],...
@@ -140,9 +140,28 @@ for exp_num = selected_exp
 %     title('Exp. 6.2');
   
 end
+
+% figure('Renderer', 'painters',...
+%     'Position', [145,157,700,650], 'visible', 'on')
+% 
+% skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
+%     [orange_color; magenta_color],...
+%     -0.7,...
+%     1.75,...
+%     20,...
+%     '',...
+%     '',...
+%     '',...
+%     1:4,...
+%     0);
+% ylabel('Slope');
+% set(gca, 'tickdir', 'out');
+% box off
+
+% 
+
 slope_ed = {bigdd{1,:}}';
 slope_pm = {bigdd{2,:}}';
-
 
 T = table();
 i = 0;
