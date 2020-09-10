@@ -21,13 +21,15 @@ end
 % number of factors/groups/conditions
 nbar = size(data1,1);
 % bar size
-Wbar = x_lim(2)/nbar/3;
+Wbar = .025;
+%disp(Wbar)
 
 % confidence interval
 ConfInter = 0.95;
 
 % color of the box + error bar
 trace = [0.5 0.5 0.5];
+% 
 
 for n = 1:nbar
     
@@ -46,21 +48,22 @@ for n = 1:nbar
     mystd = nanstd(Data1Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
-    width = Wbar/4.5;
-    
-    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        color1,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
-    hold on
-    
+    width = Wbar/15;
+
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        color1,...
-        'EdgeColor', 'black',...%trace,...
-        'FaceAlpha',0.23);
+        set_alpha(color1, .23),...
+        'EdgeColor', 'black');%,...%trace,...
+        %'FaceAlpha',0.23);
     hold on
+    %disp(width)
+    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(color1, .7));%,...
+        %'EdgeColor', 'none',...%trace,...
+        %'FaceAlpha',0.5);
+    hold on
+       
     
 %     fill([n+width n+Wbar n+Wbar n+width],...
 %         [curve-mystd curve-mystd curve+mystd curve+mystd],...
@@ -98,20 +101,21 @@ for n = 1:nbar
     sem   = nanstd(Data2Matrix')'/sqrt(nsub);
     mystd = nanstd(Data2Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
-        
-    fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        color2,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
-    hold on
     
     
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        color2,...
-        'EdgeColor', 'black',...%trace,...
-        'FaceAlpha',0.23);
+        set_alpha(color2, .23),...
+        'edgecolor', 'black');%,...%trace,...
+        %'FaceAlpha',0.23);
+    hold on
+      
+        
+    fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(color2, .7));%,...
+       %'linewidth', 1^-10, 'edgecolor',set_alpha(color2, .7));%,...%trace,...
+        %'FaceAlpha',0.5);
     hold on
 %     
 %     fill([n-width n-Wbar n-Wbar n-width],...
@@ -159,28 +163,31 @@ title(mytitle);
 xlabel(x_label);
 ylabel(y_label);
 
-x_lim = get(gca, 'XLim');
-y_lim = get(gca, 'YLim');
+x_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');get(gca, 'XLim');
+y_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');
 
 y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
-    ones(10).*0.5, 'LineStyle', ':', 'Color', [0 0 0]);
+    ones(10,1).*0.5, 'LineStyle', '--', 'Color', 'k', 'linewidth', 1.7);
+y0.Color(4) = .45;
+uistack(y0, 'bottom');
 
 hold on
 
 x = linspace(x_lim(1), x_lim(2), 10);
 
 y = linspace(y_lim(1), y_lim(2), 10);
-p0 = plot(x, y, 'LineStyle', '--', 'Color', 'k');
+p0 = plot(x, y, 'linewidth', 1.7, 'LineStyle', '--', 'Color', 'k');
+
 p0.Color(4) = .45;
 hold on
+uistack(p0, 'bottom');
 
+end
 
-
-
-
-
-
-
+function c = set_alpha(rgb, a)
+    c = (1-a).* [1, 1, 1] + rgb .* a;
+end
+    
 
 
 

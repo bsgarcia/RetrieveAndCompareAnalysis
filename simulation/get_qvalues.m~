@@ -29,13 +29,17 @@ function [Q, params] = get_qvalues(sim_params)
             params.nsub = size(cho, 1);
             params.q = 0.5;
             
-            if ~exist('params.alpha1'
-            data = load(sprintf('data/fit/%s_learning_%d', ...
-                sim_params.exp_name, sim_params.sess));
-            parameters = data.data('parameters');
+            if ~isfield(sim_params, 'alpha1')
+                data = load(sprintf('data/fit/%s_learning_%d', ...
+                    sim_params.exp_name, sim_params.sess));
+                parameters = data.data('parameters');
 
-            params.alpha1 = parameters{1}(:, 2);
-            params.beta1 = parameters{1}(:, 1);
+                params.alpha1 = parameters{1}(:, 2);
+                params.beta1 = parameters{1}(:, 1);
+            else
+                params.alpha1 = sim_params.alpha1;
+                params.beta1 = sim_params.beta1;
+            end
             
             Q = sort_Q(simulation(params));
 
@@ -52,18 +56,60 @@ function [Q, params] = get_qvalues(sim_params)
 
             params.alpha1 = parameters{1}(:, 2);
             params.beta1 = parameters{1}(:, 1);
-        for sub = 1:size(cho, 1)
-            i = 1;      
+            for sub = 1:size(cho, 1)
+                i = 1;      
 
-            for p = unique(p1)'
-                Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
-                i = i + 1;          
+                for p = unique(p1)'
+                    Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
+                    i = i + 1;          
+                end
+
             end
-        end
-    end
             
-    % ---------------------------------------------------------%
+        case 3
+            
+            [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+        DataExtraction.extract_sym_vs_amb_post_test(...
+                sim_params.d.(sim_params.exp_name).data,...
+                sim_params.d.(sim_params.exp_name).sub_ids, sim_params.idx, sim_params.sess);
+             
+            p_sym = unique(p1)';
+            for i = 1:sim_params.nsub
+                for j = 1:length(p_sym)
+                    temp = ...
+                    cho(i, logical(...
+                    (p1(i, :) == p_sym(j))));
+                    Q(i, j) = mean(temp == 1);
+            
+                end
+            end
+            data = load(sprintf('data/fit/%s_learning_%d', ...
+                sim_params.exp_name, sim_params.sess));
+            parameters = data.data('parameters');
+
+            params.alpha1 = parameters{1}(:, 2);
+            params.beta1 = parameters{1}(:, 1);
+            
+               
+            [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+            DataExtraction.extract_lot_vs_amb_post_test(...
+                sim_params.d.(sim_params.exp_name).data,...
+                sim_params.d.(sim_params.exp_name).sub_ids, sim_params.idx, sim_params.sess);
+             
+            p_lot = unique(p1)';
+            for i = 1:sim_params.nsub
+                for j = 1:length(p_lot)
+                    temp = ...
+                    cho(i, logical(...
+                    (p1(i, :) == p_lot(j))));
+                    lot(i, j) = mean(temp == 1);
+            
+                end
+            end
+            params.lot = lot(i,j);
+        end
 end
+         % ---------------------------------------------------------%
 
 
 function Q = simulation(sim_params)

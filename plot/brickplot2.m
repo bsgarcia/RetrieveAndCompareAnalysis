@@ -23,7 +23,7 @@ end
 % number of factors/groups/conditions
 nbar = size(data,1);
 % bar size
-Wbar = 0.75;
+Wbar = 0.025;
 
 % confidence interval
 ConfInter = 0.95;
@@ -45,21 +45,26 @@ for n = 1:nbar
     mystd = nanstd(DataMatrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
-    width = x_lim(2)*width1/5;
+    width = Wbar/15;
     
-    fill([x_values(n)-width x_values(n)+width x_values(n)+width x_values(n)-width],...
+    fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
+        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
+        set_alpha(colors(n,:), .23),...
+        'edgecolor', 'black');%,...%trace,...
+        %'FaceAlpha',0.23);
+    hold on
+      
+        
+    fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
         [curve-sem curve-sem curve+sem curve+sem],...
-        colors(n,:),...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
+        set_alpha(colors(n,:), .7));%,...
+       %'linewidth', 1^-10, 'edgecolor',set_alpha(color2, .7));%,...%trace,...
+        %'FaceAlpha',0.5);
     hold on
     
-    
-    fill([x_values(n)-width x_values(n)+width x_values(n)+width x_values(n)-width],...
-        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        colors(n,:),...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.23);
+    xMean = [x_values(n)-Wbar; x_values(n)+Wbar];
+    yMean = [curve; curve];
+    ppp = plot(xMean,yMean,'LineWidth',2,'Color',colors(n,:));
     hold on
     
 %     fill([n-width n+width n+width n-width],...
@@ -83,10 +88,7 @@ for n = 1:nbar
         hold on
     end
     
-    xMean = [x_values(n)-width ; x_values(n) + width];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',2,'Color',colors(n, :));
-    hold on
+   
     
     % ERROR BARS
 %     errorbar(n,curve,sem,...
@@ -114,21 +116,31 @@ title(mytitle);
 xlabel(x_label);
 ylabel(y_label);
 
-x_lim = get(gca, 'XLim');
-y_lim = get(gca, 'YLim');
+x_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');get(gca, 'XLim');
+y_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');
 
 y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
-    ones(10).*0.5, 'LineStyle', ':', 'Color', [0 0 0]);
+    ones(10,1).*0.5, 'LineStyle', '--', 'Color', 'k', 'linewidth', 1.7);
+y0.Color(4) = .45;
+uistack(y0, 'bottom');
 
 hold on
 
 x = linspace(x_lim(1), x_lim(2), 10);
 
 y = linspace(y_lim(1), y_lim(2), 10);
-p0 = plot(x, y, 'LineStyle', '--', 'Color', 'k');
+p0 = plot(x, y, 'linewidth', 1.7, 'LineStyle', '--', 'Color', 'k');
+
 p0.Color(4) = .45;
 hold on
+uistack(p0, 'bottom');
 
+end
+
+function c = set_alpha(rgb, a)
+    c = (1-a).* [1, 1, 1] + rgb .* a;
+end
+    
 
 
 

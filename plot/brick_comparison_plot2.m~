@@ -21,7 +21,8 @@ end
 % number of factors/groups/conditions
 nbar = size(data1,1);
 % bar size
-Wbar = x_lim(2)/nbar/3;
+Wbar = .05;
+%disp(Wbar)
 
 % confidence interval
 ConfInter = 0.95;
@@ -47,7 +48,7 @@ for n = 1:nbar
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
     width = Wbar/4.5;
-    
+    %disp(width)
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem curve-sem curve+sem curve+sem],...
         color1,...
@@ -58,7 +59,7 @@ for n = 1:nbar
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
         color1,...
-        'EdgeColor', 'white',...%trace,...
+        'EdgeColor', 'black',...%trace,...
         'FaceAlpha',0.23);
     hold on
     
@@ -98,20 +99,21 @@ for n = 1:nbar
     sem   = nanstd(Data2Matrix')'/sqrt(nsub);
     mystd = nanstd(Data2Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
-        
-    fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        color2,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
-    hold on
     
     
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        color2,...
-        'EdgeColor', 'grey',...%trace,...
-        'FaceAlpha',0.23);
+        set_alpha(color2, .23),...
+        'linestyle', 'none');%,...%trace,...
+        %'FaceAlpha',0.23);
+    hold on
+      
+        
+    fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(color2, .7),...
+        'EdgeColor', 'none');%,...%trace,...
+        %'FaceAlpha',0.5);
     hold on
 %     
 %     fill([n-width n-Wbar n-Wbar n-width],...
@@ -173,14 +175,12 @@ y = linspace(y_lim(1), y_lim(2), 10);
 p0 = plot(x, y, 'LineStyle', '--', 'Color', 'k');
 p0.Color(4) = .45;
 hold on
+end
 
-
-
-
-
-
-
-
+function c = set_alpha(rgb, a)
+    c = (1-a).* [1, 1, 1] + rgb .* a;
+end
+    
 
 
 

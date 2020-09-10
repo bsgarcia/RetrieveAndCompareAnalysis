@@ -7,8 +7,9 @@ sessions = [0, 1];
 
 displayfig = 'on';
     
-    figure('Renderer', 'painters',...
+figure('Renderer', 'painters',...
     'Position', [145,157,3312,600], 'visible', 'off')
+
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
@@ -62,32 +63,32 @@ for exp_num = selected_exp
    
 
     subplot(1, 4, num)
-    brick_comparison_plot2(...
-        shift1',shift2',...
-        orange_color, magenta_color, ...
-        [0, 1], fontsize,...
-        '',...
-        '',...
-        '', varargin, 1, x_lim, x_values);
-    
-    if exp_num == 1
-    ylabel('Indifference point')
-    end
-    
     
     slope1 = add_linear_reg(shift1, ev, orange_color);
-    slope2 = add_linear_reg(shift2, ev, magenta_color);
-        
-     if size(slope1) ~= size(slope2)
-        error('ERROR');
-        
-    end
-   
-    xlabel('Experienced cue win probability');
-    box off
-    hold on
-    
-    set(gca, 'fontsize', fontsize);
+    hold off
+    slope2 = add_linear_reg(shift2, ev, magenta_color);  
+    hold off
+%     brick_comparison_plot2(...
+%         shift1',shift2',...
+%         orange_color, magenta_color, ...
+%         [0, 1], fontsize,...
+%         '',...
+%         '',...
+%         '', varargin, 1, x_lim, x_values);
+%     
+%     if exp_num == 1
+%     ylabel('Indifference point')
+%     end
+%         
+%      if size(slope1) ~= size(slope2)
+%         error('ERROR');
+%         
+%     end
+%    
+%     xlabel('P(win)');
+%     box off
+%     hold on
+%     
     
     %set(gca, 'ytick', [0:10]./10);
     set(gca,'TickDir','out')
@@ -98,25 +99,31 @@ for exp_num = selected_exp
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %     
-%     dd(1, :) = slope1(:, 2)';
-%     dd(2, :) = slope2(:, 2)';
+    dd(1, :) = slope1(:, 2)';
+    dd(2, :) = slope2(:, 2)';
 %       
 %     bigdd{1, num} = dd(1,:);
 %     bigdd{2, num} = dd(2, :);
 %     
-%     skylineplot(dd,...
-%         [orange_color; magenta_color],...
-%         min(dd,[],'all')-.08,...
-%         max(dd,[],'all')+.08,...
-%         20,...
-%         '',...
-%         '',...
-%         '',...
-%         {'ED', 'PM'},...
-%         0);
-%     ylabel('Slope');
-%     set(gca, 'tickdir', 'out');
-%     box off
+    skylineplot(dd,...
+        [orange_color; magenta_color],...
+        -.7,...
+        1.7,...
+        20,...
+        '',...
+        '',...
+        '',...
+        {'ED', 'PM'},...
+        0);
+    
+    if exp_num == 1
+        ylabel('Slope');
+    end
+    
+    set(gca, 'tickdir', 'out');
+    set(gca, 'fontsize', fontsize);
+
+    box off
 %     
 %     title(sprintf('Exp. %s', num2str(exp_num)));
 %     
@@ -144,9 +151,9 @@ for exp_num = selected_exp
 end
 mkdir('fig/exp', 'post_test_PM');
         saveas(gcf, ...
-            sprintf('fig/exp/post_test_PM/full2.svg',...
+            sprintf('fig/exp/post_test_PM/full4.svg',...
             num2str(exp_num)));
-
+return
 
 % figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')

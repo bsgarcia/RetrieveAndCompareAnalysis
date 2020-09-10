@@ -8,7 +8,7 @@ sessions = [0, 1];
 displayfig = 'on';
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,3312,600], 'visible', 'off')
+    'Position', [145,157,3312,600], 'visible', 'on')
 
 num = 0;
 for exp_num = selected_exp
@@ -39,12 +39,16 @@ for exp_num = selected_exp
         end
     end
     
+    %figure('Position', [1,1,900,600], 'renderer', 'painters');
         
     ev = unique(p1);
     varargin = ev;
     x_values = ev;
     x_lim = [0, 1];
-   
+    
+    %     if exp_num == 4
+    %
+    %     end
     
     subplot(1, 4, num)
     
@@ -61,15 +65,22 @@ for exp_num = selected_exp
         ylabel('Probability matching');
     end
     
-    xlabel('P(win)');
-
+    xlabel('Experienced cue win probability');
+    %     brickplot(...
+    %         qvalues',...
+    %         blue_color.*ones(8, 1),...
+    %         [-1, 1], 11,...
+    %         '',...
+    %         'Symbol Expected Value',...
+    %         'Q-value', ev, 1);
     box off
     hold on
     
     %set(gca, 'ytick', [0:10]./10);
     set(gca,'TickDir','out')
-    set(gca, 'fontsize', fontsize);
     
+ 
+   
     clear pp p_lot p_sym temp err_prop prop i p1 p2 cho
     
         

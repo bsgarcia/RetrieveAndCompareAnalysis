@@ -7,6 +7,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
     sim_params.exp_num = exp_num;
     sim_params.sess = sess;
     sim_params.d = d;
+    sim_params.nsub = d.(exp_name).nsub;
     if isfield(options, 'alpha1')
         sim_params.alpha1 = options.alpha1;
         sim_params.beta1 = options.beta1;
@@ -42,7 +43,19 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
                 0.5, 8, 2, ntrials, decision_rule);
             
             v1 = 1.*qv1(sub, :) + -1.*(1-qv1(sub, :));
-            v2 = ev2(sub, :);
+            
+            if ~isfield(params, 'lot')
+                v2 = ev2(sub, :);
+            else
+                count = 1;
+                for p = unique(p2)'
+                    
+                    newp2(sub, p2(sub,:)==p) = params.lot(sub, count);
+                    count = count + 1;
+                   
+                end
+                v2 = 1.*newp2(sub, :) + -1.*(1-newp2(sub, :));
+            end
             
             if isfield(options, 'degradors')
                 degradors = options.degradors(sub,:);

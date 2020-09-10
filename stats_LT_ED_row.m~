@@ -7,10 +7,11 @@ sessions = [0, 1];
 
 displayfig = 'on';
 
-    
-    figure('Renderer', 'painters',...
-    'Position', [145,157,3312,600], 'visible', 'off')
+
+figure('Renderer', 'painters',...
+    'Position', [145,157,3312,600*4], 'visible', 'off')
 num = 0;
+
 for exp_num = selected_exp
     disp(exp_num)
     num = num + 1;
@@ -51,7 +52,7 @@ for exp_num = selected_exp
     shift2 = get_qvalues(sim_params);
     %shift2(nsub+1:end, :) = [];
     
-    subplot(1, 4, num)
+    subplot(2, 4, num)
 
     slope1 = add_linear_reg(shift1, ev, orange_color);
     slope2 = add_linear_reg(shift2, ev, blue_color);   
@@ -69,7 +70,7 @@ for exp_num = selected_exp
     end
     
    
-    xlabel('Experienced cue win probability');
+    xlabel('P(win)');
     box off
     hold on
     
@@ -79,7 +80,8 @@ for exp_num = selected_exp
     set(gca,'TickDir','out')
     
 %     title(sprintf('Exp. %s', num2str(exp_num)));
-    
+     subplot(2, 4, num)
+
     
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')

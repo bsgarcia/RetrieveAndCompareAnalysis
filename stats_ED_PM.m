@@ -61,6 +61,8 @@ for exp_num = selected_exp
     figure('Renderer', 'painters',...
     'Position', [145,157,700,650], 'visible', 'on')
 
+    slope1 = add_linear_reg(shift1, ev, orange_color);
+    slope2 = add_linear_reg(shift2, ev, magenta_color);
     
     brick_comparison_plot2(...
         shift1',shift2',...
@@ -71,11 +73,7 @@ for exp_num = selected_exp
         '', varargin, 1, x_lim, x_values);
     
     ylabel('Indifference point')
-    
-    
-    slope1 = add_linear_reg(shift1, ev, orange_color);
-    slope2 = add_linear_reg(shift2, ev, magenta_color);
-        
+       
      if size(slope1) ~= size(slope2)
         error('ERROR');
         
@@ -159,6 +157,8 @@ end
 % box off
 
 % 
+exp_code = [.2, .4, .6, .8];
+modality_code = [.3, .7];
 
 slope_ed = {bigdd{1,:}}';
 slope_pm = {bigdd{2,:}}';
@@ -168,8 +168,8 @@ i = 0;
 for c = 1:length(selected_exp)
     for row = 1:length(slope_ed{c})
         i = i +1;
-        T1 = table(i, c, slope_ed{c}(row), 0, 'variablenames',...
-            {'subject', 'exp_num', 'slope', 'modality'});
+        T1 = table(i, exp_code(c), slope_ed{c}(row), .3, exp_code(c)*modality_code(1), 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality', 'inter'});
         T = [T; T1];
     end
 end
@@ -177,11 +177,16 @@ i = 0;
 for c = 1:length(selected_exp)
     for row = 1:length(slope_pm{c})
         i = i + 1;
-        T1 = table(i, c, slope_pm{c}(row), 1, 'variablenames',...
-            {'subject', 'exp_num', 'slope', 'modality'});
+        T1 = table(i, exp_code(c), slope_pm{c}(row), .7, exp_code(c)*modality_code(2), 'variablenames',...
+            {'subject', 'exp_num',  'slope', 'modality', 'inter'});
         T = [T; T1];
     end
 end
 
-writetable(T, 'data/ED_PM_anova.csv');
-    
+disp(fitglme(T, 'slope ~ 1 + exp_num + modality + inter + (1|subject)'));
+
+xx(:, 1) = table2array(T(:, 'slope'));
+xx(:, 2) = table2array(T(:, 'exp_num'));
+xx(:, 3) = table2array(T(:, 'modality'))+1;
+xx(:, 4) = table2array(T(:, 'subject'));
+mixed_between_within_anova(xx);

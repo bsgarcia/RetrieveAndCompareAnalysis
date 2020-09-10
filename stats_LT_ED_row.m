@@ -2,17 +2,21 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3];
+selected_exp = [1,2,3,4];
 sessions = [0, 1];
 
 displayfig = 'on';
 
+
+figure('Renderer', 'painters',...
+    'Position', [145,157,3312,600], 'visible', 'off')
 num = 0;
+
 for exp_num = selected_exp
     disp(exp_num)
     num = num + 1;
     
-    clear qvalues b pY2 ind_point Y dd slope1 slope2  dd shift1 shift2 corr12
+    clear qvalues b pY2 ind_point Y dd slope1 slope2  dd shift1 shift2
     
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);
@@ -29,14 +33,11 @@ for exp_num = selected_exp
         round(exp_num)));
     shift1 = param.shift;
     
-    [corr1, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
-    [cho, cfcho, out, cfout, corr2, con1, p1, p2, rew, rtime, ev1, ev22,...
-        error_exclude] = ...
-        DataExtraction.extract_learning_data(data, sub_ids, idx, sess);
-%     
-    ev = [unique(p2); unique(p1)];
+    
+    ev = unique(p1);
     varargin = ev;
     x_values = ev;
     x_lim = [0, 1];
@@ -48,101 +49,84 @@ for exp_num = selected_exp
     sim_params.exp_num = exp_num;
     sim_params.model = 1;
     
+    subplot(1, 4, num)
+% 
     shift2 = get_qvalues(sim_params);
     %shift2(nsub+1:end, :) = [];
-    
-    
-    figure('Renderer', 'painters',...
-    'Position', [145,157,750,650], 'visible', 'on')
-    
-    
     slope1 = add_linear_reg(shift1, ev, orange_color);
-    slope2 = add_linear_reg(shift2, ev, blue_color);      
+    hold off
+    slope2 = add_linear_reg(shift2, ev, blue_color);   
+    hold off
     
-    brick_comparison_plot2(...
-        shift1',shift2',...
-        orange_color, blue_color, ...
-        [0, 1], 11,...
-        '',...
-        '',...
-        '', varargin, 1, x_lim, x_values);
-    
-    ylabel('Indifference point')
-    
-   
-    xlabel('Experienced cue win probability');
-    box off
-    hold on
-    
+%     
+%     brick_comparison_plot2(...
+%         shift1',shift2',...
+%         orange_color, blue_color, ...
+%         [0, 1], 11,...
+%         '',...
+%         '',...
+%         '', varargin, 1, x_lim, x_values);
+%     
+%     if exp_num == 1
+%     ylabel('Indifference point')
+%     end
+%     
+%    
+%     xlabel('P(win)');
+%     box off
+%     hold on
+%     
     set(gca, 'fontsize', fontsize);
     
     %set(gca, 'ytick', [0:10]./10);
     set(gca,'TickDir','out')
     
-    title(sprintf('Exp. %s', num2str(exp_num)));
-    
-    
-    figure('Renderer', 'painters',...
-    'Position', [145,157,750,650], 'visible', 'on')
-    for i = 1:nsub
-        mask_ev = ~ismember(ev2(i,:), [-1, 0, 1]); 
-        corr12(i, :) = corr1(i, mask_ev);
-    end
-        
-    %dd(1, :) = mean(corr12, 2);
-    %dd(2, :) = mean(corr2, 2);
-    dd(1, :) = slope1(:, 2)';
-    dd(2, :) = slope2(:, 2)';
+%     title(sprintf('Exp. %s', num2str(exp_num)));
 
     
-    bigdd{1, num} = dd(1,:);
-    bigdd{2, num} = dd(2, :);
-    
+%     figure('Renderer', 'painters',...
+%     'Position', [145,157,700,650], 'visible', 'on')
+%     
+    dd(1, :) = slope1(:, 2)';
+    dd(2, :) = slope2(:, 2)';
+%     
+%     bigdd{1, num} = mean(corr);
+%     bigdd{2, num} = dd(2, :)';
+%     
     skylineplot(dd,...
         [orange_color; blue_color],...
-        min(dd,[],'all')-.08,...
-        max(dd,[],'all')+.08,...
+        -0.7,...
+        1.7,...
         20,...
         '',...
         '',...
         '',...
         {'ED', 'LT'},...
         0);
-    ylabel('Slope');
+    if exp_num == 1
+        ylabel('Slope');
+    end
     set(gca, 'tickdir', 'out');
     box off
-    
-    
-    title(sprintf('Exp. %s', num2str(exp_num)));
+%     
+%     title(sprintf('Exp. %s', num2str(exp_num)));
 %     
     
 end
+mkdir('fig/exp', 'post_test_PM');
+        saveas(gcf, ...
+            sprintf('fig/exp/post_test_PM/full2.svg',...
+            num2str(exp_num)));
+
+
+
+return
 
 % figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %    
-slope_ed = {bigdd{2,:}}';
-slope_lt = {bigdd{1,:}}';
-% 
-% figure('Renderer', 'painters',...
-%     'Position', [145,157,700,650], 'visible', 'on')
-% 
-% skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
-%     [orange_color; blue_color],...
-%     0,...
-%     1,...
-%     20,...
-%     '',...
-%     '',...
-%     '',...
-%     1:4,...
-%     0);
-% ylabel('correct choice rate');
-% set(gca, 'tickdir', 'out');
-% box off
-% 
-% dat = padcat(slope_ed{:})';
-% anova1(dat);
+slope_ed = {bigdd{1,:}}';
+slope_lt = {bigdd{2,:}}';
 
 % C=slope_ed;
 % maxLengthCell=max(cellfun('size',C,1));  %finding the longest vector in the cell array
@@ -175,19 +159,19 @@ i = 0;
 %             {'subject', 'exp_num', 'slope', 'modality'});
 %         T = [T; T1];
 %     end
+% % end
+% i = 0;
+% for c = 1:4
+%     for row = 1:length(slope_lt{c})
+%         i = i + 1;
+%         T1 = table(i, c, slope_lt{c}(row), 0, 'variablenames',...
+%             {'subject', 'exp_num', 'corr', 'modality'});
+%         T = [T; T1];
+%     end
 % end
-i = 0;
-for c = 1:4
-    for row = 1:length(slope_lt{c})
-        i = i + 1;
-        T1 = table(i, c, slope_lt{c}(row), 0, 'variablenames',...
-            {'subject', 'exp_num', 'corr', 'modality'});
-        T = [T; T1];
-    end
-end
-
-writetable(T, 'data/LT_anova.csv');
-    
+% 
+% writetable(T, 'data/LT_anova.csv');
+%     
 %     skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
 %         [orange_color; blue_color],...
 %         -0.7,...
