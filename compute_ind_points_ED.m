@@ -2,11 +2,11 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [6.1, 6.2];
 
 displayfig = 'on';
 sessions = [0, 1];
-
+force = true;
 
 for exp_num = selected_exp
     
@@ -72,6 +72,9 @@ for exp_num = selected_exp
         end
         
         try 
+            if force 
+                error('fitting');
+            end
              param = load(...
                  sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat', round(exp_num), sess));
              beta1 = param.beta1;

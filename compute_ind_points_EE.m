@@ -2,10 +2,12 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [6.1, 6.2];
 
 displayfig = 'on';
 sessions = [0, 1];
+
+force = true;
 
 
 for exp_num = selected_exp
@@ -71,12 +73,16 @@ for exp_num = selected_exp
         end
         
         try 
+            if force
+                 error('Force fitting...');
+             end
              param = load(...
                  sprintf(...
                  'data/post_test_fitparam_EE_exp_%d_%d', round(exp_num), sess));
              beta1 = param.beta1;
              shift = param.shift;
              tosave = false;
+             
         catch
             tosave = true;
             options = optimset(...

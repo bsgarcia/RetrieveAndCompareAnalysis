@@ -8,7 +8,7 @@ displayfig = 'off';
 sessions = [0, 1];
     
 figure('Renderer', 'painters',...
-        'Position', [145,157,3312-3312/4,600], 'visible', 'off')
+        'Position', [145,157,828*3,600], 'visible', 'off')
 
 num = 0;    
 for exp_num = selected_exp
@@ -82,7 +82,7 @@ for exp_num = selected_exp
     %alpha = [fliplr(linspace(.4, .9, length(psym)/2)), linspace(.4, .9, length(psym)/2)];
     alpha = linspace(.15, .95, length(psym));
     lin1 = plot(...
-        linspace(psym(1), psym(end), 12), ones(12)*0.5,...
+        linspace(psym(1), psym(end), 12), ones(12,1)*0.5,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     
     for i = 1:length(pwin)
@@ -136,9 +136,9 @@ for exp_num = selected_exp
         
 
         if exp_num == 5
-            ylabel('P(choose experienced cue)');
+            ylabel('P(choose symbol)');
         end
-        xlabel('Described cue win probability');
+        xlabel('Lottery p(win)');
         
         ylim([-0.08, 1.08]);
         xlim([-0.08, 1.08]);
@@ -166,5 +166,5 @@ for exp_num = selected_exp
 end
 mkdir('fig/exp', 'ind_curves_bhv');
     saveas(gcf, ...
-        sprintf('fig/exp/ind_curves_bhv/full.svg'));
+        sprintf('fig/exp/ind_curves_bhv/full_ED.svg'));
     

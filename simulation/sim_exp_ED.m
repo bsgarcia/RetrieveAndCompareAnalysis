@@ -15,7 +15,10 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
     end
     if isfield(options, 'random')
         sim_params.random = options.random;
+    else
+        sim_params.random = false;
     end
+
     [Q, params] = get_qvalues(sim_params);
            
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...

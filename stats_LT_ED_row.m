@@ -51,13 +51,19 @@ for exp_num = selected_exp
     
     subplot(1, 4, num)
 % 
-    shift2 = get_qvalues(sim_params);
+    shift2 = get_qvalues(sim_params); 
+   
+    sim_params.model = 2;
+    [shift3, throw] = get_qvalues(sim_params);
+    
     %shift2(nsub+1:end, :) = [];
     slope1 = add_linear_reg(shift1, ev, orange_color);
     hold off
     slope2 = add_linear_reg(shift2, ev, blue_color);   
     hold off
-    
+    slope3 = add_linear_reg(shift3, ev, magenta_color);
+    hold off
+
 %     
 %     brick_comparison_plot2(...
 %         shift1',shift2',...
@@ -87,21 +93,22 @@ for exp_num = selected_exp
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %     
-    dd(1, :) = slope1(:, 2)';
-    dd(2, :) = slope2(:, 2)';
+    dd(1, :) = slope2(:, 2)';
+    dd(2, :) = slope1(:, 2)';
+    dd(3, :) = slope3(:, 2)';
 %     
 %     bigdd{1, num} = mean(corr);
 %     bigdd{2, num} = dd(2, :)';
 %     
     skylineplot(dd,...
-        [orange_color; blue_color],...
-        -0.7,...
+        [blue_color; orange_color; magenta_color],...
+        -1,...
         1.7,...
         20,...
         '',...
         '',...
         '',...
-        {'ED', 'LT'},...
+        {'LT', 'ED', 'PM'},...
         0);
     if exp_num == 1
         ylabel('Slope');
@@ -113,9 +120,9 @@ for exp_num = selected_exp
 %     
     
 end
-mkdir('fig/exp', 'post_test_PM');
+mkdir('fig/exp', 'violin_plot');
         saveas(gcf, ...
-            sprintf('fig/exp/post_test_PM/full2.svg',...
+            sprintf('fig/exp/violin_plot/LT_PM_ED.svg',...
             num2str(exp_num)));
 
 

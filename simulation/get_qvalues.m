@@ -28,8 +28,16 @@ function [Q, params] = get_qvalues(sim_params)
             params.decision_rule = 1;
             params.nsub = size(cho, 1);
             params.q = 0.5;
-            params.random = sim_params.random;
-            params.nagent = sim_params.nagent;
+            if isfield(params, 'random')
+                params.random = sim_params.random;
+            else
+                params.random = false;
+            end
+            if isfield(params, 'nagent')
+                params.nagent = sim_params.nagent;
+            else
+                params.nagent = 1;
+            end
             
             if ~isfield(sim_params, 'alpha1')
                 data = load(sprintf('data/fit/%s_learning_%d', ...
@@ -58,7 +66,6 @@ function [Q, params] = get_qvalues(sim_params)
 
             params.alpha1 = parameters{1}(:, 2);
             params.beta1 = parameters{1}(:, 1);
-            params.random = sim_params.random;
 
             for sub = 1:size(cho, 1)
                 i = 1;      
