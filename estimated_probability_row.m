@@ -5,10 +5,10 @@ init;
 selected_exp = [1, 2, 3, 4];
 sessions = [0, 1];
 
-displayfig = 'on';
+displayfig = 'off';
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,3312,600], 'visible', 'off')
+    'Position', [145,157,3312,600], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
@@ -38,7 +38,6 @@ for exp_num = selected_exp
             i = i + 1;
         end
     end
-    
         
     ev = unique(p1);
     varargin = ev;
@@ -46,22 +45,22 @@ for exp_num = selected_exp
     x_lim = [0, 1];
    
     
-    subplot(1, 4, num)
+    subplot(1, length(selected_exp), num)
     
-    add_linear_reg(qvalues, ev, magenta_color);
+    add_linear_reg(qvalues.*100, ev.*100, magenta_color);
     brickplot2(...
-        qvalues',...
+        qvalues'.*100,...
         magenta_color.*ones(length(ev), 1),...
-        [0, 1], 11,...
+        [0, 100], 11,...
         '',...
         '',...
-        '', varargin, 1, x_lim, x_values, .18);
+        '', varargin.*100, 1, x_lim.*100, x_values.*100, .18);
     
-    if exp_num == 1
-        ylabel('Probability matching');
+    if num == 1
+        ylabel('Estimated probability (%)');
     end
     
-    xlabel('P(win)');
+    xlabel('Symbol p(win) (%)');
 
     box off
     hold on

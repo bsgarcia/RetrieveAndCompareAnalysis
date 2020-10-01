@@ -2,14 +2,14 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3,4];
+selected_exp = [5, 6.2];
 sessions = [0, 1];
 
 displayfig = 'on';
 
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,3312,600], 'visible', 'off')
+    'Position', [145,157,3312,600], 'visible', 'on')
 num = 0;
 
 for exp_num = selected_exp
@@ -49,20 +49,21 @@ for exp_num = selected_exp
     sim_params.exp_num = exp_num;
     sim_params.model = 1;
     
-    subplot(1, 4, num)
+%     subplot(1, 4, num)
 % 
-    shift2 = get_qvalues(sim_params);
-    
+    shift2 = get_qvalues(sim_params); 
    
     sim_params.model = 2;
-    [shift2, throw] = get_qvalues(params);
+    [shift3, throw] = get_qvalues(sim_params);
     
     %shift2(nsub+1:end, :) = [];
     slope1 = add_linear_reg(shift1, ev, orange_color);
     hold off
     slope2 = add_linear_reg(shift2, ev, blue_color);   
     hold off
-    
+    slope3 = add_linear_reg(shift3, ev, magenta_color);
+    hold off
+
 %     
 %     brick_comparison_plot2(...
 %         shift1',shift2',...
@@ -92,46 +93,46 @@ for exp_num = selected_exp
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %     
-    dd(1, :) = slope1(:, 2)';
-    dd(2, :) = slope2(:, 2)';
+    dd(1, :) = slope2(:, 2)';
+    dd(2, :) = slope1(:, 2)';
+    dd(3, :) = slope3(:, 2)';
 %     
-%     bigdd{1, num} = mean(corr);
-%     bigdd{2, num} = dd(2, :)';
-%     
-    skylineplot(dd,...
-        [orange_color; blue_color],...
-        -0.7,...
-        1.7,...
-        20,...
-        '',...
-        '',...
-        '',...
-        {'ED', 'LT'},...
-        0);
-    if exp_num == 1
-        ylabel('Slope');
-    end
-    set(gca, 'tickdir', 'out');
-    box off
+     bigdd{1, num} = dd(1, :)';
+     bigdd{2, num} = dd(2, :)';
+     bigdd{3, num} = dd(3, :)';
+%     skylineplot(dd,...
+%         [blue_color; orange_color; magenta_color],...
+%         -1,...
+%         1.7,...
+%         20,...
+%         '',...
+%         '',...
+%         '',...
+%         {'LT', 'ED', 'PM'},...
+%         0);
+%     if exp_num == 1
+%         ylabel('Slope');
+%     end
+%     set(gca, 'tickdir', 'out');
+%     box off
 %     
 %     title(sprintf('Exp. %s', num2str(exp_num)));
 %     
     
 end
-mkdir('fig/exp', 'post_test_PM');
+mkdir('fig/exp', 'violin_plot');
         saveas(gcf, ...
-            sprintf('fig/exp/post_test_PM/full2.svg',...
+            sprintf('fig/exp/violin_plot/LT_PM_ED.svg',...
             num2str(exp_num)));
 
 
 
-return
-
 % figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %    
-slope_ed = {bigdd{1,:}}';
-slope_lt = {bigdd{2,:}}';
+slope_lt = {bigdd{1,:}}';
+slope_ed = {bigdd{2,:}}';
+slope_pm = {bigdd{3,:}}';
 
 % C=slope_ed;
 % maxLengthCell=max(cellfun('size',C,1));  %finding the longest vector in the cell array
@@ -157,25 +158,35 @@ slope_lt = {bigdd{2,:}}';
 % 'variablenames', {'exp_1', 'exp_2', 'exp_3', 'exp_4', 'modality'});
 T = table();
 i = 0;
-% for c = 1:4
-%     for row = 1:length(slope_ed{c})
-%         i = i +1;
-%         T1 = table(i, c, slope_ed{c}(row), 1, 'variablenames',...
-%             {'subject', 'exp_num', 'slope', 'modality'});
-%         T = [T; T1];
-%     end
-% % end
-% i = 0;
-% for c = 1:4
-%     for row = 1:length(slope_lt{c})
-%         i = i + 1;
-%         T1 = table(i, c, slope_lt{c}(row), 0, 'variablenames',...
-%             {'subject', 'exp_num', 'corr', 'modality'});
-%         T = [T; T1];
-%     end
+for c = 1:4
+    for row = 1:length(slope_ed{c})
+        i = i +1;
+        T1 = table(i, c, slope_ed{c}(row), 2, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
 % end
-% 
-% writetable(T, 'data/LT_anova.csv');
+i = 0;
+for c = 1:4
+    for row = 1:length(slope_lt{c})
+        i = i + 1;
+        T1 = table(i, c, slope_lt{c}(row), 1, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+i = 0;
+for c = 1:4
+    for row = 1:length(slope_pm{c})
+        i = i + 1;
+        T1 = table(i, c, slope_pm{c}(row), 3, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+
+writetable(T, 'data/LT_anova.csv');
 %     
 %     skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
 %         [orange_color; blue_color],...

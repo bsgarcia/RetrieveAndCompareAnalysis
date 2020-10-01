@@ -19,6 +19,7 @@ options.alpha1 = betarnd(beta_dist(1),...
                         beta_dist(2), [d.(name).nsub, 1]);
 options.beta1 = gamrnd(gam_dist(1),...
                          gam_dist(2), [d.(name).nsub, 1]);
+options.random = true;
 %options.beta1 = ones(d.(name).nsub, 1);
 options.degradors = ones(d.(name).nsub, 2);
 options.degradors(:, 2) = betarnd(6,...
@@ -26,7 +27,7 @@ options.degradors(:, 2) = betarnd(6,...
 options.degradors(:, 1) = betarnd(6,...
                      2, [d.(name).nsub, 1]);        
 [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
-    name, exp_num, d, idx, sess, model, decision_rule, 10, options);
+    name, exp_num, d, idx, sess, model, decision_rule, 130, options);
 
  pcue = unique(p2)';
  psym = unique(p1)';
@@ -71,28 +72,46 @@ options.degradors(:, 1) = betarnd(6,...
         linspace(psym(1), psym(end), 12), ones(12,1)*0.5,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     hold on
+ lin1 = plot(...
+        linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
+        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     
     for i = 1:length(pwin)
-               
+        
+        hold on
+        
+        
         lin3 = plot(...
-            pcue,  prop(i, :),...
+            pcue.*100,  prop(i, :).*100,...
             'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
             );
         
+        
         lin3.Color(4) = alpha(i);
         
-        %ind_point1(i) = interp1(lin3.YData,lin3.XData, 0.5);
-
-        hold on
-
-        ylim([-0.08, 1.08]);
-        xlim([-0.08, 1.08]);
+        hold on      
+        
+        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+        
+        sc2 = scatter(xout, yout, 80, 'MarkerFaceColor', lin3.Color,...
+            'MarkerEdgeColor', 'w');
+        sc2.MarkerFaceAlpha = alpha(i);
+        
+        if num == 1
+            ylabel('P(choose symbol) (%)');
+        end
+        xlabel('Lottery p(win) (%)');
+        
+        ylim([-0.08*100, 1.08*100]);
+        xlim([-0.08*100, 1.08*100]);
+        
         box off
     end
+    
    
    set(gca, 'fontsize', fontsize)
    set(gca, 'tickdir', 'out')
-      xlabel('lottery p(win)')
+   xlabel('lottery p(win)')
    ylabel('P(choose experienced cue)')
 
  
@@ -121,7 +140,7 @@ options.degradors(:, 2) = betarnd(6,...
 options.degradors(:, 1) = betarnd(2,...
                      6, [d.(name).nsub, 1]);        
 [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
-    name, exp_num, d, idx, sess, model, decision_rule, 10, options);
+    name, exp_num, d, idx, sess, model, decision_rule, 130, options);
 
  pcue = unique(p2)';
  psym = unique(p1)';
@@ -164,23 +183,42 @@ options.degradors(:, 1) = betarnd(2,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
     hold on
     
+   lin1 = plot(...
+        linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
+        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+    
     for i = 1:length(pwin)
-               
+        
+        hold on
+        
+        
         lin3 = plot(...
-            pcue,  prop(i, :),...
+            pcue.*100,  prop(i, :).*100,...
             'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
             );
         
+        
         lin3.Color(4) = alpha(i);
         
-        %ind_point1(i) = interp1(lin3.YData,lin3.XData, 0.5);
-
-        hold on
-
-        ylim([-0.08, 1.08]);
-        xlim([-0.08, 1.08]);
+        hold on      
+        
+        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+        
+        sc2 = scatter(xout, yout, 80, 'MarkerFaceColor', lin3.Color,...
+            'MarkerEdgeColor', 'w');
+        sc2.MarkerFaceAlpha = alpha(i);
+        
+        if num == 1
+            ylabel('P(choose symbol) (%)');
+        end
+        xlabel('Lottery p(win) (%)');
+        
+        ylim([-0.08*100, 1.08*100]);
+        xlim([-0.08*100, 1.08*100]);
+        
         box off
     end
+    
    
    set(gca, 'fontsize', fontsize)
    set(gca, 'tickdir', 'out')
@@ -210,10 +248,10 @@ options.beta1 = gamrnd(gam_dist(1),...
 options.degradors = ones(d.(name).nsub, 2);
 options.degradors(:, 2) = betarnd(2,...
                      6, [d.(name).nsub, 1]);
-options.degradors(:, 1) = betarnd(2,...
-                     6, [d.(name).nsub, 1]);        
+options.degradors(:, 1) = betarnd(6,...
+                     2, [d.(name).nsub, 1]);        
 [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
-    name, exp_num, d, idx, sess, model, decision_rule, 10, options);
+    name, exp_num, d, idx, sess, model, decision_rule, 130, options);
 
  pcue = unique(p2)';
  psym = unique(p1)';
@@ -281,5 +319,5 @@ options.degradors(:, 1) = betarnd(2,...
 
  mkdir('fig/exp', 'post_test_PM');
         saveas(gcf, ...
-            sprintf('fig/exp/post_test_PM/full.svg',...
+            sprintf('fig/exp/post_test_PM/methods.svg',...
             num2str(exp_num)));

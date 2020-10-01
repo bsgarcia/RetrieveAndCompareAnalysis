@@ -72,6 +72,7 @@ function [Q, params] = get_qvalues(sim_params)
 
                 for p = unique(p1)'
                     Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
+                    params.corr(sub, i) = abs(Q(sub, i) -  p) <= .1;
                     i = i + 1;          
                 end
 

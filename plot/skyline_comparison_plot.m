@@ -67,6 +67,7 @@ for n = 1:Nbar
     % CONFIDENCE INTERVAL
     inter = unique(DataMatrix(DataMatrix<curve+sem*conf & DataMatrix>curve-sem*conf),'stable')';
     if length(density) > 1
+        
         d = interp1(value, density*width, [curve-sem*conf sort(inter) curve+sem*conf]);
     else % all data is identical
         d = repmat(density*width,1,2);

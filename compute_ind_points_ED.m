@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [6.1, 6.2];
+selected_exp = [4];
 
 displayfig = 'on';
 sessions = [0, 1];
@@ -29,7 +29,7 @@ for exp_num = selected_exp
     % --------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % -------------------------------------------------------------------
-    
+
     pcue = unique(p2)';
     psym = unique(p1)';
     
@@ -76,7 +76,8 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat', round(exp_num), sess));
+                 sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat',...
+                 round(exp_num), sess));
              beta1 = param.beta1;
              shift = param.shift;
              tosave = false;

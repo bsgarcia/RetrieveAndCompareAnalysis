@@ -83,7 +83,7 @@ blue_color_gradient(:, 3) = ...
 
 orange_color = [0.8500, 0.3250, 0.0980];
 green_color = [0.4660    0.6740    0.1880];
-green_color = [61/255, 176/255, 125/255];
+green_color = [61/255, 176/255, 125
 red_color = [0.6350    0.0780    0.1840];
 
 red_to_blue(:, 1) = ...

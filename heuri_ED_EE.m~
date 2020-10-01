@@ -2,15 +2,15 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [6, 8];
 sessions = [0, 1];
 
 y1 = 0;
 y2 = 0;
-displayfig = 'off';
+displayfig = 'on';
    
 figure('Renderer', 'painters',...
-    'Position', [145,157, 2484,600], 'visible', displayfig)
+    'Position', [145,157, 2*828,600], 'visible', displayfig)
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
@@ -27,65 +27,64 @@ for exp_num = selected_exp
     sub_ids = d.(name).sub_ids;
     nsub = d.(name).nsub;
        
-    param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
-        round(exp_num), sess));
-    shift1 = param.shift;
-    beta1 = param.beta1;
-      
-    param = load(...
-        sprintf('data/post_test_fitparam_EE_exp_%d_%d',...
-        round(exp_num), sess));
-    shift2 = param.shift;
-    beta2 = param.beta1;
-    
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+%     param = load(...
+%         sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
+%         round(exp_num), sess));
+%     shift1 = param.shift;
+%     beta1 = param.beta1;
+%       
+%     param = load(...
+%         sprintf('data/post_test_fitparam_EE_exp_%d_%d',...
+%         round(exp_num), sess));
+%     shift2 = param.shift;
+%     beta2 = param.beta1;
+%     
+    [corr1, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
+        data, sub_ids, idx, sessions);
+    [corr2, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+        DataExtraction.extract_sym_vs_sym_post_test(...
+        data, sub_ids, idx, sessions);
+   
     
-    ev = unique(p1);
-    varargin = ev;
-    x_values = ev;
-    x_lim = [0, 1];
-    
-    subplot(1, 3, num)
+    %subplot(1, 3, num)
 
 %        
-    slope1 = add_linear_reg(shift1, ev, orange_color);
-    slope2 = add_linear_reg(shift2, ev, blue_color);     
-    
-    
-    brick_comparison_plot2(...
-        shift1',shift2',...
-        orange_color, blue_color, ...
-        [0, 1], 11,...
-        '',...
-        '',...
-        '', varargin, 1, x_lim, x_values);
-    
-    if exp_num == 5
-        ylabel('Indifference point')
-    end
-    
-    xlabel('Symbol p(win)');
-    box off
-    hold on
-    
-    set(gca, 'fontsize', fontsize);
+%     slope1 = add_linear_reg(shift1, ev, orange_color);
+%     slope2 = add_linear_reg(shift2, ev, blue_color);     
 %     
-%     %set(gca, 'ytick', [0:10]./10);
-    set(gca,'TickDir','out')
-    
+%     
+%     brick_comparison_plot2(...
+%         shift1',shift2',...
+%         orange_color, blue_color, ...
+%         [0, 1], 11,...
+%         '',...
+%         '',...
+%         '', varargin, 1, x_lim, x_values);
+%     
+%     if exp_num == 5
+%         ylabel('Indifference point')
+%     end
+%     
+%     %xlabel('Symbol p(win)');
+%     box off
+%     hold on
+%     
+%     set(gca, 'fontsize', fontsize);
+% %     
+% %     %set(gca, 'ytick', [0:10]./10);
+%     set(gca,'TickDir','out')
+%     
     %title(sprintf('Exp. %s', num2str(exp_num)));
     
 %     
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %     
-    dd(1, :) = slope1(:, 2)';
-    dd(2, :) = slope2(:, 2)';
-    bigdd{1, num} = dd(1, :)';
-    bigdd{2, num} = dd(2, :)';
+    dd(1, :) = mean(corr1,2)';
+    dd(2, :) = mean(corr2,2)';
+    bigdd{num, 1} = dd(1, :);
+    bigdd{num, 2} = dd(2, :);
 %     
 %     m1 = min(log(dd), [], 'all');
 %     m2 = max(log(dd), [], 'all');
@@ -141,51 +140,49 @@ for exp_num = selected_exp
     
 end
 
-mkdir('fig/exp', 'brick_ED_vs_EE');
-        saveas(gcf, ...
-            sprintf('fig/exp/brick_ED_vs_EE/brick.svg',...
-            num2str(exp_num)));
-
-        
-slope_ee = {bigdd{1,:}}';
-slope_ed = {bigdd{2,:}}';
-
-T = table();
-i = 0;
-for c = 1:3
-    for row = 1:length(slope_ed{c})
-        i = i +1;
-        T1 = table(i, c, slope_ed{c}(row), 2, 'variablenames',...
-            {'subject', 'exp_num', 'slope', 'modality'});
-        T = [T; T1];
-    end
-end
+% 
+% brick_comparison_plot2(...
+%     shift1',shift2',...
+%     orange_color, blue_color, ...
+%     [0, 1], 11,...
+%     '',...
+%     '',...
+%     '', varargin, 1, x_lim, x_values);
+% 
+% if exp_num == 5
+%     ylabel('Indifference point')
 % end
-i = 0;
-for c = 1:3
-    for row = 1:length(slope_ee{c})
-        i = i + 1;
-        T1 = table(i, c, slope_ee{c}(row), 1, 'variablenames',...
-            {'subject', 'exp_num', 'slope', 'modality'});
-        T = [T; T1];
-    end
-end
-writetable(T, 'data/LT_anova.csv');
 
+%xlabel('Symbol p(win)');
+
+
+% mkdir('fig/exp', 'brick_ED_vs_EE');
+%         saveas(gcf, ...
+%             sprintf('fig/exp/brick_ED_vs_EE/brick.svg',...
+%             num2str(exp_num)));
+% 
 % 
 % figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 % 
-% skyline_comparison_plot({bigdd{1,:}}',{bigdd{2,:}}',...
-%     [orange_color; blue_color],...
-%     y1,...
-%     y2,...
-%     20,...
-%     '',...
-%     '',...
-%     '',...
-%     1:4,...
-%     0);
+skylineplot(bigdd,...
+    [orange_color; green_color],...
+    0,...
+    1,...
+    20,...
+    '',...
+    '',...
+    '',...
+    {'ED', 'EE'},...
+    1);
+
+box off
+hold on
+
+set(gca, 'fontsize', fontsize);
+%     
+%     %set(gca, 'ytick', [0:10]./10);
+    set(gca,'TickDir','out')
 % ylabel('log\beta');
 % set(gca, 'tickdir', 'out');
 % box off
