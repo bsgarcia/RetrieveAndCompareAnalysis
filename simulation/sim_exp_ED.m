@@ -20,7 +20,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
     end
 
     [Q, params] = get_qvalues(sim_params);
-           
+    
+    
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         d.(exp_name).data, d.(exp_name).sub_ids, idx, sess);
@@ -28,6 +29,7 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
     nsub = d.(exp_name).nsub;
     ntrials = size(cho, 2);
     i = 0;
+    
     for agent = 1:nagent
         for sub = 1:nsub
             i = i + 1;
@@ -41,6 +43,8 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
             end
         end
     end
+    
+    
     i = 1;  
 
     for agent = 1:nagent

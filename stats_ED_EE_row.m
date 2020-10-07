@@ -5,12 +5,10 @@ init;
 selected_exp = [5, 6.1, 6.2];
 sessions = [0, 1];
 
-y1 = 0;
-y2 = 0;
 displayfig = 'off';
    
 figure('Renderer', 'painters',...
-    'Position', [145,157, 2484,600], 'visible', displayfig)
+    'Position', [145,157, 828*length(selected_exp),600], 'visible', displayfig)
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
@@ -43,31 +41,31 @@ for exp_num = selected_exp
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
     
-    ev = unique(p1);
+    ev = unique(p1).*100;
     varargin = ev;
     x_values = ev;
-    x_lim = [0, 1];
+    x_lim = [0, 100];
     
-    subplot(1, 3, num)
+    subplot(1, length(selected_exp), num)
 
 %        
-    slope1 = add_linear_reg(shift1, ev, orange_color);
-    slope2 = add_linear_reg(shift2, ev, blue_color);     
+    slope1 = add_linear_reg(shift1.*100, ev, orange_color);
+    slope2 = add_linear_reg(shift2.*100, ev, green_color);     
     
     
     brick_comparison_plot2(...
-        shift1',shift2',...
-        orange_color, blue_color, ...
-        [0, 1], 11,...
+        shift1'.*100,shift2'.*100,...
+        orange_color, green_color, ...
+        [0, 100], 11,...
         '',...
         '',...
         '', varargin, 1, x_lim, x_values);
     
-    if exp_num == 5
-        ylabel('Indifference point')
+    if num == 1
+        ylabel('Indifference point (%)')
     end
     
-    xlabel('Symbol p(win)');
+    xlabel('Symbol p(win) (%)');
     box off
     hold on
     
@@ -86,8 +84,8 @@ for exp_num = selected_exp
     dd(2, :) = slope2(:, 2)';
     bigdd{1, num} = dd(1, :)';
     bigdd{2, num} = dd(2, :)';
-%     
-%     m1 = min(log(dd), [], 'all');
+    
+% %     m1 = min(log(dd), [], 'all');
 %     m2 = max(log(dd), [], 'all');
 %     if m1 < y1
 %         y1 = m1;
@@ -141,36 +139,31 @@ for exp_num = selected_exp
     
 end
 
-mkdir('fig/exp', 'brick_ED_vs_EE');
+mkdir('fig/exp', 'brickplot');
         saveas(gcf, ...
-            sprintf('fig/exp/brick_ED_vs_EE/brick.svg',...
+            sprintf('fig/exp/brickplot/EE_2.svg',...
             num2str(exp_num)));
 
-        
 slope_ee = {bigdd{1,:}}';
 slope_ed = {bigdd{2,:}}';
 
 T = table();
-i = 0;
-for c = 1:3
-    for row = 1:length(slope_ed{c})
-        i = i +1;
-        T1 = table(i, c, slope_ed{c}(row), 2, 'variablenames',...
+for c = [1, 2, 3]
+    for sub = 1:length(slope_ed{c})
+        T1 = table(sub, c, slope_ed{c}(sub), 2, 'variablenames',...
             {'subject', 'exp_num', 'slope', 'modality'});
         T = [T; T1];
     end
 end
 % end
-i = 0;
-for c = 1:3
-    for row = 1:length(slope_ee{c})
-        i = i + 1;
-        T1 = table(i, c, slope_ee{c}(row), 1, 'variablenames',...
+for c = [1, 2, 3]
+    for sub = 1:length(slope_ee{c})
+        T1 = table(sub, c, slope_ee{c}(sub), 1, 'variablenames',...
             {'subject', 'exp_num', 'slope', 'modality'});
         T = [T; T1];
     end
 end
-writetable(T, 'data/LT_anova.csv');
+writetable(T, 'data/ED_EE.csv');
 
 % 
 % figure('Renderer', 'painters',...

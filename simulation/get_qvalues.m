@@ -33,7 +33,7 @@ function [Q, params] = get_qvalues(sim_params)
             else
                 params.random = false;
             end
-            if isfield(params, 'nagent')
+            if isfield(sim_params, 'nagent')
                 params.nagent = sim_params.nagent;
             else
                 params.nagent = 1;
@@ -125,43 +125,43 @@ end
 
 
 function Q = simulation(sim_params)
-
+    
     Q = ones(sim_params.nsub*sim_params.nagent, sim_params.ncond, sim_params.noptions)...
         .*sim_params.q;    
     i = 0;
     for agent = 1:sim_params.nagent
-    for sub = 1:sim_params.nsub    
-        i = i + 1;
-        s = sim_params.con(sub, :);
-        cfr = sim_params.cfout(sub, :);
-        r = sim_params.out(sub, :);
-        a = sim_params.cho(sub, :);
-        cfa = sim_params.cfcho(sub, :);
-        
-        if sim_params.random        
-            order = randperm(length(a));
-            s = s(order);
-            cfr = cfr(order);
-            r = r(order);
-            a = a(order);
-            cfa = cfa(order);
-        end
-        fit_cf = sim_params.fit_cf;
-        
-        qlearner = models.QLearning([NaN, sim_params.alpha1(sub)], sim_params.q,...
-           sim_params.ncond, sim_params.noptions,...
-           sim_params.ntrials, sim_params.decision_rule);
+        for sub = 1:sim_params.nsub    
+            i = i + 1;
+            s = sim_params.con(sub, :);
+            cfr = sim_params.cfout(sub, :);
+            r = sim_params.out(sub, :);
+            a = sim_params.cho(sub, :);
+            cfa = sim_params.cfcho(sub, :);
 
-        for t = 1:sim_params.ntrials            
-             qlearner.learn(s(t), a(t), r(t));
-             if fit_cf
-                 qlearner.learn(s(t), cfa(t), cfr(t));
-             end                         
-        end
-        
-        Q(i, :, :) = qlearner.Q(:, :);
+            if sim_params.random        
+                order = randperm(length(a));
+                s = s(order);
+                cfr = cfr(order);
+                r = r(order);
+                a = a(order);
+                cfa = cfa(order);
+            end
+            fit_cf = sim_params.fit_cf;
 
-    end
+            qlearner = models.QLearning([NaN, sim_params.alpha1(sub)], sim_params.q,...
+               sim_params.ncond, sim_params.noptions,...
+               sim_params.ntrials, sim_params.decision_rule);
+
+            for t = 1:sim_params.ntrials            
+                 qlearner.learn(s(t), a(t), r(t));
+                 if fit_cf
+                     qlearner.learn(s(t), cfa(t), cfr(t));
+                 end                         
+            end
+
+            Q(i, :, :) = qlearner.Q(:, :);
+
+        end
     end
     
 end

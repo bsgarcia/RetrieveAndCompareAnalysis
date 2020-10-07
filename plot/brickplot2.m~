@@ -1,4 +1,4 @@
-function [bars, nbar, nsub] = brickplot2(data,sem,colors,y_lim,fontsize,mytitle, ... 
+function [bars, nbar, nsub] = brickplot2(data,sem1,colors,y_lim,fontsize,mytitle, ... 
     x_label,y_label,varargin, noscatter, x_lim, x_values, width1)
 
 % Sophie Bavard - December 2018
@@ -44,6 +44,7 @@ for n = 1:nbar
     if ~exist('sem')
         sem   = nanstd(DataMatrix')'/sqrt(nsub);
     end
+    sem = 
     mystd = nanstd(DataMatrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     

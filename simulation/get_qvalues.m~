@@ -26,7 +26,7 @@ function [Q, params] = get_qvalues(sim_params)
             params.ncond = length(unique(con));
             params.noptions = 2;
             params.decision_rule = 1;
-            params.nsub = size(cho, 1);
+            params.nsub = sim_params.nsub;
             params.q = 0.5;
             if isfield(params, 'random')
                 params.random = sim_params.random;

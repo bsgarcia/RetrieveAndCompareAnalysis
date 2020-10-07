@@ -2,10 +2,10 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4];
+selected_exp = [1,2,3,4];
 sessions = [0, 1];
 
-displayfig = 'off';
+displayfig = 'on';
 
 
 figure('Renderer', 'painters',...
@@ -30,8 +30,9 @@ for exp_num = selected_exp
        
     param = load(...
         sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
-        exp_num, sess));
+        round(exp_num), sess));
     shift2 = param.shift;
+    
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
@@ -58,35 +59,36 @@ for exp_num = selected_exp
     
     %shift2(nsub+1:end, :) = [];
     slope1 = add_linear_reg(shift1.*100, ev, blue_color);   
-    hold off
+    hold on
     slope2 = add_linear_reg(shift2.*100, ev, orange_color);
-    hold off
+    hold on
+%     slope3 = add_linear_reg(shift3.*100, ev, magenta_color);
+%     hold off
+%     
+%     slope4 = add_linear_reg(shift4.*100, ev, green_color);
+%     hold off
+%     
+    brick_comparison_plot2(...
+        shift1'.*100,shift2'.*100,...
+        blue_color, orange_color, ...
+        [0, 100], 11,...
+        '',...
+        '',...
+        '', varargin, 1, x_lim, x_values);
     
-    slope3 = add_linear_reg(shift3.*100, ev, magenta_color);
-    hold off
-
+    if num == 1
+        ylabel('Indifference point (%)')
+    end
+    
+   
+    xlabel('Symbol p(win) (%)');
+    box off
+    hold on
 %     
-%     brick_comparison_plot2(...
-%         shift1'.*100,shift2'.*100,...
-%         orange_color, blue_color, ...
-%         [0, 100], 11,...
-%         '',...
-%         '',...
-%         '', varargin, 1, x_lim, x_values);
-%     
-%     if num == 1
-%         ylabel('Indifference point (%)')
-%     end
-%     
-%    
-%     xlabel('Symbol p(win) (%)');
-%     box off
-%     hold on
-% %     
-%     set(gca, 'fontsize', fontsize);
-%     
-%     %set(gca, 'ytick', [0:10]./10);
-%     set(gca,'TickDir','out')
+    set(gca, 'fontsize', fontsize);
+    
+    %set(gca, 'ytick', [0:10]./10);
+    set(gca,'TickDir','out')
     
 %     title(sprintf('Exp. %s', num2str(exp_num)));
 
@@ -94,13 +96,15 @@ for exp_num = selected_exp
 %     figure('Renderer', 'painters',...
 %     'Position', [145,157,700,650], 'visible', 'on')
 %     
-    dd(1, :) = slope1(:, 2)';
-    dd(2, :) = slope2(:, 2)';
-    dd(3, :) = slope3(:, 2)';
-%     
-     bigdd{1, num} = dd(1, :)';
-     bigdd{2, num} = dd(2, :)';
-     bigdd{3, num} = dd(3, :)';
+%     dd(1, :) = slope1(:, 2)';
+%     dd(2, :) = slope2(:, 2)';
+%     dd(3, :) = slope3(:, 2)';
+%     dd(4, :) = slope4(:, 2)';
+%     %
+%     bigdd{1, num} = dd(1, :)';
+%     bigdd{2, num} = dd(2, :)';
+%     bigdd{3, num} = dd(3, :)';
+%     bigdd{4, num} = dd(4, :)';
 %     skylineplot(dd,...
 %         [blue_color; orange_color; magenta_color],...
 %         -1,...
@@ -121,51 +125,19 @@ for exp_num = selected_exp
 %     
     
 end
+return
 % mkdir('fig/exp', 'brickplot');
 % saveas(gcf, ...
 %     'fig/exp/brickplot/LT_ED.svg');
 % return
 % 
 
-
-% figure('Renderer', 'painters',...
-%     'Position', [145,157,700,650], 'visible', 'on')
-%    
 slope_lt = {bigdd{1,:}}';
 slope_ed = {bigdd{2,:}}';
 slope_pm = {bigdd{3,:}}';
-
-% C=slope_ed;
-% maxLengthCell=max(cellfun('size',C,1));  %finding the longest vector in the cell array
-% for i=1:length(C)
-%     for j=cellfun('size',C(i),1)+1:maxLengthCell
-%         C{i}(j)=NaN;   %zeropad the elements in each cell array with a length shorter than the maxlength
-%     end
-% end
-% slope_ed=cell2mat(C'); %A is your matrix
-% slope_ed(:, 5) = 1;
-% 
-% C=slope_lt;
-% maxLengthCell=max(cellfun('size',C,1));  %finding the longest vector in the cell array
-% for i=1:length(C)
-%     for j=cellfun('size',C(i),1)+1:maxLengthCell
-%         C{i}(j)=NaN;   %zeropad the elements in each cell array with a length shorter than the maxlength
-%     end
-% end
-% slope_lt = cell2mat(C');
-% slope_lt(:, 5) = 0;
-
-% T = array2table([slope_lt; slope_ed],...
-% 'variablenames', {'exp_1', 'exp_2', 'exp_3', 'exp_4', 'modality'});
+slope_ee = {bigdd{4,:}}';
 T = table();
-for c = 1:length(selected_exp)
-    for sub = 1:length(slope_ed{c})
-        T1 = table(sub, c, slope_ed{c}(sub), 2, 'variablenames',...
-            {'subject', 'exp_num', 'slope', 'modality'});
-        T = [T; T1];
-    end
-end
-% end
+
 for c = 1:length(selected_exp)
     for sub = 1:length(slope_lt{c})
         T1 = table(sub, c, slope_lt{c}(sub), 1, 'variablenames',...
@@ -174,7 +146,14 @@ for c = 1:length(selected_exp)
     end
 end
 for c = 1:length(selected_exp)
-    for row = 1:length(slope_pm{c})
+    for sub = 1:length(slope_ed{c})
+        T1 = table(sub, c, slope_ed{c}(sub), 2, 'variablenames',...
+            {'subject', 'exp_num', 'slope', 'modality'});
+        T = [T; T1];
+    end
+end
+for c = 1:length(selected_exp)
+    for sub = 1:length(slope_pm{c})
         T1 = table(sub, c, slope_pm{c}(sub), 3, 'variablenames',...
             {'subject', 'exp_num', 'slope', 'modality'});
         T = [T; T1];
@@ -199,4 +178,3 @@ writetable(T, 'data/LE_ED_PM.csv');
 %     
 %     title(sprintf('', num2str(exp_num)));
 % 
-% T = cell2table(slope_ed, 'VariableNames', {'exp_1', 'exp_2', 'exp_3', 'exp_4'});
