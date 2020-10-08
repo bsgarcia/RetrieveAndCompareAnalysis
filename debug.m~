@@ -3,38 +3,20 @@ clear all
 i = 0;
 j = 0;
 
-for midpoint = [0:10]./10
+for midpoint = [1:9]./10
     i = i + 1;
-    disp(i);
-    for temp = linspace(0.01, 500, 50)
-        j = j + 1;
-       
-        x = linspace(0, 1, 12);
-        y = logfun(x', midpoint, temp);
-% 
-%         figure('Renderer', 'painters', 'visible', 'off');
-% 
-%         lin1 = plot(x, ones(1, 12)*0.5, 'linestyle', '--');
-%         hold on
-% 
-%         lin2 = plot(x, y);
+ 
+    x = linspace(0, 1, 12);
+    y(i,:) = logfun(x', midpoint, temp);
 
-        [xout, yout] = intersections(x, y, x, ones(1, 12)*0.5);
-        
-        deviation(i, j) = abs(midpoint - xout);
-    end
+    [xout(i), yout] = intersections(x, y, x, ones(1, 12)*0.5);
 end
 
 figure('Renderer', 'painters', 'visible', 'on');
 
-h = heatmap(deviation');
-xlabel('midpoint');
-ylabel('temperature');
-h.XData = string([0:10]./10);
-h.YData = string(linspace(0.01, 500, 50)
-%olorbar('label', 'Deviation from midpoint');
-% h = colorbar;
-% ylabel(h, 'Deviation from midpoint')
+yy = mean(y);
+xout2 = 
+
 
 function p = logfun(x, midpoint, temp)
     p = 1./(1+exp(-temp.*(midpoint(1)-x)));

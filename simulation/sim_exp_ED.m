@@ -85,11 +85,11 @@ function [a, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
         end
     end
     
-    cont1 = repmat(cont1, nagent, 1);
-    cont2 = repmat(cont1, nagent, 1);
-    p1 = repmat(p1, nagent, 1);
-    p2 = repmat(p2, nagent, 1);
-    ev1 = repmat(ev1, nagent, 1);
-    ev2 = repmat(ev2, nagent, 1);   
+    cont1 = repmat(cont1(1:nsub,:), nagent, 1);
+    cont2 = repmat(cont1(1:nsub,:), nagent, 1);
+    p1 = repmat(p1(1:nsub,:), nagent, 1);
+    p2 = repmat(p2(1:nsub,:), nagent, 1);
+    ev1 = repmat(ev1(1:nsub,:), nagent, 1);
+    ev2 = repmat(ev2(1:nsub,:), nagent, 1);   
     
 end

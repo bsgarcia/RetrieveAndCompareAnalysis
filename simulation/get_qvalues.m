@@ -26,7 +26,7 @@ function [Q, params] = get_qvalues(sim_params)
             params.ncond = length(unique(con));
             params.noptions = 2;
             params.decision_rule = 1;
-            params.nsub = size(cho, 1);
+            params.nsub = sim_params.nsub;
             params.q = 0.5;
             if isfield(params, 'random')
                 params.random = sim_params.random;
@@ -129,6 +129,7 @@ function Q = simulation(sim_params)
     Q = ones(sim_params.nsub*sim_params.nagent, sim_params.ncond, sim_params.noptions)...
         .*sim_params.q;    
     i = 0;
+    
     for agent = 1:sim_params.nagent
         for sub = 1:sim_params.nsub    
             i = i + 1;
@@ -163,6 +164,8 @@ function Q = simulation(sim_params)
 
         end
     end
+    
+    disp(mean(Q));
     
 end
 

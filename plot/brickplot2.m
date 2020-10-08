@@ -23,7 +23,7 @@ end
 % number of factors/groups/conditions
 nbar = size(data,1);
 % bar size
-Wbar = 0.025*100;
+Wbar = 0.025;
 
 % confidence interval
 ConfInter = 0.95;

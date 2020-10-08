@@ -1,29 +1,29 @@
 clear all
-
+rng(0);
 i = 0;
-j = 0;
+figure('renderer','painters');
+xlim([-0.08,1.08])
+ylim([-0.08,1.08])
 
-for midpoint = [1:9]./10
+x = linspace(0, 1, 12);
+
+for midpoint = unidrnd(99, [1, 100])./100
     i = i + 1;
-    disp(i);
-    for temp = linspace(0.01, 1000, 50)
-        j = j + 1;
-       
-        x = linspace(0, 1, 12);
-        y = logfun(x', midpoint, temp);
-
-        [xout, yout] = intersections(x, y, x, ones(1, 12)*0.5);
-        
-        deviation(i, j) = abs(midpoint - xout);
-    end
+ 
+    y(i,:) = logfun(x', midpoint, 1000);
+    p = plot(y(i,:), 'color', 'k', 'linewidth', 2);
+    hold on
+    p.Color(4) = .2;
+    [xout(i), yout] = intersections(x, y(i,:), x, ones(1, 12)*0.5);
 end
 
-figure('Renderer', 'painters', 'visible', 'on');
 
-h = heatmap(deviation');
-xlabel('midpoint');
-ylabel('temperature');
-h.XData = string([1:9]./10);
+yy = mean(y);
+[xout2, yout] = intersections(x, yy, x, ones(1, 12)*0.5);
+
+figure
+ylim([-0.05, .05])
+bar(mean(xout) - xout2);
 
 
 function p = logfun(x, midpoint, temp)
