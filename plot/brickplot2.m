@@ -1,4 +1,4 @@
-function [bars, nbar, nsub] = brickplot2(data,sem,colors,y_lim,fontsize,mytitle, ... 
+function [bars, nbar, nsub] = brickplot2(data,colors,y_lim,fontsize,mytitle, ... 
     x_label,y_label,varargin, noscatter, x_lim, x_values, width1)
 
 % Sophie Bavard - December 2018
@@ -23,7 +23,7 @@ end
 % number of factors/groups/conditions
 nbar = size(data,1);
 % bar size
-Wbar = 0.025;
+Wbar = 0.025.*100;
 
 % confidence interval
 ConfInter = 0.95;
@@ -41,9 +41,8 @@ for n = 1:nbar
     nsub = length(DataMatrix(~isnan(DataMatrix)));
     
     curve = nanmean(DataMatrix);
-    if ~exist('sem')
-        sem   = nanstd(DataMatrix')'/sqrt(nsub);
-    end
+    sem   = nanstd(DataMatrix')'/sqrt(nsub);
+    
     mystd = nanstd(DataMatrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     

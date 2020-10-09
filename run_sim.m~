@@ -1,0 +1,132 @@
+%-------------------------------------------------------------------------
+init;
+%-------------------------------------------------------------------------
+
+figure('Renderer', 'painters', 'position', [0, 0, 828*3, 600],...
+    'visible', 'on')
+
+% force = false;
+% 
+% exp_num = 3;
+% sess = 0;
+% model = 1;
+% decision_rule = 1;
+% 
+
+
+degradors = {{.9, .9}, {.2, .9}, {.9, .2}};
+
+p_sym = [.1, .2, .3, .4, .6, .7, .8, .9];
+p_lot = 0:.1:1;
+
+for num = [1, 2, 3]
+    
+    % load data
+%     name = char(filenames{round(exp_num)});
+%     
+%     data = d.(name).data;
+%     sub_ids = d.(name).sub_ids;
+%     
+%     beta_dist = [1, 1];
+%     gam_dist = [1.2, 5];
+%     
+%     options.alpha1 = betarnd(beta_dist(1),...
+%         beta_dist(2), [d.(name).nsub, 1]);
+%     options.beta1 = gamrnd(gam_dist(1),...
+%         gam_dist(2), [d.(name).nsub, 1]);
+%     options.random = true;
+%     %options.beta1 = ones(d.(name).nsub, 1);
+%     options.degradors = ones(d.(name).nsub, 2);
+%     options.degradors(:, 2) = betarnd(beta_params{num}{1}(1),...
+%         beta_params{num}{1}(2), [d.(name).nsub, 1]);
+%     options.degradors(:, 1) = betarnd(beta_params{num}{2}(1),...
+%         beta_params{num}{2}( 2), [d.(name).nsub, 1]);
+%     
+%     [cho, cont1, cont2, p1, p2, ev1, ev2] = sim_exp_ED(...
+%         name, exp_num, d, idx, sess, model, decision_rule, 100, options);
+%     
+%     p_lot = unique(p2)';
+%     psym = unique(p1)';
+%     
+%     nsub = size(cho, 1);
+%     chose_symbol = zeros(nsub, length(p_lot), length(psym), 1);
+%     for i = 1:nsub
+%         for j = 1:length(p_lot)
+%             for k = 1:length(psym)
+%                 temp = ...
+%                     cho(i, logical((p2(i, :) == p_lot(j)) .* (p1(i, :) == psym(k))));
+%                 for l = 1:length(temp)
+%                     chose_symbol(i, j, k, l) = temp(l) == 1;
+%                 end
+%             end
+%         end
+%     end
+%     
+%     k = randsample(1:size(cho, 1), size(cho, 1), false);
+%     
+%     prop = zeros(length(psym), length(p_lot));
+%     temp1 = cho(k, :);
+%     for j = 1:length(p_lot)
+%         for l = 1:length(psym)
+%             temp = temp1(...
+%                 logical((p2(k, :) == p_lot(j)) .* (p1(k, :) == psym(l))));
+%             prop(l, j) = mean(temp == 1);
+%             err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
+%             
+%         end
+%     end
+%     
+%     
+%     pp = zeros(length(k), length(psym), length(p_lot));
+%     
+    
+    subplot(1, 3, num)
+        
+    alpha = linspace(.15, .95, length(psym));
+    lin1 = plot(...
+        linspace(psym(1), psym(end), 12), ones(12,1)*0.5,...
+        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+    hold on
+    lin1 = plot(...
+        linspace(psym(1)*100-10, psym(end)*100+10, 12), ones(12,1)*50,...
+        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+    
+    for i = 1:length(p_sym)
+        
+        hold on
+        
+        
+        lin3 = plot(...
+            p_lot.*100,  .*100,...
+            'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+            );
+        
+        
+        lin3.Color(4) = alpha(i);
+        
+        hold on
+        
+        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+        
+        sc2 = scatter(xout, yout, 80, 'MarkerFaceColor', lin3.Color,...
+            'MarkerEdgeColor', 'w');
+        sc2.MarkerFaceAlpha = alpha(i);
+        
+        
+        xlabel('Lottery p(win) (%)');
+        
+        ylim([-0.08*100, 1.08*100]);
+        xlim([-0.08*100, 1.08*100]);
+        
+        box off
+    end
+    
+end
+
+saveas(gcf, 'fig/exp/brickplot/methods_curve.svg');
+
+
+function p = softmax1(v1, v2, beta1, degradors)
+    p = 1./(1+exp(beta1.*([v1, v2].*degradors)));
+end
+
