@@ -98,8 +98,8 @@ for num = [1, 2, 3]
     
     subplot(2, 3, num+3)
    
-    scatter(p_sym.*100, xout, 160,...
-        'markerfacecolor', set_alpha(orange_color, .7), 'markeredgecolor', 'k');% 'markerfacealpha', 0.7);
+    scatter(p_sym.*100, xout, 230,...
+        'markerfacecolor', set_alpha(orange_color, .7), 'markeredgecolor', 'w');% 'markerfacealpha', 0.7);
     hold on
     
     
@@ -107,7 +107,7 @@ for num = [1, 2, 3]
     y_lim = [0, 100];
     
     y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
-        ones(10,1).*y_lim(2)/2, 'LineStyle', '--', 'Color', 'k', 'linewidth', 1.7);
+        ones(10,1).*y_lim(2)/2, 'LineStyle', '--', 'Color', 'k', 'linewidth', 2.5);
     y0.Color(4) = .45;
     uistack(y0, 'bottom');
 
@@ -116,7 +116,7 @@ for num = [1, 2, 3]
     x = linspace(x_lim(1), x_lim(2), 10);
 
     y = linspace(y_lim(1), y_lim(2), 10);
-    p0 = plot(x, y, 'linewidth', 1.7, 'LineStyle', '--', 'Color', 'k');
+    p0 = plot(x, y, 'linewidth', 2.5, 'LineStyle', '--', 'Color', 'k');
 
     p0.Color(4) = .45;
     hold on

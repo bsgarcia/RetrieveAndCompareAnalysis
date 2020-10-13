@@ -119,7 +119,7 @@ function [Q, params] = get_qvalues(sim_params)
                 end
             end
             params.lot = lot;
-        end
+    end
 end
          % ---------------------------------------------------------%
 
@@ -164,8 +164,6 @@ function Q = simulation(sim_params)
 
         end
     end
-    
-    disp(mean(Q));
-    
+       
 end
 
