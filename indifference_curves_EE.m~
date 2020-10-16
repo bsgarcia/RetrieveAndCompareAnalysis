@@ -2,13 +2,13 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [8];
+selected_exp = [6, 7];
 
 displayfig = 'off';
 sessions = [0, 1];
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp)/37,600/37], 'visible', displayfig)
+    'Position', [145,157,828*length(selected_exp),600], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
@@ -90,8 +90,8 @@ for exp_num = selected_exp
         
         
         lin3 = plot(...
-            pcue(isfinite(prop(i, :))).*100,  prop(i,isfinite(prop(i, :))).*100,...
-            'Color', green_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+            pcue(isfinite(prop(i, :).*100,  prop(i, :).*100,...
+            'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
             );
         
         
@@ -101,7 +101,7 @@ for exp_num = selected_exp
         
         [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
         
-        sc2 = scatter(xout, yout, 200, 'MarkerFaceColor', lin3.Color,...
+        sc2 = scatter(xout, yout, 80, 'MarkerFaceColor', lin3.Color,...
             'MarkerEdgeColor', 'w');
         sc2.MarkerFaceAlpha = alpha(i);
         

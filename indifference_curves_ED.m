@@ -2,13 +2,13 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [8];
 
 displayfig = 'off';
 sessions = [0, 1];
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp),600], 'visible', displayfig)
+    'Position', [145,157,138*length(selected_exp),120], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
@@ -34,7 +34,7 @@ for exp_num = selected_exp
     pcue = unique(p2)';
     psym = unique(p1)';
     
-    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), 1);
+    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), 2);
     for i = 1:d.(name).nsub
         for j = 1:length(pcue)
             for k = 1:length(psym)
@@ -101,7 +101,7 @@ for exp_num = selected_exp
         
         [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
         
-        sc2 = scatter(xout, yout, 80, 'MarkerFaceColor', lin3.Color,...
+        sc2 = scatter(xout, yout, 200, 'MarkerFaceColor', lin3.Color,...
             'MarkerEdgeColor', 'w');
         sc2.MarkerFaceAlpha = alpha(i);
         

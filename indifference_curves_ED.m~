@@ -8,7 +8,7 @@ displayfig = 'off';
 sessions = [0, 1];
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp)/37,600/37], 'visible', displayfig)
+    'Position', [145,157,828*length(selected_exp),600], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
@@ -24,10 +24,9 @@ for exp_num = selected_exp
     sub_ids = d.(name).sub_ids;
     
     [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_sym_post_test(...
+        DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
     
-    d.(name).nsub = size(cho, 1);
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
@@ -79,6 +78,7 @@ for exp_num = selected_exp
     subplot(1, length(selected_exp), num);
     
     pwin = psym;
+    %alpha = [fliplr(linspace(.4, .9, length(psym)/2)), linspace(.4, .9, length(psym)/2)];
     alpha = linspace(.15, .95, length(psym));
     lin1 = plot(...
         linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
@@ -90,8 +90,8 @@ for exp_num = selected_exp
         
         
         lin3 = plot(...
-            pcue(isfinite(prop(i, :))).*100,  prop(i,isfinite(prop(i, :))).*100,...
-            'Color', green_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+            pcue.*100,  prop(i, :).*100,...
+            'Color', orange_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
             );
         
         
