@@ -13,7 +13,7 @@ function slope = add_linear_reg(data, X, color)
     curveSup = (mn + err);
     curveInf = (mn - err);
 
-    plot(X, mn, 'LineWidth', 1.7, 'Color', color);
+    plot(X, mn, 'LineWidth', .4, 'Color', color);
     hold on
 
     fill([...

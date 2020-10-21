@@ -54,7 +54,7 @@ for exp_num = selected_exp
     x_lim = [-8, 108];
     y_lim = [-8, 108];
     range = -8:108;
-    x_values = [-8:14:108]+5;
+    x_values = [-8:14:108+5;
     x_values = x_values([2, 4, 6, 8]);
     varargin = x_values;
    

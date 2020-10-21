@@ -2,8 +2,9 @@
 init;
 %-------------------------------------------------------------------------
 
-figure('Renderer', 'painters', 'position', [0, 0, 828*3, 1200],...
-    'visible', 'off')
+displayfig = 'off';
+figure('Renderer', 'painters','Units', 'centimeters',...
+    'Position', [0,0,5.6*3, 5.15/1.25], 'visible', displayfig)
 
 degradors = {[.9, .9]', [.2, .9]', [.9, .2]'};
 
@@ -18,7 +19,7 @@ for num = [1, 2, 3]
     yout = zeros(length(p_sym), 1);
 
     % ------------------------------------------------------------------- %
-    subplot(2, 3, num)
+    subplot(1, 3, num)
         
     alpha = linspace(.15, .95, length(p_sym));
     
@@ -60,7 +61,7 @@ for num = [1, 2, 3]
 
         lin3 = plot(...
             X.*100,  Y.*100,...
-            'Color', orange_color, 'LineWidth', 4.5...
+            'Color', orange_color, 'LineWidth', 1.5...
             );
         
         
@@ -73,7 +74,7 @@ for num = [1, 2, 3]
         try
         xout(i) = xout1;
         yout(i) = yout1;
-        sc2 = scatter(xout(i), yout(i), 80, 'MarkerFaceColor', lin3.Color,...
+        sc2 = scatter(xout(i), yout(i), 15, 'MarkerFaceColor', lin3.Color,...
             'MarkerEdgeColor', 'w');
         sc2.MarkerFaceAlpha = alpha(i);
         catch
@@ -92,43 +93,44 @@ for num = [1, 2, 3]
         ylabel('P(choose symbol) (%)');
     end
     set(gca, 'fontsize', fontsize);
+    xticks(0:20:100);
 
     
     % ------------------------------------------------------------------- %
     
-    subplot(2, 3, num+3)
-   
-    scatter(p_sym.*100, xout, 230,...
-        'markerfacecolor', set_alpha(orange_color, .7), 'markeredgecolor', 'w');% 'markerfacealpha', 0.7);
-    hold on
-    
-    
-    x_lim = [0, 100];
-    y_lim = [0, 100];
-    
-    y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
-        ones(10,1).*y_lim(2)/2, 'LineStyle', '--', 'Color', 'k', 'linewidth', 2.5);
-    y0.Color(4) = .45;
-    uistack(y0, 'bottom');
-
-    hold on
-
-    x = linspace(x_lim(1), x_lim(2), 10);
-
-    y = linspace(y_lim(1), y_lim(2), 10);
-    p0 = plot(x, y, 'linewidth', 2.5, 'LineStyle', '--', 'Color', 'k');
-
-    p0.Color(4) = .45;
-    hold on
-    uistack(p0, 'bottom');
-    
-    xlim([-10, 110]);
-    ylim([-10, 110]);
-    
-    xticks([]);
-    yticks([]);
-    box on
-    
+%     subplot(2, 3, num+3)
+%    
+%     scatter(p_sym.*100, xout, 230,...
+%         'markerfacecolor', set_alpha(orange_color, .7), 'markeredgecolor', 'w');% 'markerfacealpha', 0.7);
+%     hold on
+%     
+%     
+%     x_lim = [0, 100];
+%     y_lim = [0, 100];
+%     
+%     y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
+%         ones(10,1).*y_lim(2)/2, 'LineStyle', '--', 'Color', 'k', 'linewidth', 2.5);
+%     y0.Color(4) = .45;
+%     uistack(y0, 'bottom');
+% 
+%     hold on
+% 
+%     x = linspace(x_lim(1), x_lim(2), 10);
+% 
+%     y = linspace(y_lim(1), y_lim(2), 10);
+%     p0 = plot(x, y, 'linewidth', 2.5, 'LineStyle', '--', 'Color', 'k');
+% 
+%     p0.Color(4) = .45;
+%     hold on
+%     uistack(p0, 'bottom');
+%     
+%     xlim([-10, 110]);
+%     ylim([-10, 110]);
+%     
+%     xticks([]);
+%     yticks([]);
+%     box on
+%     
 end
 
 saveas(gcf, 'fig/exp/brickplot/hypotheses.svg');

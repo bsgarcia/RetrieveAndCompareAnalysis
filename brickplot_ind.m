@@ -2,14 +2,16 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.2, 7.2];
-modality = 'ED';
-color = orange_color;
+selected_exp = [1, 2, 3, 4];
+modality = 'PM';
+color = magenta_color;
 
-displayfig = 'on';
+displayfig = 'off';
 
-figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp),600], 'visible', displayfig)
+
+figure('Renderer', 'painters','Units', 'centimeters',...
+    'Position', [0,0,6, 6*length(selected_exp)], 'visible', displayfig)
+%subaxis(4,6,1, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0, 'SpacingVert', 0.03);
 
 num = 0;
 for exp_num = selected_exp
@@ -61,26 +63,31 @@ for exp_num = selected_exp
     
     ev = unique(p1)'.*100;
     varargin = ev;
+%     range = -8:11.6:108;
+%     x_values = range([2, 3, 4, 5, 6, 7, 8, 9]);
     x_values = ev;
-    x_lim = [0, 100];
-   
     
-    subplot(1, length(selected_exp), num)
+    
+    x_lim = [-2, 102];
+    y_lim = [-8, 108];
+   
+    subplot(length(selected_exp), 1, num)
     
     add_linear_reg(midpoints.*100, ev, color);
-    brickplot2(...
+    brickplot(...
         midpoints'.*100,...
         color.*ones(length(ev), 1),...
-        [0, 100], 11,...
+        y_lim, fontsize,...
         '',...
         '',...
         '', varargin, 1, x_lim, x_values, .18);
     
-    if num == 1
-        ylabel('Estimated p(win) (%)');
+    if num == length(selected_exp)
+        xlabel('Symbol p(win) (%)');
+
     end
     
-    xlabel('Symbol p(win) (%)');
+        ylabel('Estimated p(win) (%)');
 
     box off
     hold on
