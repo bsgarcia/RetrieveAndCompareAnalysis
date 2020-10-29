@@ -25,12 +25,15 @@ ConfInter = 0.95;
 % color of the box + error bar
 trace = [0.5 0.5 0.5];
 
+
 for n = 1:Nbar
     
     clear DataMatrix
     clear jitter jitterstrength
-    DataMatrix = DataCell{n,:}';
     
+    DataMatrix = DataCell{n,:}';
+  
+   
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
@@ -79,7 +82,7 @@ for n = 1:Nbar
         % CONFIDENCE INTERVAL
     rectangle('Position',[n, curve - sem*conf, Wbar/2, sem*conf*2],...
         'EdgeColor',Colors(n,:),...
-        'LineWidth',1);
+        'LineWidth',0.5);
     hold on
     
     % INDIVIDUAL DOTS
@@ -101,7 +104,7 @@ for n = 1:Nbar
         scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, markersize,...
             Colors(n,:),'filled',...
             'marker','o',...
-            'MarkerEdgeColor', 'white',...
+            'MarkerEdgeColor', 'none',...
             'MarkerFaceAlpha',0.4);
         hold on
     end
@@ -114,14 +117,14 @@ for n = 1:Nbar
 %     end
     xMean = [n ; n + Wbar/2];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',1,'Color','k');
+    plot(xMean,yMean,'-','LineWidth',0.5,'Color','k');
     hold on
     
     % ERROR BARS
     errorbar(n+Wbar/4,curve,sem,...
         'Color','k',...Colors(n,:),...
         'LineStyle','none',...  'CapSize',3,...
-        'LineWidth',1);
+        'LineWidth',0.5);
     hold on
 end
 

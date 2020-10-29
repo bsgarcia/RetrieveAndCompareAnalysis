@@ -10,7 +10,7 @@ displayfig = 'off';
 
 
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,6, 6*length(selected_exp)], 'visible', displayfig)
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 %subaxis(4,6,1, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0, 'SpacingVert', 0.03);
 
 num = 0;

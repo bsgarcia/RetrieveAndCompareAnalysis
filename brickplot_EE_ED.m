@@ -1,12 +1,11 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1, 6.2];
-displayfig = 'on';
+selected_exp = [5, 6.2, 7.2];
+displayfig = 'off';
 
-figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp),600], 'visible',...
-    displayfig)
+figure('Renderer', 'painters','Units', 'centimeters',...
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 num = 0;
 
 for exp_num = selected_exp
@@ -45,15 +44,15 @@ for exp_num = selected_exp
     
     subplot(1, length(selected_exp), num)
 
-    slope1 = add_linear_reg(midpoints1.*100, ev, blue_color);   
+    slope1 = add_linear_reg(midpoints1.*100, ev, orange_color);   
     hold on
-    slope2 = add_linear_reg(midpoints2.*100, ev, orange_color);
+    slope2 = add_linear_reg(midpoints2.*100, ev, green_color);
     hold on
     
     brick_comparison_plot2(...
         midpoints2'.*100,midpoints1'.*100,...
-        orange_color, blue_color, ...
-        [0, 100], 11,...
+        green_color, orange_color, ...
+        [-8, 108], 11,...
         '',...
         '',...
         '', varargin, 1, x_lim, x_values);

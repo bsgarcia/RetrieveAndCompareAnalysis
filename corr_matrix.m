@@ -9,14 +9,14 @@ displayfig = 'on';
 
 
 figure('Renderer', 'painters',...
-    'Position', [145,157,828*3,900], 'visible', 'off')
+    'Position', [145,157,828*3,900], 'visible', 'on')
 num = 0;
 
 for exp_num = selected_exp
     disp(exp_num)
     num = num + 1;
     
-    clear qvalues b pY2 ind_point Y dd slope1 slope2  dd shift1 shift2
+    clear qvalues b pY2 ind_point Y dd slope1 slope2  dd midpoints1 midpoints2
     
     idx1 = (exp_num - round(exp_num)) * 10;
     idx1 = idx1 + (idx1==0);
@@ -31,7 +31,7 @@ for exp_num = selected_exp
     param = load(...
         sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
         round(exp_num), sess));
-    shift2 = param.shift;
+    midpoints2 = param.midpoints;
   
     [cho, cfcho, out, cfout, corr1, con1, p1, p2, rew, rtime, ev1, ev2,...
             error_exclude] = ...
@@ -56,36 +56,36 @@ for exp_num = selected_exp
         
     subplot(2, 4, num)
 % 
-    shift1 = get_qvalues(sim_params); 
+    midpoints1 = get_qvalues(sim_params); 
    
     sim_params.model = 2;
-    [shift3, throw] = get_qvalues(sim_params);
+    [midpoints3, throw] = get_qvalues(sim_params);
     corr3 = throw.corr;
     
-    %shift2(nsub+1:end, :) = [];
-    slope1 = add_linear_reg(shift1, ev, blue_color);
+    %midpoints2(nsub+1:end, :) = [];
+    slope1 = add_linear_reg(midpoints1, ev, blue_color);
     hold off
-    slope2 = add_linear_reg(shift2, ev, orange_color);   
+    slope2 = add_linear_reg(midpoints2, ev, orange_color);   
     hold off
-    slope3 = add_linear_reg(shift3, ev, magenta_color);
+    slope3 = add_linear_reg(midpoints3, ev, magenta_color);
     hold off
     if exp_num > 4
         
         param = load(...
             sprintf('data/post_test_fitparam_EE_exp_%d_%d',...
             round(exp_num), sess));
-        shift4 = param.shift;
+        midpoints4 = param.midpoints;
         [corr4, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
             DataExtraction.extract_sym_vs_sym_post_test(...
             data, sub_ids, idx, sess);
         
         
-        slope4 = add_linear_reg(shift4, ev, magenta_color);
+        slope4 = add_linear_reg(midpoints4, ev, magenta_color);
         hold off
     end
 %     
 %     brick_comparison_plot2(...
-%         shift1',shift2',...
+%         midpoints1',midpoints2',...
 %         orange_color, blue_color, ...
 %         [0, 1], 11,...
 %         '',...

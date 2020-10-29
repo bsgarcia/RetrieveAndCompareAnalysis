@@ -1,12 +1,9 @@
-import scipy.io as sio
-import numpy as np
-import pandas as pd
 import pandas as pd
 import pingouin as pg
 
 
 def main():
-    tests = ['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
+    tests = ['LE_ED_EE_PM']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
 
     for t_name in tests:
         print('*' * 5, t_name, '*' * 5)
