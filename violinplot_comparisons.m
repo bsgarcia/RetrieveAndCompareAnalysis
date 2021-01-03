@@ -5,10 +5,10 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.2, 7.2];
-modalities = {'LE', 'ED', 'EE', 'PM'};
-displayfig = 'on';
-colors = [blue_color; orange_color; green_color; magenta_color];
+selected_exp = [1, 2, 3, 4];
+modalities = {'LE', 'ED', 'PM'};
+displayfig = 'off';
+colors = [blue_color; orange_color; magenta_color];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -28,7 +28,7 @@ figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 
 num = 0;
-
+sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
     
@@ -95,13 +95,13 @@ for exp_num = selected_exp
         % fill data for stats
         for sub = 1:nsub
             T1 = table(...
-                sub, num, slope(mod_num, sub, 2), mod_num, 'variablenames',...
+                sub+sub_count, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
                 {'subject', 'exp_num', 'slope', 'modality'}...
                 );
             stats_data = [stats_data; T1];
         end
     end
-    
+    sub_count = sub_count + sub;
     %---------------------------------------------------------------------%
     % Plot                                                                %
     % --------------------------------------------------------------------%
@@ -120,7 +120,7 @@ for exp_num = selected_exp
     
     if num == 1; ylabel('Slope'); end
     
-    %title(sprintf('Exp. %s', num2str(exp_num)));
+    %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
     box off
     
