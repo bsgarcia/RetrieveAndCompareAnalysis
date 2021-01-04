@@ -3,7 +3,7 @@ import pingouin as pg
 
 
 def main():
-    tests = ['LE_ED_EE_PM']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
+    tests = ['LE_ED']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
 
     for t_name in tests:
         print('*' * 5, t_name, '*' * 5)
@@ -12,7 +12,11 @@ def main():
         pd.set_option('max_columns', None)
         res = pg.pairwise_ttests(
             dv='slope', within='modality', between='exp_num', subject='subject',
-            data=df, padjust='bonf', within_first=False, parametric=True)
+            data=df, padjust='bonf', within_first=True, parametric=True)
+
+        pg.print_table(res, floatfmt='.6f')
+
+        res = pg.anova(data=df[df['modality']=='LE'], dv='slope', between='exp_num')
 
         pg.print_table(res, floatfmt='.6f')
 
