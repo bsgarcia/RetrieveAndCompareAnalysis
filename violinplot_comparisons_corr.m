@@ -6,21 +6,15 @@ init;
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
 selected_exp = [1, 2, 3, 4];
-<<<<<<< HEAD
 modalities = {'LE', 'ED'};
 displayfig = 'on';
-colors = [blue_color; orange_color;];
-=======
-modalities = {'LE', 'ED', 'PM'};
-displayfig = 'off';
-colors = [blue_color; orange_color; magenta_color];
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
+colors = [blue_color; orange_color];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
 %-------------------------------------------------------------------------%
 % stats_data is table that is used to compute stats later
-stats_data = table();
+T = table();
 
 % filenames
 % name = modality1_modality2_modalityN
@@ -51,81 +45,37 @@ for exp_num = selected_exp
     sub_ids = d.(name).sub_ids;
     nsub = d.(name).nsub;
     
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
+    [corr{2}, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
         DataExtraction.extract_sym_vs_lot_post_test(...
         data, sub_ids, idx, sess);
     
-    ev = unique(p1).*100;
-    varargin = ev;
-    x_values = ev;
-    x_lim = [0, 100];
-    
-    sim_params.d = d;
-    sim_params.idx = idx;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    sim_params.exp_num = exp_num;
-    sim_params.nsub = d.(name).nsub;
-    
-    % prepare data structure
-    midpoints = nan(length(modalities), nsub, length(ev));
-    slope = nan(length(modalities), nsub, 2);
-    reshape_midpoints = nan(nsub, length(ev));
+    [cho, cfcho, out, cfout, corr{1}, con1, p1, p2, rew, rtime, ev1, ev2,...
+        error_exclude] = ...
+        DataExtraction.extract_learning_data(data, sub_ids, idx, sess);
     
     for mod_num = 1:length(modalities)
-        
-        % get data depending on chosen modality
-        switch (modalities{mod_num})
-            
-            case 'LE'
-                sim_params.model = 1;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
-                
-            case {'EE', 'ED'}
-                
-                param = load(...
-                    sprintf('data/post_test_fitparam_%s_exp_%d_%d',...
-                    modalities{mod_num}, round(exp_num), sess));
-                midpoints(mod_num, :, :) = param.midpoints;
-                
-            case 'PM'
-                sim_params.model = 2;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
-        end
-        
-        % fill data
-        reshape_midpoints(:, :) = midpoints(mod_num, :, :);
-        slope(mod_num,:,:) = add_linear_reg(...
-            reshape_midpoints.*100, ev', colors(mod_num, :));
-        
+     
         % fill data for stats
         for sub = 1:nsub
             T1 = table(...
-<<<<<<< HEAD
-                sub_count+sub, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
-=======
-                sub+sub_count, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
-                {'subject', 'exp_num', 'slope', 'modality'}...
+                sub+sub_count, num, mean(corr{mod_num}(sub,:)), mod_num-1, 'variablenames',...
+                {'subject', 'exp_num', 'CRT', 'modality'}...
                 );
-            stats_data = [stats_data; T1];
+            T = [T; T1];
         end
     end
-<<<<<<< HEAD
-    sub_count = sub_count+sub;
-    
-=======
     sub_count = sub_count + sub;
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
+    
     %---------------------------------------------------------------------%
-    % Plot                                                                %
+    % Plot
+    % %a
     % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
     
-    skylineplot(slope(:, :, 2), 4.5,...
+    skylineplot([mean(corr{1}, 2)'; mean(corr{2}, 2)'] , 4.5,...
         colors,...
-        -1.08,...
-        1.7,...
+        0,...
+        1,...
         fontsize,...
         '',...
         '',...
@@ -133,7 +83,7 @@ for exp_num = selected_exp
         modalities,...
         0);
     
-    if num == 1; ylabel('Slope'); end
+    if num == 1;ylabel('Correct choice rate');end
     
     %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
@@ -150,4 +100,4 @@ saveas(gcf, figname);
 
 % save stats file
 mkdir('data', 'stats');
-writetable(stats_data, stats_filename);
+writetable(T, stats_filename);

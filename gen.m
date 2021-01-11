@@ -1,12 +1,12 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1 , 6.2, 7.1, 7.2];
+selected_exp = [5, 6.1, 6.2, 7.1, 7.2];
 displayfig = 'on';
-size_factor = 1.5;
+size_factor = 5;
 
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,5.3*length(selected_exp)*size_factor, 5.3/1.25*size_factor], 'visible', displayfig)
+    'Position', [0,0,5.3*size_factor, 5.3/1.25*size_factor], 'visible', displayfig)
 num = 0;
 
 for exp_num = selected_exp
@@ -65,7 +65,7 @@ corr2 = horzcat(corr2{:});
         {'pair seen', 'pair not seen'},...
         0);
     
-    if num == 1; ylabel('CCR'); end
+    ylabel('CCR');
     
     %title(sprintf('Exp. %s', num2str(exp_num)));
     set(gca, 'tickdir', 'out');
@@ -75,8 +75,9 @@ corr2 = horzcat(corr2{:});
 
     set(gca,'tickdir','out')
     
-
-
+[p, h] = ttest(t{:})
+disp(p)
+disp(h)
 % 
 % 
 % 
