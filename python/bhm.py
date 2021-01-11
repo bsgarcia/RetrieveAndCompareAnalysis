@@ -74,6 +74,8 @@ if __name__ == '__main__':
 
     pooled_est = {}
 
+    # ---------------------------------------------------------------------------------------------------------------- #
+
     mod_le = LabelEncoder()
     mod = mod_le.fit_transform(data['modality'])
     n_mod = len(mod_le.classes_)
@@ -108,6 +110,8 @@ if __name__ == '__main__':
     pm.traceplot(trace)
     # plt.show()
 
+    # ---------------------------------------------------------------------------------------------------------------- #
+
     fig, ax = plt.subplots(1, 2, sharey=True, constrained_layout=True)
 
     sch_ids = mod_le.classes_[::-1]
@@ -130,7 +134,8 @@ if __name__ == '__main__':
     ax[1].grid()
     fig.text(-0.02, 0.5, 'Modality', va='center', rotation='vertical', fontsize=14)
 
-    #
+    # ---------------------------------------------------------------------------------------------------------------- #
+
     fig, ax = plt.subplots(1, 3,
                            sharex=True, sharey=True,
                            constrained_layout=True)
@@ -145,7 +150,7 @@ if __name__ == '__main__':
         m_p = trace['intercept_dist'][:, grp_label]
         c_p = trace['slope_dist'][:, grp_label]
 
-        plot_posterior_regression_lines(m_p, c_p, ax[i], color='black', alpha=0.05, lw=0.8)
+        # plot_posterior_regression_lines(m_p, c_p, ax[i], color='black', alpha=0.05, lw=0.8)
 
         pooled_model = ols('slope ~ exp_num', data).fit()
         pooled_params = pooled_model.params
@@ -156,7 +161,8 @@ if __name__ == '__main__':
         line(m, c, ax[i], linestyle='--', color=red, label='unpooled fit', zorder=4)
         line(mp, cp, ax[i], color=colors[grp_id], label='pooled fit', zorder=4)
 
-        #plot_posterior_regression_lines(trace['mu_slope'], trace['mu_intercept'], ax[i], color='black', alpha=0.05, lw=0.8)
+        plot_posterior_regression_lines(
+            trace['mu_slope'], trace['mu_intercept'], ax[i], color='grey', alpha=0.05, lw=0.8)
         # abline(trace['mu_slope'].mean(), trace['mu_intercept'].mean(), ax, color=red, linestyle='-.')
 
         plot_data(groups.get_group(grp_id), ax[i], grp_id=grp_id, alpha=.3, color=colors[grp_id])
