@@ -1,9 +1,10 @@
 %-------------------------------------------------------------------------
 init;
+show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [8.2];
+selected_exp = [5, 6.1, 6.2];
 
-displayfig = 'off';
+displayfig = 'on';
 force = true;
 
 for exp_num = selected_exp
@@ -48,7 +49,7 @@ for exp_num = selected_exp
     midpoints = nan(nsub, length(p_sym));
     params = nan(nsub, length(p_sym)+1);
     beta1 = nan(nsub, 1);
-    err = nan(nsub, 1);
+    nll = nan(nsub, 1);
     
     for sub = 1:nsub
                              
@@ -70,6 +71,7 @@ for exp_num = selected_exp
              ));
              beta1 = param.beta1;
              midpoints = param.midpoints;
+             nll = param.nll;
              tosave = false;
         catch
             tosave = true;
@@ -80,7 +82,7 @@ for exp_num = selected_exp
                 'MaxIter', 10000,...
                 'MaxFunEval', 10000);
 
-            [params(sub, :), err(sub)] = fmincon(...
+            [params(sub, :), nll(sub)] = fmincon(...
                 @(x) tofit(x, X, Y),...
                 [1, ones(1, length(p_sym)) .* .5],...
                 [], [], [], [],...
@@ -89,18 +91,71 @@ for exp_num = selected_exp
                 [],...
                 options...
             );
+            
+            midpoints = params(:, 2:length(p_sym)+1);
+            beta1 = params(:, 1);
       
         end
+
         
-        midpoints = params(:, 2:length(p_sym)+1);
-        beta1 = params(:, 1);
         
     end
+    
+%        figure
+%     
+%     pwin = p_sym;
+%     psym = p_sym;
+%     alpha = linspace(.15, .95, length(psym));
+%     lin1 = plot(...
+%         linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
+%         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+%     clear yy
+%     for i = 1:length(pwin)
+%         
+%         hold on
+%         
+%         for sub = 1:nsub
+%             yy(sub,:) = logfun(pwin, midpoints(sub, i), beta1(sub));
+%         end
+%             
+%         
+%         lin3 = plot(...
+%             p_sym.*100,  mean(yy).*100,...
+%             'Color', green_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
+%             );
+%         
+%         
+%         lin3.Color(4) = alpha(i);
+%         
+%         hold on      
+%         
+%         [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+%         try
+%         xx2(i) = xout;
+%         catch
+%         end
+%         sc2 = scatter(xout, yout, 200, 'MarkerFaceColor', lin3.Color,...
+%             'MarkerEdgeColor', 'w');
+%         sc2.MarkerFaceAlpha = alpha(i);
+%         
+%         
+%         xlabel('Lottery p(win) (%)');
+%         
+%         ylim([-0.08*100, 1.08*100]);
+%         xlim([-0.08*100, 1.08*100]);
+%         
+%         box off
+%     end
+%     
+% 
+%     set(gca,'TickDir','out')
+%     set(gca, 'FontSize', fontsize);
+
     
     if tosave
         param.midpoints = midpoints;
         param.beta1 = beta1;
-        param.err = err;
+        param.nll = nll;
         
         save(sprintf('data/post_test_fitparam_EE_exp_%d_%d.mat',...
             round(exp_num), sess),...
@@ -110,14 +165,16 @@ for exp_num = selected_exp
 end
 
 
-function err = tofit(params, X, Y)
+function nll = tofit(params, X, Y)
     options = optimset('Display','off');
     temp = params(1);
     midpoints = params(2:end);
+    ll = 0;
     for i = 1:size(Y, 1)
-        residuals(i,:) = logfun(X(i,:)', midpoints(i), temp) - Y(i,:)';
+        yhat = logfun(X(i,:)', midpoints(i), temp);
+        ll = ll + sum(log(yhat) .* Y(i,:)' + log(1-yhat).*(1-Y(i,:)')); 
     end
-    err = sum(residuals.^2, 'all');
+    nll = -ll;
 end
 
 function p = logfun(x, midpoint, temp)

@@ -1,8 +1,8 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.2, 7.2];
-displayfig = 'off';
+selected_exp = [5, 6.1, 6.2];
+displayfig = 'on';
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)

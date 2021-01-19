@@ -176,9 +176,6 @@ function show_parameter_values(rtime_threshold, catch_threshold,...
     fprintf('Correct catch trials threshold=%d  \n', catch_threshold.*100);
     fprintf(['Number of trials allowed and retrieved per subject=' ...
         repmat('%d ', 1, length(allowed_number_of_rows))], allowed_number_of_rows);
-    fprintf('\n');
-    disp(repmat('=', [1, 30]));
-    fprintf('RUNNING SELECTED SCRIPT \n');
-    disp(repmat('=', [1, 30]));
+    fprintf('\n');   
     
 end

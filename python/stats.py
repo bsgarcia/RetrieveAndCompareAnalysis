@@ -2,12 +2,39 @@ import pandas as pd
 import pingouin as pg
 import pymc3 as pm
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import seaborn as sns
+
 
 def main():
     tests = ['LE_ED']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
-    tests = ['LE_ED_PM']
 
-    bayesian_hm(tests)
+    lme(tests)
+
+
+def lme(tests):
+    for t_name in tests:
+        print('*' * 5, t_name, '*' * 5)
+        df = pd.read_csv(f'../data/stats/{t_name}.csv')
+        pd.set_option('display.max_columns', None)
+        pd.set_option('max_columns', None)
+
+        # model = sm.MixedLM.from_formula('CRT~ exp_num*modality', data=df[df['modality']==0], groups=df['exp_num'][df['modality']==0]).fit()
+        model = sm.OLS.from_formula('CRT~ exp_num', data=df[df['modality']==0], groups=df['exp_num'][df['modality']==0]).fit()
+        print(model.summary())
+
+        df["y_predict"] = model.predict(df)
+
+        sns.set_style('darkgrid')
+        grid = sns.lmplot(x="exp_num", y="y_predict", col="modality", sharey=False, col_wrap=2, data=df,
+                          height=4, scatter_kws={'alpha':0, 'edgecolors': 'white'})
+        grid.set(ylim=(0.1, 1))
+        grid.set(xlim=(0, 5))
+
+        grid.axes[0].scatter(df[df['modality']==0]['exp_num'], df[df['modality']==0]['CRT'], alpha=.2, color='C0', edgecolors='w')
+        grid.axes[1].scatter(df['exp_num'][df['modality']==1], df['CRT'][df['modality']==1], alpha=.2, color='C0', edgecolors='w')
+
+        plt.show()
 
 
 def pairwise_ttests(tests):
@@ -37,32 +64,6 @@ def pairwise_ttests(tests):
         res = pg.mixed_anova(data=df, dv='slope', between='exp_num', within='modality', subject='subject')
 
         pg.print_table(res, floatfmt='.6f')
-
-
-def bayesian_hm(tests):
-    df = pd.read_csv(f'../data/stats/{tests[0]}.csv')
-    pd.set_option('display.max_columns', None)
-    pd.set_option('max_columns', None)
-    with pm.Model() as model:
-        # Hyperpriors
-        mu_a = pm.Normal('mu_a', mu=.5, sigma=.4)
-        sigma_a = pm.HalfNormal('sigma_a', .5)
-
-        mu_b = pm.Normal('mu_b', mu=.5, sigma=.4)
-        sigma_b = pm.HalfNormal('sigma_b', .5)
-
-        # Intercept
-        a = pm.Normal('a', mu=mu_a, sigma=sigma_a, shape=4)  # Slope
-        b = pm.Normal('b', mu=mu_b, sigma=sigma_b, shape=4)
-
-        # Model error
-        eps = pm.HalfCauchy('eps', .05)
-
-        # Model
-        y_hat = a['* df['slope']
-
-        # Likelihood
-        y_like = pm.Normal('y_like', mu=y_hat, sigma=eps, observed=math)
 
 
 if __name__ == '__main__':

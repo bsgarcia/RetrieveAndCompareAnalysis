@@ -1,20 +1,15 @@
 %-------------------------------------------------------------------------
 init;
+show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4];
-<<<<<<< HEAD
-modalities = {'LE', 'ED'};
+selected_exp = [5, 6.1, 6.2];
+modalities = {'ED', 'EE'};
 displayfig = 'on';
-colors = [blue_color; orange_color;];
-=======
-modalities = {'LE', 'ED', 'PM'};
-displayfig = 'off';
-colors = [blue_color; orange_color; magenta_color];
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
+colors = [orange_color;green_color];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -101,22 +96,14 @@ for exp_num = selected_exp
         % fill data for stats
         for sub = 1:nsub
             T1 = table(...
-<<<<<<< HEAD
-                sub_count+sub, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
-=======
                 sub+sub_count, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
                 {'subject', 'exp_num', 'slope', 'modality'}...
                 );
             stats_data = [stats_data; T1];
         end
     end
-<<<<<<< HEAD
     sub_count = sub_count+sub;
     
-=======
-    sub_count = sub_count + sub;
->>>>>>> f97aecdac694e2fa6c40c8fe482ed42ac98317ec
     %---------------------------------------------------------------------%
     % Plot                                                                %
     % --------------------------------------------------------------------%

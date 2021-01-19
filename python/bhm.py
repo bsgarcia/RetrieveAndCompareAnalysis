@@ -65,15 +65,6 @@ if __name__ == '__main__':
     pink = '#CC79A7'
 
     colors = {'ED': orange, 'LE': blue, 'PM': violet}
-
-    unpooled_model = ols('slope ~ exp_num', data).fit()
-    unpooled_est = unpooled_model.params
-
-    m = unpooled_est['exp_num']
-    c = unpooled_est['Intercept']
-
-    pooled_est = {}
-
     # ---------------------------------------------------------------------------------------------------------------- #
 
     mod_le = LabelEncoder()
@@ -84,30 +75,33 @@ if __name__ == '__main__':
 
     with pm.Model() as model:
         # hyperpriors
-        mu_intercept = pm.Normal('mu_intercept', mu=0, sigma=.3)
-        sigma_intercept = pm.HalfNormal('sigma_intercept', .3)
+        mu_intercept = pm.Normal('mu_intercept', mu=.25, sigma=.4)
+        sigma_intercept = pm.HalfNormal('sigma_intercept', .4)
 
-        mu_slope = pm.Normal('mu_slope', mu=0, sigma=.3)
-        sigma_slope = pm.HalfNormal('sigma_slope', .3)
+        mu_slope = pm.Normal('mu_slope', mu=.07, sigma=.4)
+        sigma_slope = pm.HalfNormal('sigma_slope', .4)
 
         # Intercept
         intercept_dist = pm.Normal('intercept_dist', mu=mu_intercept, sigma=sigma_intercept, shape=n_mod)
         # Slope
         slope_dist = pm.Normal('slope_dist', mu=mu_slope, sigma=sigma_slope, shape=n_mod)
-
         # Model error
-        eps = pm.HalfCauchy('eps', .1)
+        eps = pm.HalfCauchy('eps', .5)
 
         y_hat = intercept_dist[mod] + slope_dist[mod] * exp_num
 
         # Likelihood
         y_like = pm.Normal('y_like', mu=y_hat, sigma=eps, observed=slope)
 
+    g = pm.model_to_graphviz(model)
+    g.view()
+
     with model:
         step = pm.NUTS()
-        trace = pm.sample(2000, tune=15000)
+        trace = pm.sample(960, tune=30000)
 
     pm.traceplot(trace)
+
     # plt.show()
 
     # ---------------------------------------------------------------------------------------------------------------- #
@@ -136,7 +130,7 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------------------------------------------------- #
 
-    fig, ax = plt.subplots(1, 3,
+    fig, ax = plt.subplots(1, 3, figsize=(16, 8),
                            sharex=True, sharey=True,
                            constrained_layout=True)
 
@@ -147,23 +141,25 @@ if __name__ == '__main__':
         grp_id = grp_ids[i]
 
         grp_label = mod_le.transform([grp_id])[0]
-        m_p = trace['intercept_dist'][:, grp_label]
-        c_p = trace['slope_dist'][:, grp_label]
+        m_p = np.random.choice(trace['intercept_dist'][:, grp_label], 100, replace=False)
+        c_p = np.random.choice(trace['slope_dist'][:, grp_label], 100, replace=False)
 
-        # plot_posterior_regression_lines(m_p, c_p, ax[i], color='black', alpha=0.05, lw=0.8)
+        plot_posterior_regression_lines(m_p, c_p, ax[i], color='dimgray', alpha=0.05, lw=0.8)
 
         pooled_model = ols('slope ~ exp_num', data).fit()
         pooled_params = pooled_model.params
 
-        mp = pooled_params['exp_num']
-        cp = pooled_params['Intercept']
+        m = pooled_params['exp_num']
+        c = pooled_params['Intercept']
 
-        line(m, c, ax[i], linestyle='--', color=red, label='unpooled fit', zorder=4)
-        line(mp, cp, ax[i], color=colors[grp_id], label='pooled fit', zorder=4)
+        unpooled_model = ols('slope ~ exp_num', data[data['modality'] == grp_id]).fit()
+        unpooled_params = unpooled_model.params
 
-        plot_posterior_regression_lines(
-            trace['mu_slope'], trace['mu_intercept'], ax[i], color='grey', alpha=0.05, lw=0.8)
-        # abline(trace['mu_slope'].mean(), trace['mu_intercept'].mean(), ax, color=red, linestyle='-.')
+        mp = unpooled_params['exp_num']
+        cp = unpooled_params['Intercept']
+
+        line(m, c, ax[i], linestyle='--', color=red, label='unpooled fit')
+        line(mp, cp, ax[i], color=colors[grp_id], label='pooled fit')
 
         plot_data(groups.get_group(grp_id), ax[i], grp_id=grp_id, alpha=.3, color=colors[grp_id])
         ax[i].set_title('modality: ' + str(grp_id), fontweight='bold')
@@ -175,5 +171,4 @@ if __name__ == '__main__':
     fig.text(-0.02, 0.5, 'slope', va='center', rotation='vertical', fontsize=16)
     handles, labels = ax[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.98, 0.98))
-
     plt.show()
