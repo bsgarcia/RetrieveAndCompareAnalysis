@@ -1,0 +1,39 @@
+digraph {
+	eps [label="eps
+~
+HalfCauchy"]
+	mu_intercept [label="mu_intercept
+~
+Normal"]
+	sigma_slope [label="sigma_slope
+~
+HalfNormal"]
+	sigma_intercept [label="sigma_intercept
+~
+HalfNormal"]
+	mu_slope [label="mu_slope
+~
+Normal"]
+	subgraph cluster3 {
+		intercept_dist [label="intercept_dist
+~
+Normal"]
+		slope_dist [label="slope_dist
+~
+Normal"]
+		label=3 labeljust=r labelloc=b style=rounded
+	}
+	subgraph cluster960 {
+		y_like [label="y_like
+~
+Normal" style=filled]
+		label=960 labeljust=r labelloc=b style=rounded
+	}
+	mu_intercept -> intercept_dist
+	sigma_intercept -> intercept_dist
+	mu_slope -> slope_dist
+	sigma_slope -> slope_dist
+	intercept_dist -> y_like
+	slope_dist -> y_like
+	eps -> y_like
+}
