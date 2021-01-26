@@ -22,24 +22,6 @@ def line(slope, intercept, ax=None, **kwargs):
     axes.plot(x_vals, y_vals, **kwargs)
 
 
-def posterior_plot(df, trace, ax, grp_id, alpha, color=None):
-    grp_label = mod_le.transform([grp_id])[0]
-    m_p = trace['b'][:, grp_label]
-    c_p = trace['a'][:, grp_label]
-
-    plot_posterior_regression_lines(m_p, c_p, ax, color='grey', alpha=0.05, lw=0.8)
-
-    pooled_model = ols('slope ~ exp_num', df).fit()
-    pooled_params = pooled_model.params
-
-    mp = pooled_params['exp_num']
-    cp = pooled_params['Intercept']
-
-    plot_data(df, ax, grp_id=grp_id, color=colors[grp_id], zorder=3, alpha=alpha)
-    line(m, c, ax, linestyle='--', color=red, label='unpooled fit', zorder=4)
-    line(mp, cp, ax, color=colors[grp_id], label='pooled fit', zorder=4)
-
-
 def plot_posterior_regression_lines(m_p, c_p, ax=None, **kwargs):
         """
             m_p, c_p : posterior samples of slope and intercept respectively
@@ -66,7 +48,6 @@ if __name__ == '__main__':
 
     colors = {'ED': orange, 'LE': blue, 'PM': violet}
     # ---------------------------------------------------------------------------------------------------------------- #
-
     mod_le = LabelEncoder()
     mod = mod_le.fit_transform(data['modality'])
     n_mod = len(mod_le.classes_)
@@ -129,10 +110,7 @@ if __name__ == '__main__':
     fig.text(-0.02, 0.5, 'Modality', va='center', rotation='vertical', fontsize=14)
 
     # ---------------------------------------------------------------------------------------------------------------- #
-
-    fig, ax = plt.subplots(1, 3, figsize=(16, 8),
-                           sharex=True, sharey=True,
-                           constrained_layout=True)
+    fig, ax = plt.subplots(1, 3, figsize=(16, 8), sharex=True, sharey=True, constrained_layout=True)
 
     groups = data.groupby('modality')
     grp_ids = list(groups.groups)
