@@ -7,9 +7,9 @@ import seaborn as sns
 
 
 def main():
-    tests = ['LE_ED']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
+    tests = ['ED_EE_corr']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
 
-    lme(tests)
+    pairwise_ttests(tests)
 
 
 def lme(tests):
