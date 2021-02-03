@@ -34,38 +34,25 @@ for exp_num = selected_exp
     num = num + 1;
     
     %---------------------------------------------------------------------%
-    % get data                                                            %
+    % get data parameters                                                           %
     % --------------------------------------------------------------------%
-    sess = round((exp_num - round(exp_num)) * 10 - 1);
-    sess = sess .* (sess ~= -1);
+    sess = de.get_sess_from_exp_num(exp_num);
+    name = de.get_name_from_exp_num(exp_num);
+    nsub = de.get_nsub_from_exp_num(exp_num);
     
-    % load data
-    name = char(filenames{round(exp_num)});
-    
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-    nsub = d.(name).nsub;
-    
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
-    
-    ev = unique(p1).*100;
-    varargin = ev;
-    x_values = ev;
-    x_lim = [0, 100];
-    
-    sim_params.d = d;
-    sim_params.idx = idx;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    sim_params.exp_num = exp_num;
-    sim_params.nsub = d.(name).nsub;
+    throw = de.extract_ED(exp_num);
+    nsym = length(unique(throw.p1));
+    p1 = unique(throw.p1)'.*100;
     
     % prepare data structure
-    midpoints = nan(length(modalities), nsub, length(ev));
+    midpoints = nan(length(modalities), nsub, nsym);
     slope = nan(length(modalities), nsub, 2);
-    reshape_midpoints = nan(nsub, length(ev));
+    reshape_midpoints = nan(nsub, nsym);
+    
+    sim_params.exp_num = exp_num;
+    sim_params.de = de;
+    sim_params.sess = sess;
+    sim_params.exp_name = name;
     
     for mod_num = 1:length(modalities)
         
@@ -81,6 +68,7 @@ for exp_num = selected_exp
                 param = load(...
                     sprintf('data/post_test_fitparam_%s_exp_%d_%d',...
                     modalities{mod_num}, round(exp_num), sess));
+                
                 midpoints(mod_num, :, :) = param.midpoints;
                 
             case 'PM'
@@ -91,7 +79,7 @@ for exp_num = selected_exp
         % fill data
         reshape_midpoints(:, :) = midpoints(mod_num, :, :);
         slope(mod_num,:,:) = add_linear_reg(...
-            reshape_midpoints.*100, ev', colors(mod_num, :));
+            reshape_midpoints.*100, p1, colors(mod_num, :));
         
         % fill data for stats
         for sub = 1:nsub

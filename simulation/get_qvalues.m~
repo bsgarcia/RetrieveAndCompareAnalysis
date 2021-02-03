@@ -50,19 +50,24 @@ function [Q, params] = get_qvalues(sim_params)
             Q = sort_Q(simulation(params));
 
         case 2
-            data = sim_params.de.extract_PM(sim_params.exp_num);
-            dd = load(sprintf('data/fit/%s_learning_%d', ...
+            
+            [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
+                DataExtraction.extract_estimated_probability_post_test(...
+                sim_params.d.(sim_params.exp_name).data,...
+                sim_params.d.(sim_params.exp_name).sub_ids, sim_params.idx, sim_params.sess);
+        
+            data = load(sprintf('data/fit/%s_learning_%d', ...
                 sim_params.exp_name, sim_params.sess));
-            parameters = dd.data('parameters');
+            parameters = data.data('parameters');
 
             params.alpha1 = parameters{1}(:, 2);
             params.beta1 = parameters{1}(:, 1);
 
-            for sub = 1:size(data.cho, 1)
+            for sub = 1:size(cho, 1)
                 i = 1;      
 
-                for p = unique(data.p1)'
-                    Q(sub, i) = data.cho(sub, (data.p1(sub, :) == p))./100;
+                for p = unique(p1)'
+                    Q(sub, i) = cho(sub, (p1(sub, :) == p))./100;
                     params.corr(sub, i) = abs(Q(sub, i) -  p) <= .1;
                     i = i + 1;          
                 end

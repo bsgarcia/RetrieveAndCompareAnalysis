@@ -102,16 +102,16 @@ fontsize = 6;
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
-[d, idx] = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
+de = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
     n_best_sub, allowed_nb_of_rows);
-show_loaded_data(d);
+show_loaded_data(de.d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
 
 
 %-------------------------------------------------------------------------
 % Define functions
 %-------------------------------------------------------------------------
-function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
+function de = load_data(filenames, folder,  rtime_threshold,...
     catch_threshold, n_best_sub, allowed_nb_of_rows)
 
     d = struct();
@@ -146,6 +146,7 @@ function [d, idx] = load_data(filenames, folder,  rtime_threshold,...
 
         i = i + 1;
     end
+    de = DataExtraction(d, filenames, idx);
     
 end
 

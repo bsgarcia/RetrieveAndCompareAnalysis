@@ -1,14 +1,15 @@
 %-------------------------------------------------------------------------
 init;
+show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4];
-modalities = {'LE', 'ED'};
+selected_exp = [5, 6.1, 6.2];
+modalities = {'ED', 'EE'};
 displayfig = 'on';
-colors = [blue_color; orange_color;];
+colors = [orange_color;green_color];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -35,37 +36,24 @@ for exp_num = selected_exp
     %---------------------------------------------------------------------%
     % get data                                                            %
     % --------------------------------------------------------------------%
-    sess = round((exp_num - round(exp_num)) * 10 - 1);
-    sess = sess .* (sess ~= -1);
-    
-    % load data
-    name = char(filenames{round(exp_num)});
-    
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-    nsub = d.(name).nsub;
-    
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
+    de.extract
+   
+    nsub = size(data.cho, 1);
+
     
     ev = unique(p1).*100;
     varargin = ev;
     x_values = ev;
     x_lim = [0, 100];
     
-    sim_params.d = d;
-    sim_params.idx = idx;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    sim_params.exp_num = exp_num;
-    sim_params.nsub = d.(name).nsub;
     
     % prepare data structure
     midpoints = nan(length(modalities), nsub, length(ev));
     slope = nan(length(modalities), nsub, 2);
     reshape_midpoints = nan(nsub, length(ev));
     
+    sim_params.exp_num = exp_num;
+
     for mod_num = 1:length(modalities)
         
         % get data depending on chosen modality
@@ -94,14 +82,14 @@ for exp_num = selected_exp
         
         % fill data for stats
         for sub = 1:nsub
-            sub_count = sub_count + 1;
             T1 = table(...
-                sub, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
+                sub+sub_count, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
                 {'subject', 'exp_num', 'slope', 'modality'}...
                 );
             stats_data = [stats_data; T1];
         end
     end
+    sub_count = sub_count+sub;
     
     %---------------------------------------------------------------------%
     % Plot                                                                %
@@ -121,7 +109,7 @@ for exp_num = selected_exp
     
     if num == 1; ylabel('Slope'); end
     
-    %title(sprintf('Exp. %s', num2str(exp_num)));
+    %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
     box off
     
