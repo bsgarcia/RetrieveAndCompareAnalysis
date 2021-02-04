@@ -25,22 +25,19 @@ ConfInter = 0.95;
 % color of the box + error bar
 trace = [0.5 0.5 0.5];
 
-
 for n = 1:Nbar
     
     clear DataMatrix
     clear jitter jitterstrength
     
     DataMatrix = DataCell{n,:}';
-  
-   
+     
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
     curve = nanmean(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(Nsub);
     conf  = tinv(1 - 0.5*(1-ConfInter),Nsub);
-    
     
     % PLOT THE VIOLINS
     

@@ -1,15 +1,15 @@
-%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------%
 init;
 show_current_script_name(mfilename('fullpath'));
-%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------%
 
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [5, 6.1, 6.2, 7.1, 7.2];
 modalities = {'ED', 'EE'};
 displayfig = 'on';
-colors = [orange_color;green_color];
+colors = [orange_color;orange_color;orange_color;green_color];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -34,88 +34,90 @@ for exp_num = selected_exp
     num = num + 1;
     
     %---------------------------------------------------------------------%
-    % get data parameters                                                           %
+    % get data parameters                                                 %
     % --------------------------------------------------------------------%
     sess = de.get_sess_from_exp_num(exp_num);
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
-    
-    throw = de.extract_ED(exp_num);
-    nsym = length(unique(throw.p1));
-    p1 = unique(throw.p1)'.*100;
-    
-    % prepare data structure
-    midpoints = nan(length(modalities), nsub, nsym);
-    slope = nan(length(modalities), nsub, 2);
-    reshape_midpoints = nan(nsub, nsym);
-    
-    sim_params.exp_num = exp_num;
-    sim_params.de = de;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    
+%     
+%     throw = de.extract_ED(exp_num);
+%     nsym = length(unique(throw.p1));
+%     p1 = unique(throw.p1)'.*100;
+%     
+%     prepare data structure
+%     midpoints = nan(length(modalities), nsub, nsym);
+%     slope = nan(length(modalities), nsub, 2);
+%     reshape_midpoints = nan(nsub, nsym);
+%     
+%     sim_params.exp_num = exp_num;
+%     sim_params.de = de;
+%     sim_params.sess = sess;
+%     sim_params.exp_name = name;
+%     
     for mod_num = 1:length(modalities)
         
         % get data depending on chosen modality
         switch (modalities{mod_num})
             
             case 'LE'
-                sim_params.model = 1;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
+                data = de.extract_LE(exp_num);
                 
-            case {'EE', 'ED'}
+            case 'EE'
+                data = de.extract_EE(exp_num);
+                ee = mean(data.rtime,2);
                 
-                param = load(...
-                    sprintf('data/post_test_fitparam_%s_exp_%d_%d',...
-                    modalities{mod_num}, round(exp_num), sess));
-                
-                midpoints(mod_num, :, :) = param.midpoints;
-                
+            case 'ED'
+                data = de.extract_ED(exp_num);
+                ed = mean(data.rtime,2);
+                for i = 1:nsub                  
+                    e(i) = mean(data.rtime(i,data.cho(i,:) == 1),2);
+                    d(i) = mean(data.rtime(i,data.cho(i,:) == 2),2);                 
+                end
+
             case 'PM'
-                sim_params.model = 2;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
+                data = de.extract_PM(exp_num);
+
         end
         
-        % fill data
-        reshape_midpoints(:, :) = midpoints(mod_num, :, :);
-        slope(mod_num,:,:) = add_linear_reg(...
-            reshape_midpoints.*100, p1, colors(mod_num, :));
+%         % fill data
+%         reshape_midpoints(:, :) = midpoints(mod_num, :, :);
+%         slope(mod_num,:,:) = add_linear_reg(...
+%             reshape_midpoints.*100, p1, colors(mod_num, :));
         
         % fill data for stats
-        for sub = 1:nsub
-            T1 = table(...
-                sub+sub_count, num, slope(mod_num, sub, 2), {modalities{mod_num}}, 'variablenames',...
-                {'subject', 'exp_num', 'slope', 'modality'}...
-                );
-            stats_data = [stats_data; T1];
-        end
+%         for sub = 1:nsub
+%             T1 = table(...
+%                 sub+sub_count, num, slope(mod_num, sub, 2),...
+%                 {modalities{mod_num}}, 'variablenames',...
+%                 {'subject', 'exp_num', 'slope', 'modality'}...
+%                 );
+%             stats_data = [stats_data; T1];
+%         end
     end
-    sub_count = sub_count+sub;
+    %sub_count = sub_count+sub;
     
     %---------------------------------------------------------------------%
     % Plot                                                                %
     % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
     
-    skylineplot(slope(:, :, 2), 4.5,...
+    skylineplot({ed';e;d;ee'}, 4.5,...
         colors,...
-        -1.08,...
-        1.7,...
+        0,...
+        5000,...
         fontsize,...
         '',...
         '',...
         '',...
-        modalities,...
+        {'ED','E', 'D', 'EE'},...
         0);
     
     if num == 1; ylabel('Slope'); end
     
-    %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
     box off
     
 end
-
 %-------------------------------------------------------------------------%
 % Save fig and stats                                                      %
 % ------------------------------------------------------------------------%
