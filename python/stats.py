@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 def main():
-    tests = ['ED_EE_corr']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
+    tests = ['RT_ED_e_ED_d_ED_EE']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
 
     pairwise_ttests(tests)
 
@@ -45,7 +45,7 @@ def pairwise_ttests(tests):
         pd.set_option('max_columns', None)
         res = pg.pairwise_ttests(
             dv='slope', within='modality', between='exp_num', subject='subject',
-            data=df, padjust='bonf', within_first=True, parametric=True)
+            data=df, padjust='bonf', within_first=False, parametric=False)
 
         pg.print_table(res, floatfmt='.6f')
 

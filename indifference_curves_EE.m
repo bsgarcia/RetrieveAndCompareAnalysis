@@ -23,24 +23,23 @@ for exp_num = selected_exp
     data = d.(name).data;
     sub_ids = d.(name).sub_ids;
     
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_sym_post_test(...
-        data, sub_ids, idx, sess);
+    data = de.extract_EE(exp_num);
     
-    d.(name).nsub = size(cho, 1);
+    
+    d.(name).nsub = size(data.cho, 1);
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     
-    pcue = unique(p2)';
-    psym = unique(p1)';
+    pcue = unique(data.p2)';
+    psym = unique(data.p1)';
     
     chose_symbol = nan(d.(name).nsub, length(pcue), length(psym), 2);
     for i = 1:d.(name).nsub
         for j = 1:length(pcue)
             for k = 1:length(psym)
                 temp = ...
-                    cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
+                    cho(i, logical((data.p2(i, :) == pcue(j)) .* (data.p1(i, :) == psym(k))));
                 for l = 1:length(temp)
                     chose_symbol(i, j, k, l) = temp(l) == 1;
                 end
@@ -48,15 +47,15 @@ for exp_num = selected_exp
         end
     end
     
-    nsub = size(cho, 1);
+    nsub = size(data.cho, 1);
     k = 1:nsub;
     
     prop = zeros(length(psym), length(pcue));
-    temp1 = cho(k, :);
+    temp1 = data.cho(k, :);
     for j = 1:length(pcue)
         for l = 1:length(psym)
             temp = temp1(...
-                logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
+                logical((data.p2(k, :) == pcue(j)) .* (data.p1(k, :) == psym(l))));
             prop(l, j) = mean(temp == 1);
             err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
             
