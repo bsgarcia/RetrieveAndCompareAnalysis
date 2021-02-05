@@ -23,7 +23,7 @@ end
 P = polyfit(X,Y,1);
 Yf = polyval(P,X);
 hold on
-plot(X,Yf, 'color', color, 'LineWidth', 1.6);
+%plot(X,Yf, 'color', color, 'LineWidth', 1.6);
 % Scatter
 if exist('noscatter') && noscatter
 else
