@@ -3,7 +3,7 @@ init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
 
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
 
 displayfig = 'off';
 force = true;
@@ -11,35 +11,25 @@ force = true;
 for exp_num = selected_exp
     
     disp(exp_num);
-    % retrieve session
-    sess = round((exp_num - round(exp_num)) * 10 - 1);
-    sess = sess .* (sess ~= -1);
-        
-    % load data
-    name = char(filenames{round(exp_num)});
+    sess = de.get_sess_from_exp_num(exp_num);
     
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-    
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
+    data = de.extract_ED(exp_num);
     
     % ---------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ---------------------------------------------------------------------
 
-    p_lot = unique(p2)';
-    p_sym = unique(p1)';
-    nsub = d.(name).nsub;
+    p_lot = unique(data.p2)';
+    p_sym = unique(data.p1)';
+    nsub = size(data.cho, 1);
     
-    chose_symbol = zeros(d.(name).nsub, length(p_lot), length(p_sym));
+    chose_symbol = zeros(nsub, length(p_lot), length(p_sym));
     for i = 1:nsub
         for j = 1:length(p_lot)
             for k = 1:length(p_sym)
                 temp = ...
-                    cho(i, logical(...
-                    (p2(i, :) == p_lot(j)) .* (p1(i, :) == p_sym(k))));
+                    data.cho(i, logical(...
+                    (data.p2(i, :) == p_lot(j)) .* (data.p1(i, :) == p_sym(k))));
                     chose_symbol(i, j, k) = temp == 1;
             end
         end
@@ -66,7 +56,7 @@ for exp_num = selected_exp
             end
              param = load(...
                  sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat',...
-                 round(exp_num), sess...
+                 round(exp_num), sess ...
              ));
              beta1 = param.beta1;
              midpoints = param.midpoints;
@@ -104,8 +94,7 @@ for exp_num = selected_exp
         param.nll = nll;
         
         save(sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat',...
-            round(exp_num), sess),...
-            '-struct', 'param');
+            round(exp_num), sess), '-struct', 'param');
     end
     
 end

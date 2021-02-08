@@ -57,21 +57,23 @@ for exp_num = selected_exp
                 data = de.extract_EE(exp_num);
                 for i = 1:length(symp)
                     ee{i} = data.rtime(logical(...
-                        (data.cho==1).*(data.p1==symp(i))));
+                        ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
+
                 end
                 
             case 'ED'
                 data = de.extract_ED(exp_num);
                 for i = 1:length(symp)
-                    ed(i,:) = data.rtime(data.p1(:,:) == symp(i));
+                    ed{i} = data.rtime(logical(...
+                        ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
                 end
                 
             case 'ED_e'
                 data = de.extract_ED(exp_num);
                 for i = 1:length(symp)
-                    ee(i) = mean(data.rtime(i,data.cho(i,:) == 1),2);
+                    e(i) = mean(data.rtime(i,data.cho(i,:) == 1),2);
                 end
-                
+               
             case 'ED_d'
                 data = de.extract_ED(exp_num);
                 for i = 1:nsub
@@ -103,6 +105,7 @@ for exp_num = selected_exp
     %---------------------------------------------------------------------%
     % Plot                                                                %
     % --------------------------------------------------------------------%
+    
     figure('Position', [0, 0, 1950, 1300]);
     
     subplot(1, 2, 1)
@@ -111,12 +114,12 @@ for exp_num = selected_exp
     
     x = reshape(symp .* ones(size(ed)), [], 1);
     y = reshape(ed, [], 1);
-    y_mean = median(ed')';
-    scatterCorr(x,y,orange_color, .15,3, 20, 'none', 0);
+    
+    y_mean = median(zscore(ed'))';
+    scatterCorr(x,zscore(y),orange_color, .15,3, 20, 'none', 0);
     hold on
     plot(unique(x), y_mean, 'Color', orange_color,'linewidth', 1.6);
-    
-    ylim([0 5000])
+    ylim([-1 2])
     
     set(gca, 'tickdir', 'out');
     box off
@@ -136,20 +139,18 @@ for exp_num = selected_exp
   
     subplot(1, 2, 2)
     x = cell(1);
-    for i = 1:length(ee)
-       x{i} = symp(i).*ones(size(ee{i}));
+    for i = 1:length(dd)
+       x{i} = symp(i).*ones(size(dd{i}));
     end
     x = vertcat(x{:});
-    y = vertcat(ee{:});
+    y = vertcat(dd{:});
     for i = 1:length(ee)
-        y_mean(i) = median(ee{i}')';
+        y_mean(i) = median(zscore(ee{i}'))';
     end
     
-    scatterCorr(x,y,green_color, .15,3, 20, 'none', 0);
-    hold on
-    
+    scatterCorr(x,zscore(y),green_color, .15,3, 20, 'none', 0);
     plot(unique(x), y_mean, 'color', green_color, 'linewidth', 1.6);
-    ylim([0 5000])
+    ylim([-1 2])
     set(gca, 'tickdir', 'out');
     box off
     

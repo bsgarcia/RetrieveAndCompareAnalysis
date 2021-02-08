@@ -10,16 +10,7 @@ num = 0;
 
 for exp_num = selected_exp
     num = num + 1;
-    
-    sess = round((exp_num - round(exp_num)) * 10 - 1);
-    sess = sess .* (sess ~= -1);
-    
-    % load data
-    name = char(filenames{round(exp_num)});
-    
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-    nsub = d.(name).nsub;
+    lg
        
     param = load(...
         sprintf('data/post_test_fitparam_ED_exp_%d_%d',...

@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
 
 displayfig = 'on';
 force = true;
@@ -10,36 +10,25 @@ force = true;
 for exp_num = selected_exp
     
     disp(exp_num);
+    sess =  de.get_sess_from_exp_num(exp_num);
     
-    % retrieve session
-    sess = round((exp_num - round(exp_num)) * 10 - 1);
-    sess = sess .* (sess ~= -1);
-        
-    % load data
-    name = char(filenames{round(exp_num)});
-    
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-    
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_sym_post_test(...
-        data, sub_ids, idx, sess);
-    
+    data = de.extract_EE(exp_num);
     % ---------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ---------------------------------------------------------------------
 
-    p_sym = unique(p1)';
-    nsub = d.(name).nsub;
+    p_sym = unique(data.p1)';
+    nsub = size(data.cho,1);
     
-    chose_symbol = zeros(d.(name).nsub, length(p_sym), length(p_sym)-1);
+    chose_symbol = zeros(nsub, length(p_sym), length(p_sym)-1);
     for i = 1:nsub
         for j = 1:length(p_sym)
             for k = 1:length(p_sym)
                 if j ~= k
                     temp = ...
-                        cho(i, logical(...
-                        (p2(i, :) == p_sym(j)) .* (p1(i, :) == p_sym(k))));
+                        data.cho(...
+                            i, logical((data.p2(i, :) == p_sym(j))...
+                        .* (data.p1(i, :) == p_sym(k))));
                         chose_symbol(i, j, k) = temp == 1;
                 end
             end
@@ -67,7 +56,7 @@ for exp_num = selected_exp
             end
              param = load(...
                  sprintf('data/post_test_fitparam_EE_exp_%d_%d.mat',...
-                 round(exp_num), sess...
+                 round(exp_num), sess ...
              ));
              beta1 = param.beta1;
              midpoints = param.midpoints;
@@ -101,57 +90,7 @@ for exp_num = selected_exp
         
     end
     
-%        figure
-%     
-%     pwin = p_sym;
-%     psym = p_sym;
-%     alpha = linspace(.15, .95, length(psym));
-%     lin1 = plot(...
-%         linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
-%         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
-%     clear yy
-%     for i = 1:length(pwin)
-%         
-%         hold on
-%         
-%         for sub = 1:nsub
-%             yy(sub,:) = logfun(pwin, midpoints(sub, i), beta1(sub));
-%         end
-%             
-%         
-%         lin3 = plot(...
-%             p_sym.*100,  mean(yy).*100,...
-%             'Color', green_color, 'LineWidth', 4.5...% 'LineStyle', '--' ...
-%             );
-%         
-%         
-%         lin3.Color(4) = alpha(i);
-%         
-%         hold on      
-%         
-%         [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
-%         try
-%         xx2(i) = xout;
-%         catch
-%         end
-%         sc2 = scatter(xout, yout, 200, 'MarkerFaceColor', lin3.Color,...
-%             'MarkerEdgeColor', 'w');
-%         sc2.MarkerFaceAlpha = alpha(i);
-%         
-%         
-%         xlabel('Lottery p(win) (%)');
-%         
-%         ylim([-0.08*100, 1.08*100]);
-%         xlim([-0.08*100, 1.08*100]);
-%         
-%         box off
-%     end
-%     
-% 
-%     set(gca,'TickDir','out')
-%     set(gca, 'FontSize', fontsize);
 
-    
     if tosave
         param.midpoints = midpoints;
         param.beta1 = beta1;
