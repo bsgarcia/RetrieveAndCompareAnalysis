@@ -31,8 +31,8 @@ figure('Renderer', 'painters','Units', 'centimeters',...
 num = 0;
 sub_count = 0;
 %
-ee = cell(8, 1);
-ed = cell(8,1);
+ee = cell(10, 1);
+ed = cell(10,1);
 for exp_num = selected_exp
     num = num + 1;
     %---------------------------------------------------------------------%
@@ -43,7 +43,7 @@ for exp_num = selected_exp
     nsub = de.get_nsub_from_exp_num(exp_num);
     throw = de.extract_ED(exp_num);
     symp = unique(throw.p1);
-    sum_ev = uniquetol(throw.ev1 + throw.ev2);
+    sum_ev = unique(round(abs(throw.ev1 - throw.ev2),1));
     
     for mod_num = 1:length(modalities)
         
@@ -60,15 +60,17 @@ for exp_num = selected_exp
                 for i = 1:length(sum_ev)
 %                     ee{i} = [ee{i,:}; -data.rtime(logical(...
 %                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
-                     ee{i} = [ee{i,:}; -data.rtime(round(data.ev1+data.ev2,1)==sum_ev(i))];
+                     ee{i} = [ee{i,:}; -data.rtime(round(abs(data.ev1-data.ev2),1)==sum_ev(i))];
                     
                 end
             
             case 'ED'
                 data = de.extract_ED(exp_num);
-                for i = 1:length(symp)
-                    ed{i} =  [ed{i,:}; -data.rtime(logical(...
-                        ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
+                for i = 1:length(sum_ev)
+%                     ed{i} =  [ed{i,:}; -data.rtime(logical(...
+%                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
+                     ed{i} = [ed{i,:}; -data.rtime(round(abs(data.ev1-data.ev2),1)==sum_ev(i))];
+
                 end
                 
             case 'ED_e'
@@ -129,34 +131,37 @@ end
 % ------------------------------------------------------------------------%
 % save fig
 
-ev = unique(data.p1)'.*100;
+ev = sum_ev;
 varrgin = ev;
-x_values = ev;
-x_lim = [0, 100];
-
-figure('Position', [0, 0, 1350, 800], 'visible', 'off');
+x_values = 1:100/length(ev):100;
+x_lim = [-10 100];
+figure('Position', [0, 0, 1600, 800], 'visible', 'off');
 subplot(1, 2, 1)
 
-
-x = reshape(symp .* ones(size(ed)), [], 1);
-y = reshape(ed, [], 1);
-
+for i = 1:length(ev)
+   x1{i} = ev(i).* ones(size(ed{i}));
+   x2{i} = ev(i).* ones(size(ee{i}));
+end
+x1 = vertcat(x1{:});
+y1 = vertcat(ed{:});
+x2 = vertcat(x2{:});
+y2 = vertcat(ee{:});
 %y_mean = mean(ed')';
-brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+10, 'ED', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values);
+brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+5, 'ED', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
  set(gca, 'tickdir', 'out');
 box off
 
 
 
 subplot(1, 2, 2)
-brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+10,...
-    'EE', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values);
+brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+5,...
+    'EE', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
 
 
 set(gca, 'tickdir', 'out');
 box off
 
-suptitle('Pooled exp. 5, 6.1, 6.2 (CHOSEN OPTION VALUE)');
+suptitle('Pooled exp. 5, 6.1, 6.2');
 
 
 mkdir('fig/exp', figfolder);

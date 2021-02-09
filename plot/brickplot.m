@@ -1,4 +1,4 @@
-function [bars, nbar, nsub] = brickplot2(data,colors,y_lim,fontsize,mytitle, ... 
+function [bars, nbar, nsub] = brickplot(data,colors,y_lim,fontsize,mytitle, ... 
     x_label,y_label,varargin, noscatter, x_lim, x_values, width1)
 
 % Sophie Bavard - December 2018
@@ -40,7 +40,7 @@ for n = 1:nbar
     % number of subjects
     nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmean(DataMatrix);
+    curve = nanmedian(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(nsub);
     
     mystd = nanstd(DataMatrix);
@@ -51,21 +51,21 @@ for n = 1:nbar
     fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
             [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
             set_alpha(colors(n,:), .23),...
-            'edgecolor', 'black', 'linewidth', 0.1);%,...%trace,...
+            'edgecolor', 'none', 'linewidth', 0.05);%,...%trace,...
             %'FaceAlpha',0.23);
         hold on
 
 
         fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
             [curve-sem curve-sem curve+sem curve+sem],...
-            set_alpha(colors(n,:), .7),'linewidth', 0.1);%,...
+            set_alpha(colors(n,:), .6), 'edgecolor','black', 'linewidth', 0.1);%,...
            %'linewidth', 1^-10, 'edgecolor',set_alpha(color2, .7));%,...%trace,...
             %'FaceAlpha',0.5);
         hold on
 
         xMean = [x_values(n)-Wbar; x_values(n)+Wbar];
         yMean = [curve; curve];
-        ppp = plot(xMean,yMean,'LineWidth',0.6,'Color',colors(n,:));
+        ppp = plot(xMean,yMean,'LineWidth',4,'Color',colors(n,:));
         hold on
 
 %         
@@ -96,16 +96,19 @@ end
 % axes and stuff
 ylim(y_lim);
 
+
 if ~exist('x_lim')
     x_lim = [0, nbar+1];
 end
 if ~exist('x_values')
     x_values = 1:nbar;
 end
+
 set(gca,'FontSize',fontsize,...
     'XLim', x_lim ,...
-    'XTick',varargin,...
+    'XTick',x_values,...
     'XTickLabel',varargin);
+
 
 title(mytitle);
 xlabel(x_label);
@@ -129,6 +132,9 @@ p0 = plot(x, y, 'linewidth', .6, 'LineStyle', '--', 'Color', 'k');
 p0.Color(4) = .45;
 hold on
 uistack(p0, 'bottom');
+
+
+
 
 end
 

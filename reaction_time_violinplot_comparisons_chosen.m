@@ -43,7 +43,6 @@ for exp_num = selected_exp
     nsub = de.get_nsub_from_exp_num(exp_num);
     throw = de.extract_ED(exp_num);
     symp = unique(throw.p1);
-    sum_ev = uniquetol(throw.ev1 + throw.ev2);
     
     for mod_num = 1:length(modalities)
         
@@ -57,10 +56,9 @@ for exp_num = selected_exp
                 
             case 'EE'
                 data = de.extract_EE(exp_num);
-                for i = 1:length(sum_ev)
-%                     ee{i} = [ee{i,:}; -data.rtime(logical(...
-%                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
-                     ee{i} = [ee{i,:}; -data.rtime(round(data.ev1+data.ev2,1)==sum_ev(i))];
+                for i = 1:length(symp)
+                    ee{i} = [ee{i,:}; -data.rtime(logical(...
+                        ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
                     
                 end
             
@@ -69,6 +67,7 @@ for exp_num = selected_exp
                 for i = 1:length(symp)
                     ed{i} =  [ed{i,:}; -data.rtime(logical(...
                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
+
                 end
                 
             case 'ED_e'
@@ -129,28 +128,31 @@ end
 % ------------------------------------------------------------------------%
 % save fig
 
-ev = unique(data.p1)'.*100;
+ev = symp;
 varrgin = ev;
-x_values = ev;
-x_lim = [0, 100];
-
+x_values = 5:100/length(ev):110;
+x_lim = [0 100];
 figure('Position', [0, 0, 1350, 800], 'visible', 'off');
 subplot(1, 2, 1)
-
-
-x = reshape(symp .* ones(size(ed)), [], 1);
-y = reshape(ed, [], 1);
+for i = 1:length(ev)
+   x1{i} = ev(i).* ones(size(ed{i}));
+   x2{i} = ev(i).* ones(size(ee{i}));
+end
+x1 = vertcat(x1{:});
+y1 = vertcat(ed{:});
+x2 = vertcat(x2{:});
+y2 = vertcat(ee{:});
 
 %y_mean = mean(ed')';
-brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+10, 'ED', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values);
+brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+5, 'ED', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
  set(gca, 'tickdir', 'out');
 box off
 
 
 
 subplot(1, 2, 2)
-brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+10,...
-    'EE', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values);
+brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+5,...
+    'EE', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
 
 
 set(gca, 'tickdir', 'out');

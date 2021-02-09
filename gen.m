@@ -33,16 +33,16 @@ for exp_num = selected_exp
                     ||(all(ismember([p1(sub,p), p2(sub,p)], [.7, .3])))...
                     ||(all(ismember([p1(sub,p), p2(sub,p)], [.6, .4])))
                 i = i + 1;
-                new_corr{num}(i) = corr1(sub, p);
+                new_corr{num}(sub, i) = corr1(sub, p);
               
             else
                 j = j + 1;               
-                corr2{num}(j) = corr1(sub, p);
+                corr2{num}(sub, j) = corr1(sub, p);
             end
         end
     end
 end
-
+for 
 new_corr = horzcat(new_corr{:});
 corr2 = horzcat(corr2{:});
 
