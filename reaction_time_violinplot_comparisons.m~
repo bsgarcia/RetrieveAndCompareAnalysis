@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [5, 6.1, 6.2, 8.1, 8.2];%, 6.2, 7.1, 7.2];
 modalities = {'ED', 'EE'};
 displayfig = 'on';
 colors = [orange_color;orange_color;orange_color;green_color;magenta_color];
@@ -56,7 +56,7 @@ for exp_num = selected_exp
             case 'EE'
                 data = de.extract_EE(exp_num);
                 for i = 1:length(symp)
-                    ee{i} = data.rtime(logical(...
+                    ee{i} = -data.rtime(logical(...
                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
 
                 end
@@ -64,7 +64,7 @@ for exp_num = selected_exp
             case 'ED'
                 data = de.extract_ED(exp_num);
                 for i = 1:length(symp)
-                    ed{i} = data.rtime(logical(...
+                    ed{i} = -data.rtime(logical(...
                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
                 end
                 
@@ -106,20 +106,25 @@ for exp_num = selected_exp
     % Plot                                                                %
     % --------------------------------------------------------------------%
     
-    figure('Position', [0, 0, 1950, 1300]);
+    figure('Position', [0, 0, 1350, 800]);
     
     subplot(1, 2, 1)
+    
+    ev = unique(data.p1)'.*100; 
+    varargin = ev;
+    x_values = ev;
+    x_lim = [0, 100];
     
     suptitle(['Exp. ', num2str(exp_num)]);
     
     x = reshape(symp .* ones(size(ed)), [], 1);
     y = reshape(ed, [], 1);
     
-    y_mean = mean(ed')';
-    brickplot(ed, orange_color, [0, 3000], fontsize, ['Exp. ', exp_num], 'p(win)', 'RT (ms)', varargin, 0, x_lim, x_values);
-    hold on
-    plot(unique(x), y_mean, 'Color', orange_color,'linewidth', 1.6);
-    ylim([-1 2])
+    %y_mean = mean(ed')';
+    brickplot(ed', orange_color.*ones(length(ed),1), [-3000,-1000], fontsize, 'ED', 'p(win)', '-RT (ms)', varargin, 0, x_lim, x_values);
+    %hold on
+    %plot(unique(x), y_mean, 'Color', orange_color,'linewidth', 1.6);
+    %ylim([-1 2])
     
     set(gca, 'tickdir', 'out');
     box off
@@ -138,29 +143,20 @@ for exp_num = selected_exp
     
   
     subplot(1, 2, 2)
-    x = cell(1);
-    for i = 1:length(dd)
-       x{i} = symp(i).*ones(size(dd{i}));
-    end
-    x = vertcat(x{:});
-    y = vertcat(dd{:});
-    for i = 1:length(ee)
-        y_mean(i) = median(zscore(ee{i}'))';
-    end
     
-    scatterCorr(x,zscore(y),green_color, .15,3, 20, 'none', 0);
-    plot(unique(x), y_mean, 'color', green_color, 'linewidth', 1.6);
-    ylim([-1 2])
+    brickplot(ee', green_color.*ones(length(ee),1), [-3000,-1000], fontsize,...
+        'EE', 'p(win)', '-RT (ms)', varargin, 0, x_lim, x_values);
+
     set(gca, 'tickdir', 'out');
     box off
-    
+    mkdir('fig/exp', figfolder);
+saveas(gcf, figname);
 end
 %-------------------------------------------------------------------------%
 % Save fig and stats                                                      %
 % ------------------------------------------------------------------------%
 % save fig
-mkdir('fig/exp', figfolder);
-saveas(gcf, figname);
+
 
 % save stats file
 mkdir('data', 'stats');

@@ -56,7 +56,7 @@ for exp_num = selected_exp
             case 'EE'
                 data = de.extract_EE(exp_num);
                 for i = 1:length(symp)
-                    ee{i} = data.rtime(logical(...
+                    ee{i} = -data.rtime(logical(...
                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
 
                 end
@@ -64,7 +64,7 @@ for exp_num = selected_exp
             case 'ED'
                 data = de.extract_ED(exp_num);
                 for i = 1:length(symp)
-                    ed{i} = data.rtime(logical(...
+                    ed{i} = -data.rtime(logical(...
                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))));
                 end
                 
@@ -121,7 +121,7 @@ for exp_num = selected_exp
     y = reshape(ed, [], 1);
     
     %y_mean = mean(ed')';
-    brickplot(ed', orange_color.*ones(length(ed),1), [1000, 3000], fontsize, 'ED', 'p(win)', 'RT (ms)', varargin, 0, x_lim, x_values);
+    brickplot(ed', orange_color.*ones(length(ed),1), [-3000,-1000], fontsize, 'ED', 'p(win)', '-RT (ms)', varargin, 0, x_lim, x_values);
     %hold on
     %plot(unique(x), y_mean, 'Color', orange_color,'linewidth', 1.6);
     %ylim([-1 2])
@@ -144,8 +144,8 @@ for exp_num = selected_exp
   
     subplot(1, 2, 2)
     
-    brickplot(ee', green_color.*ones(length(ee),1), [1000, 3000], fontsize,...
-        'EE', 'p(win)', 'RT (ms)', varargin, 0, x_lim, x_values);
+    brickplot(ee', green_color.*ones(length(ee),1), [-3000,-1000], fontsize,...
+        'EE', 'p(win)', '-RT (ms)', varargin, 0, x_lim, x_values);
 
     set(gca, 'tickdir', 'out');
     box off
