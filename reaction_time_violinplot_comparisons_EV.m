@@ -56,6 +56,7 @@ for exp_num = selected_exp
     disp(length(ids));
     for mod_num = 1:length(modalities)
         
+            for k = 1:length(lotp)
         % get data depending on chosen modality
         switch (modalities{mod_num})
             
@@ -242,14 +243,12 @@ suptitle('Pooled exp. 5, 6.1, 6.2 (CHOSEN OPTION VALUE)');
 
 function heur = heuristic(data, symp,lotp)
     for i = 1:size(data.cho,1)
-             count = 0;
-
-        for j = 1:length(symp)
-            
+        count = 0;
+        for j = 1:length(symp)            
             for k = 1:length(lotp)
                 count = count + 1;
-                temp = data.cho(i, logical((data.p1(i,:)==symp(j)).*(data.p2(i,:)==lotp(k))));
-                
+                temp = data.cho(i, logical(...
+                    (data.p1(i,:)==symp(j)).*(data.p2(i,:)==lotp(k))));
                 if lotp(k) >= .5 
                     pred = 2;
                 else
