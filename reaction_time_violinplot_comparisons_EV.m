@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [8.1, 8.2];%, 6.2, 7.1, 7.2];
 modalities = {'ED', 'EE'};
 displayfig = 'off';
 colors = [orange_color;orange_color;orange_color;green_color;magenta_color];
@@ -31,8 +31,10 @@ figure('Renderer', 'painters','Units', 'centimeters',...
 num = 0;
 sub_count = 0;
 %
-ee = cell(10, 1);
-ed = cell(10,1);
+ee = cell(12, 1);
+ed = cell(12,1);
+e = cell(12,1);
+d = cell(12,1);
 for exp_num = selected_exp
     num = num + 1;
     %---------------------------------------------------------------------%
@@ -44,7 +46,14 @@ for exp_num = selected_exp
     throw = de.extract_ED(exp_num);
     symp = unique(throw.p1);
     sum_ev = unique(round(abs(throw.ev1 - throw.ev2),1));
+    throw = de.extract_ED(exp_num);
+    symp = unique(throw.p1);
+    lotp = unique(throw.p2);
+    sum_ev = unique(round(abs(throw.ev1 - throw.ev2),1));
     
+    heur = heuristic(throw, symp, lotp);
+    ids = find(mean(heur,2)>=.85);
+    disp(length(ids));
     for mod_num = 1:length(modalities)
         
         % get data depending on chosen modality
@@ -57,6 +66,14 @@ for exp_num = selected_exp
                 
             case 'EE'
                 data = de.extract_EE(exp_num);
+                  data.rtime = data.rtime(ids,:);
+                data.ev1 = data.ev1(ids,:);
+                data.ev2= data.ev2(ids,:);
+                data.cho = data.cho(ids,:);
+% %                 
+%                 for i = 1:size(data.rtime,1)
+%                     data.rtime(i, :) = zscore(data.rtime(i,:));
+%                 end
                 for i = 1:length(sum_ev)
 %                     ee{i} = [ee{i,:}; -data.rtime(logical(...
 %                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
@@ -66,10 +83,22 @@ for exp_num = selected_exp
             
             case 'ED'
                 data = de.extract_ED(exp_num);
+                  data.rtime = data.rtime(ids,:);
+                       data.ev1 = data.ev1(ids,:);
+                data.ev2= data.ev2(ids,:);
+                data.cho = data.cho(ids,:);
+% %                 
+%                 for i = 1:size(data.rtime,1)
+%                     data.rtime(i, :) = zscore(data.rtime(i,:));
+%                 end
                 for i = 1:length(sum_ev)
 %                     ed{i} =  [ed{i,:}; -data.rtime(logical(...
 %                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
                      ed{i} = [ed{i,:}; -data.rtime(round(abs(data.ev1-data.ev2),1)==sum_ev(i))];
+                     e{i} = [e{i,:}; -data.rtime(logical(...
+                         (round(abs(data.ev1-data.ev2),1)==sum_ev(i)) .*( data.cho==1)))];
+                     d{i} = [d{i,:}; -data.rtime(logical(...
+                         (round(abs(data.ev1-data.ev2),1)==sum_ev(i)) .*( data.cho==2)))];
 
                 end
                 
@@ -131,45 +160,106 @@ end
 % ------------------------------------------------------------------------%
 % save fig
 
+% ev = sum_ev;
+% varrgin = ev;
+% x_values = 1:100/length(ev):100;
+% x_lim = [-10 100];
+% figure('Position', [0, 0, 1600, 800], 'visible', 'off');
+% subplot(1, 2, 1)
+% 
+% for i = 1:length(ev)
+%    x1{i} = ev(i).* ones(size(ed{i}));
+%    x2{i} = ev(i).* ones(size(ee{i}));
+% end
+% x1 = vertcat(x1{:});
+% y1 = vertcat(ed{:});
+% x2 = vertcat(x2{:});
+% y2 = vertcat(ee{:});
+% 
+
 ev = sum_ev;
 varrgin = ev;
-x_values = 1:100/length(ev):100;
-x_lim = [-10 100];
-figure('Position', [0, 0, 1600, 800], 'visible', 'off');
-subplot(1, 2, 1)
+x_values = 5:100/length(ev):110;
+x_lim = [0 100];
+figure('Position', [0, 0, 1350, 800], 'visible', 'off');
+subplot(1, 3, 1)
+% for i = 1:length(ev)
+%    x1{i} = ev(i).* ones(size(ed{i}));
+%    x2{i} = ev(i).* ones(size(ee{i}));
+% end
+% x1 = vertcat(x1{:});
+% y1 = vertcat(ed{:});
+% x2 = vertcat(x2{:});
+% y2 = vertcat(ee{:});
 
-for i = 1:length(ev)
-   x1{i} = ev(i).* ones(size(ed{i}));
-   x2{i} = ev(i).* ones(size(ee{i}));
-end
-x1 = vertcat(x1{:});
-y1 = vertcat(ed{:});
-x2 = vertcat(x2{:});
-y2 = vertcat(ee{:});
 %y_mean = mean(ed')';
-brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+5, 'ED', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
+brickplot(e, orange_color.*ones(length(e),1), [-5000,-500], fontsize+5, 'E_{chosen}', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
+ set(gca, 'tickdir', 'out');
+box off
+
+subplot(1, 3, 2)
+
+brickplot(d, orange_color.*ones(length(d),1), [-5000,-500], fontsize+5, 'D_{chosen}', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
  set(gca, 'tickdir', 'out');
 box off
 
 
 
-subplot(1, 2, 2)
-brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+5,...
-    'EE', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
+
+subplot(1, 3, 3)
+brickplot(ee, green_color.*ones(length(ee),1), [-5000,-500], fontsize+5,...
+    'EE', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
 
 
 set(gca, 'tickdir', 'out');
 box off
 
-suptitle('Pooled exp. 5, 6.1, 6.2');
-
-
-mkdir('fig/exp', figfolder);
-saveas(gcf, figname);
-
+suptitle('Pooled exp. 5, 6.1, 6.2 (CHOSEN OPTION VALUE)');
+%y_mean = mean(ed')';
+% brickplot(ed, orange_color.*ones(length(ed),1), [-3000,-1000], fontsize+5, 'ED', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
+%  set(gca, 'tickdir', 'out');
+% box off
+% 
+% 
+% 
+% subplot(1, 2, 2)
+% brickplot(ee, green_color.*ones(length(ee),1), [-3000,-1000], fontsize+5,...
+%     'EE', 'abs(EV1-EV2)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
+% 
+% 
+% set(gca, 'tickdir', 'out');
+% box off
+% 
+% suptitle('Pooled exp. 5, 6.1, 6.2');
+% 
+% 
+% mkdir('fig/exp', figfolder);
+% saveas(gcf, figname);
+% 
 % save stats file
-mkdir('data', 'stats');
-writetable(stats_data, stats_filename);
+% mkdir('data', 'stats');
+% writetable(stats_data, stats_filename);
+
+function heur = heuristic(data, symp,lotp)
+    for i = 1:size(data.cho,1)
+             count = 0;
+
+        for j = 1:length(symp)
+            
+            for k = 1:length(lotp)
+                count = count + 1;
+                temp = data.cho(i, logical((data.p1(i,:)==symp(j)).*(data.p2(i,:)==lotp(k))));
+                
+                if lotp(k) >= .5 
+                    pred = 2;
+                else
+                    pred = 1;
+                end
+               heur(i, count) = pred == temp;
+            end
+        end
+    end
+end
 
 function arr = normalize(arr)
 arr = (arr - min(arr(:)))./(max(arr(:))-min(arr(:)));
