@@ -1,8 +1,14 @@
 % --------------------------------------------------------------------
 % This script is ran by other scripts at init 
 % --------------------------------------------------------------------
+tic
 close all
-clear all
+
+if exist('de')
+    clearvars -except de
+else
+    clear all
+end
 
 addpath './fit'
 addpath './plot'
@@ -99,15 +105,16 @@ red_to_blue(:, 3) = ...
 fontsize = 6;
 
 
+if ~exist('de')
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
 de = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
     n_best_sub, allowed_nb_of_rows);
+end
 show_loaded_data(de.d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
-
-
+toc
 %-------------------------------------------------------------------------
 % Define functions
 %-------------------------------------------------------------------------

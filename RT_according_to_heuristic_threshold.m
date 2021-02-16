@@ -50,7 +50,8 @@ for exp_num = selected_exp
     sum_ev = unique(round(abs(throw.ev1 - throw.ev2),1));
     
     heur = heuristic(throw, symp, lotp);
-    ids = find(mean(heur,2)>.8);
+    ids = find(mean(heur,2)<.8);
+    ids = 1:nsub;
     
     for mod_num = 1:length(modalities)
         
@@ -75,7 +76,8 @@ for exp_num = selected_exp
                 for i = 1:length(symp)
 %                     ee{i} = [ee{i,:}; -data.rtime(logical(...
 %                         ((data.cho==1).*(data.p1==symp(i)) + ((data.cho==2).*(data.p2==symp(i))))))];
-                     ee{i} = [ee{i,:}; -data.rtime(data.p1==symp(i))];
+                     ee{i} = [ee{i,:}; -data.rtime(logical(...
+                         (data.p1==symp(i))+(data.p2==symp(i))))];
                     
                 end
             
@@ -85,7 +87,6 @@ for exp_num = selected_exp
                 data.p1 = data.p1(ids,:);
                 data.p2 = data.p2(ids,:);
                 data.cho = data.cho(ids,:);
-
 
 %                 for i = 1:size(data.rtime,1)
 %                     data.rtime(i, :) = zscore(data.rtime(i,:));
@@ -182,10 +183,10 @@ x_values = 5:100/length(ev):110;
 x_lim = [0 100];
 figure('Position', [0, 0, 1350, 800], 'visible', 'off');
 subplot(1, 3, 1)
-% for i = 1:length(ev)
-%    x1{i} = ev(i).* ones(size(ed{i}));
+for i = 1:length(ev)
+    x1{i} = ev(i).* ones(size(e{i}));
 %    x2{i} = ev(i).* ones(size(ee{i}));
-% end
+end
 % x1 = vertcat(x1{:});
 % y1 = vertcat(ed{:});
 % x2 = vertcat(x2{:});
@@ -194,7 +195,8 @@ subplot(1, 3, 1)
 %y_mean = mean(ed')';
 brickplot(e, orange_color.*ones(length(e),1), [-2500,-500], fontsize+5, 'E_{chosen}', 'p(win)', '-RT (ms)', varrgin, 0, x_lim, x_values,.18);
  set(gca, 'tickdir', 'out');
-box off
+
+ box off
 
 subplot(1, 3, 2)
 
