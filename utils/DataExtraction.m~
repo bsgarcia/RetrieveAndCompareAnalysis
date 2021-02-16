@@ -184,24 +184,21 @@ classdef DataExtraction
         end
     end
     
-    
     methods
-        
         function obj = DataExtraction(d, filenames, idx)
             obj.d = d;
             obj.filenames = filenames;
-            obj.idx = idx;            
+            obj.idx = idx;
+            
+            
         end
-        
         function name = get_name_from_exp_num(obj, exp_num)
             % load data
             name = char(obj.filenames{round(exp_num(1))});
         end
-        
         function nsub = get_nsub_from_exp_num(obj, exp_num)
             nsub = obj.d.(get_name_from_exp_num(obj, exp_num)).nsub;
         end
-        
         function sess = get_sess_from_exp_num(obj, exp_num)
             if length(exp_num) == 1
                 sess = round((exp_num - round(exp_num)) * 10 - 1);
@@ -216,22 +213,23 @@ classdef DataExtraction
         end
         
         function zscore_RT(obj, exp_num)       
+            new_data = struct();
             [data, sub_ids, session] = prepare(obj, exp_num);
-            session = [0,1];
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 
                 mask_eli = ismember(data(:, obj.idx.elic), [-1, 0, 2]);
                 mask_sub = data(:, obj.idx.sub) == sub;
-                mask_catch = ismember(data(:, obj.idx.catch), [-1, 0]);
+                mask_catch = data(:, obj.idx.catch) == 0;
+                %mask_vs_lot = data(:, obj.idx.op2) == 1;
                 mask_sess = ismember(data(:, obj.idx.sess), session);
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
                 
-                
-                data(mask, obj.idx.rtime) = zscore(data(mask, obj.idx.rtime));
-                
-            end                 
+                [noneed, trialorder] = sort(data(mask, obj.idx.trial));
+            end
+
+                    
          
         end
         function [data, sub_ids, sess] = prepare(obj, exp_num)
@@ -310,8 +308,6 @@ classdef DataExtraction
                     mask_eli = data(:, obj.idx.elic) == 0;
                     mask_sub = data(:, obj.idx.sub) == sub;
                     mask_catch = data(:, obj.idx.catch) == 0;
-                    % before exp. 5 op2 has value -1 in ED while after it
-                    % takes value 0 (because there were no EE before)
                     mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
                     mask_sess = ismember(data(:, obj.idx.sess), session);
                     mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
