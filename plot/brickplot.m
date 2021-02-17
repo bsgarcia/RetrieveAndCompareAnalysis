@@ -40,7 +40,7 @@ for n = 1:nbar
     % number of subjects
     nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmean(DataMatrix);
+    curve = nanmedian(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(nsub);
     
     mystd = nanstd(DataMatrix);

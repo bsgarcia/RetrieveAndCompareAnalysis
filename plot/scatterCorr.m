@@ -10,7 +10,7 @@ function [ RHO PVAL b stats ] = scatterCorr(X, Y, color, alpha, stat, markersize
 
 % Text variable
 if stat==1
-    test=['coef= ' num2str(RHO) ' / P= ' num2str(PVAL)];
+    test=['coef= ' num2str(RHO) ' / P= ' num2str(round(PVAL,5))];
 elseif stat==2
     test=['RobustFit pval= ' num2str(stats.p(2,1))];
 else
@@ -22,9 +22,6 @@ end
 
 P = polyfit(X,Y,1);
 Yf = polyval(P,X);
-hold on
-plot(X,Yf, 'color', color, 'LineWidth', 1.6);
-% Scatter
 if exist('noscatter') && noscatter
 else
     scat = scatter(X, Y,120, 'MarkerEdgeColor', markeredgecolor,...
@@ -35,10 +32,14 @@ else
     xlim([min(X) - 0.1 max(X) + 0.1]);
     % Text position
 end
+hold on
+plot(X,Yf, 'color', color, 'LineWidth', 1.6);
+% Scatter
+
 xPoint=xlim;
 yPoint=ylim;
 x=(xPoint(1,1)+xPoint(1,2))/2;
- y=(yPoint(1,1)+yPoint(1,2))/2;
+ y=(yPoint(1,1)+yPoint(1,2))/1.2;
 %x=.75;
 %y=.75;
 text(x,y,test,'BackgroundColor',[1 1 1],...

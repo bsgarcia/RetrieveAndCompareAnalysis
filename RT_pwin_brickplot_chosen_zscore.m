@@ -31,7 +31,7 @@ figure('Renderer', 'painters','Units', 'centimeters',...
 num = 0;
 sub_count = 0;
 
-x = 'pwin';
+x = 'chosen_pwin';
 zscored = 0;
 
 ee = cell(50, 1);
@@ -120,21 +120,14 @@ end
 % ------------------------------------------------------------------------%
 % save fig
 ed = ed(~cellfun('isempty',ed));
-ee = ee(~cellfun('isempty',ee));
+ee = {ee{1:length(ed)}}';
 
 varrgin = X;
 x_values = 5:100/length(X):110;
 x_lim = [0 100];
-figure('Position', [0, 0, 1350, 800], 'visible', 'off');
+
+figure('Position', [0, 0, 1350, 800], 'visible', 'off')
 subplot(1, 2, 1)
-% for i = 1:length(ev)
-%    x1{i} = ev(i).* ones(size(ed{i}));
-%    x2{i} = ev(i).* ones(size(ee{i}));
-% end
-% x1 = vertcat(x1{:});
-% y1 = vertcat(ed{:});
-% x2 = vertcat(x2{:});
-% y2 = vertcat(ee{:});
 
 if zscored
     y_lim = [-2, 2];
