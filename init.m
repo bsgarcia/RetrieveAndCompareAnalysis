@@ -4,11 +4,11 @@
 tic
 close all
 
-if exist('de')
+%if exist('de')
     clearvars -except de
-else
+%else
     clear all
-end
+%end
 
 addpath './fit'
 addpath './plot'
@@ -105,13 +105,13 @@ red_to_blue(:, 3) = ...
 fontsize = 6;
 
 
-if ~exist('de')
+%if ~exist('de')
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
 de = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
     n_best_sub, allowed_nb_of_rows);
-end
+%end
 show_loaded_data(de.d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
 toc

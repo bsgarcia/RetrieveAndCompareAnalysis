@@ -1,4 +1,4 @@
-classdef DataExtraction
+classdef DataExtraction < handle
     
     properties (SetAccess = public)
         idx
@@ -217,6 +217,7 @@ classdef DataExtraction
         
         function zscore_RT(obj, exp_num)       
             [data, sub_ids, session] = prepare(obj, exp_num);
+            name = obj.get_name_from_exp_num(exp_num);
             session = [0,1];
             i = 1;
             for id = 1:length(sub_ids)
@@ -229,8 +230,9 @@ classdef DataExtraction
                 mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
                 
                 
-                data(mask, obj.idx.rtime) = zscore(data(mask, obj.idx.rtime));
+                obj.d.(name).data(mask, obj.idx.rtime) = zscore(data(mask, obj.idx.rtime));
                 
+                i = i + 1;
             end                 
          
         end
