@@ -1,12 +1,11 @@
 %-------------------------------------------------------------------------%
 init;
 show_current_script_name(mfilename('fullpath'));
-%-------------------------------------------------------------------------%
 
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4, 5, 6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [1,2,3,4];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
 
 
@@ -16,14 +15,18 @@ ed = cell(length(selected_exp),1);
 pm = cell(length(selected_exp), 1);
 mean_heur = cell(length(selected_exp), 1);
 
+
 for exp_num = selected_exp
+    
     num = num + 1;
+    
     %---------------------------------------------------------------------%
     % get data parameters                                                 %
     % --------------------------------------------------------------------%
     sess = de.get_sess_from_exp_num(exp_num);
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
+    
     throw = de.extract_ED(exp_num);
     symp = unique(throw.p1);
     lotp = unique(throw.p2);
@@ -35,8 +38,8 @@ for exp_num = selected_exp
    
     data = de.extract_ED(exp_num);
     
-    for i = 1:nsub
-            ed{num}(i,1) = -mean(data.rtime(i,:))';          
+    for sub = 1:nsub
+            ed{num}(sub,1) = -median(data.rtime(sub,:))';          
     end
     
     sim_params.de = de;
@@ -65,9 +68,11 @@ for exp_num = selected_exp
 
 
 end
+
 %-------------------------------------------------------------------------%
-% fig                                                  %
+% plot                                                                    %
 % ------------------------------------------------------------------------%
+
 x1 = reshape(vertcat(mean_heur{:}), [], 1);
 x2 = reshape(vertcat(le{:}), [], 1);
 x3 = reshape(vertcat(pm{:}), [], 1);
@@ -96,7 +101,7 @@ set(gca, 'tickdir', 'out');
 
 subplot(1,3, 3)
 
-scatterCorr(x3, y, magenta_color, .5, 1, 50, 'white', 0);
+scatterCorr(x3, y, magenta_color, .5, 1, 50, 'w', 0);
 xlabel('PM estimates-explained score');
 ylabel('-RT (ms)');
 xlim([.2, 1.08])
@@ -115,19 +120,24 @@ set(gca, 'tickdir', 'out');
 % set(gca, 'tickdir', 'out');
 
 
-suptitle('simulation score predicts -RT (ms)');
+suptitle('simulation score predicts -RT (ms) / Pooled Exp. 1,2,3,4');
 
+saveas(gcf, 'fig/score_RT_1234.svg');
+
+
+% ------------------------------------------------------------------------%
 
 function score = heuristic(data, symp,lotp)
-    for i = 1:size(data.cho,1)
-             count = 0;
+
+    for sub = 1:size(data.cho,1)
+        count = 0;
 
         for j = 1:length(symp)
             
             for k = 1:length(lotp)
                 count = count + 1;
-                actual_choice = data.cho(i, logical(...
-                    (data.p1(i,:)==symp(j)).*(data.p2(i,:)==lotp(k))));
+                actual_choice = data.cho(sub, logical(...
+                    (data.p1(sub,:)==symp(j)).*(data.p2(sub,:)==lotp(k))));
                 
                 if lotp(k) >= .5 
                     prediction = 2;
@@ -135,35 +145,38 @@ function score = heuristic(data, symp,lotp)
                     prediction = 1;
                 end
                 
-               score(i, count) = prediction == actual_choice;
+               score(sub, count) = prediction == actual_choice;
                
             end
         end
     end
+    
 end
 
 
 function score = argmax_estimate(data, symp, lotp, values)
-    for i = 1:size(data.cho,1)
-         count = 0;
+
+    for sub = 1:size(data.cho,1)
+        count = 0;
 
         for j = 1:length(symp)
             
             for k = 1:length(lotp)
                 count = count + 1;
-                actual_choice = data.cho(i, logical(...
-                    (data.p1(i,:)==symp(j)).*(data.p2(i,:)==lotp(k))));
+                actual_choice = data.cho(sub, logical(...
+                    (data.p1(sub,:)==symp(j)).*(data.p2(sub,:)==lotp(k))));
                 
-                if lotp(k) >= values(i,j)
+                if lotp(k) >= values(sub,j)
                     prediction = 2;
                 else
                     prediction = 1;
                 end
                 
-               score(i, count) = prediction == actual_choice;
+               score(sub, count) = prediction == actual_choice;
             end
         end
     end
+    
 end
 
 

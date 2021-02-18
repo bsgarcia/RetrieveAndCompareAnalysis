@@ -1,5 +1,5 @@
 function [bars, nbar, nsub] = brickplot(data,colors,y_lim,fontsize,mytitle, ... 
-    x_label,y_label,varargin, noscatter, x_lim, x_values, width1)
+    x_label,y_label,varargin, noscatter, x_lim, x_values, width1, median)
 
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -13,6 +13,11 @@ end
 
 if ~exist('noscatter')
     noscatter = 0;
+end
+
+
+if ~exist('median')
+    median = 0;
 end
 
 if ~exist('width1')
@@ -40,7 +45,12 @@ for n = 1:nbar
     % number of subjects
     nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmedian(DataMatrix);
+    if median
+        curve = nanmedian(DataMatrix);
+    else
+        curve = nanmean(DataMatrix);
+    end
+
     sem   = nanstd(DataMatrix')'/sqrt(nsub);
     
     mystd = nanstd(DataMatrix);
@@ -114,21 +124,21 @@ ylabel(y_label);
 x_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');get(gca, 'XLim');
 y_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');
 
-y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
-    ones(10,1).*50, 'LineStyle', '--', 'Color', 'k', 'linewidth', .6);
-y0.Color(4) = .45;
-uistack(y0, 'bottom');
-
-hold on
-
-x = linspace(x_lim(1), x_lim(2), 10);
-
-y = linspace(y_lim(1), y_lim(2), 10);
-p0 = plot(x, y, 'linewidth', .6, 'LineStyle', '--', 'Color', 'k');
-
-p0.Color(4) = .45;
-hold on
-uistack(p0, 'bottom');
+% y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
+%     ones(10,1).*50, 'LineStyle', '--', 'Color', 'k', 'linewidth', .6);
+% y0.Color(4) = .45;
+% uistack(y0, 'bottom');
+% 
+% hold on
+% 
+% x = linspace(x_lim(1), x_lim(2), 10);
+% 
+% y = linspace(y_lim(1), y_lim(2), 10);
+% p0 = plot(x, y, 'linewidth', .6, 'LineStyle', '--', 'Color', 'k');
+% 
+% p0.Color(4) = .45;
+% hold on
+% uistack(p0, 'bottom');
 
 
 

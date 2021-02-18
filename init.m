@@ -18,7 +18,7 @@ addpath './utils'
 addpath './simulation'
 
 
-format shortg
+format long g
 
 %------------------------------------------------------------------------
 % Set parameters

@@ -2,31 +2,30 @@ function [ RHO PVAL b stats ] = scatterCorr(X, Y, color, alpha, stat,...
     markersize, markeredgecolor, noscatter)
 
 % Corr
-[RHO, PVAL] = corr(X, Y);
+[RHO,PVAL] = corr(X,Y);
 
 % RobustFit
-[b, stats] = robustfit(X, Y);
+[b,stats] = robustfit(X, Y);
 
 % Text variable
-if stat == 1
-    test = ['coef= ' num2str(RHO) ' / P= ' num2str(round(PVAL,10))];
+if stat==1
+    test=['coef= ' num2str(RHO) ' / P= ' num2str(round(PVAL,10))];
 elseif stat==2
-    test = ['RobustFit pval= ' num2str(stats.p(2,1))];
+    test=['RobustFit pval= ' num2str(stats.p(2,1))];
 else
-    test = ['no test performed'];
+    test=['no test performed']
 end
 
 
-P = polyfit(X, Y, 1);
-Yf = polyval(P, X);
-
+P = polyfit(X,Y,1);
+Yf = polyval(P,X);
 if exist('noscatter') && noscatter
 else
     scat = scatter(X, Y,120, 'MarkerEdgeColor', markeredgecolor,...
         'MarkerFaceColor', color, 'MarkerEdgeAlpha', 1,...
         'MarkerFaceAlpha', alpha, 'linewidth', 1.5);
+    
 end
-
 hold on
 plot(X,Yf, 'color', color, 'LineWidth', 2);
 
@@ -38,10 +37,10 @@ y = (yPoint(1,1) + yPoint(1,2))/1.2;
 %x=.75;
 %y=.75;
 text(x, y, test, 'BackgroundColor', [1 1 1],...
-    'FontSize', 12);
+    'FontSize',12);
 set(gca,'FontSize',12)
 
-ylim([min(Y)-0.2 max(Y)+0.2]);
-xlim([min(X)-0.2 max(X)+0.2]);
+ylim([min(Y) - 0.2 max(Y) + 0.2]);
+xlim([min(X) - 0.2 max(X) + 0.2]);
 
 end
