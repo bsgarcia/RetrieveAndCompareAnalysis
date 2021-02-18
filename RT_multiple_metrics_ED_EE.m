@@ -9,7 +9,7 @@ show_current_script_name(mfilename('fullpath'));
 selected_exp = [5, 6.1, 6.2];%, 6.2, 7.1, 7.2];
 modalities = {'EE', 'ED'};
 displayfig = 'off';
-x = 'abs(ev1-ev2)';
+x = 'estimatePM';
 zscored = 0;
 
 % ------------------------------------------------------------------------%
@@ -93,6 +93,15 @@ for exp_num = selected_exp
                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
                 
             end
+        case 'estimatePM'
+            data = de.extract_PM(exp_num);
+            sym_p = unique(data.cho);
+            
+            for 
+    
+    
+    end
+            
     end
     
     

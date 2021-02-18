@@ -9,7 +9,7 @@ show_current_script_name(mfilename('fullpath'));
 selected_exp = [5, 6.1, 6.2];%, 6.2, 7.1, 7.2];
 modalities = {'EE', 'ED'};
 displayfig = 'off';
-x = 'chosen_{pwin';
+x = 'estimatePM';
 zscored = 0;
 
 % ------------------------------------------------------------------------%
@@ -27,7 +27,7 @@ for exp_num = selected_exp
     % --------------------------------------------------------------------%
     sess = de.get_sess_from_exp_num(exp_num);
     name = de.get_name_from_exp_num(exp_num);
-    nsub = de.get_nsub_from_exp_num(exp_num);   
+    nsub = de.get_nsub_from_exp_num(exp_num);
     
     if zscored
         de.zscore_RT(exp_num);
@@ -47,7 +47,7 @@ for exp_num = selected_exp
                 
             end
             
-        case 'difficulty'
+        case 'abs(ev1-ev2)'
             abs_ev = unique(round(abs(data_ed.ev1-data_ed.ev2), 1));
             
             X = abs_ev;
@@ -59,7 +59,7 @@ for exp_num = selected_exp
                     round(abs(data_ee.ev1-data_ee.ev2), 1)==abs_ev(i)...
                     )];
             end
-        case 'chosen_{pwin}'
+        case 'chosenSymbol_{pwin}'
             sym_p = unique([data_ed.p1]);
             X = sym_p;
             
@@ -70,7 +70,7 @@ for exp_num = selected_exp
                     (data_ee.cho==1).*(data_ee.p1==sym_p(i)) + (data_ee.cho==2).*(data_ee.p2==sym_p(i))))];
             end
             
-        case 'pwin'
+        case 'symbol_{pwin}'
             sym_p = unique([data_ed.p1]);
             X = sym_p;
             
@@ -82,7 +82,7 @@ for exp_num = selected_exp
                 
             end
             
-            case 'pwinLottery'
+        case 'lottery_{pwin}'
             sym_p = unique([data_ed.p2]);
             X = sym_p;
             
@@ -93,14 +93,19 @@ for exp_num = selected_exp
                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
                 
             end
+        case 'estimatePM'
+            data = de.extract_PM(exp_num);
+            sym_p = unique(data.cho);
+    end
+            
     end
     
-     
+    
 end
 
 
 %-------------------------------------------------------------------------%
-% Save fig and stats                                                      %
+% Save fig                                             %
 % ------------------------------------------------------------------------%
 % save fig
 ed = ed(~cellfun('isempty',ed));
@@ -110,14 +115,16 @@ varrgin = X;
 x_values = 5:100/length(X):110;
 x_lim = [0 100];
 
-figure('Position', [0, 0, 1500, 800], 'visible', 'off')
-subplot(1, 2, 1)
-
 if zscored
     y_lim = [-.5, .5];
 else
     y_lim = [-2500, -500];
 end
+
+figure('Position', [0, 0, 1500, 800], 'visible', 'off')
+subplot(1, 2, 1)
+
+
 
 brickplot(ed, orange_color.*ones(length(ed),1), y_lim, fontsize+2,...
     'ED', x, '-RT (ms)', varrgin, 1, x_lim, x_values,.18, median);
@@ -133,27 +140,5 @@ box off
 
 
 suptitle('Pooled exp. 5, 6.1, 6.2');
-% 
-% 
-%mkdir('fig/', figfolder);
+
 saveas(gcf, sprintf('fig/RT_%s_%d.svg', x, zscored));
-% 
-% % % save stats file
-% mkdir('data', 'stats');
-% writetable(stats_data, stats_filename);
-
-% function arr = normalize(arr)
-% arr = (arr - min(arr(:)))./(max(arr(:))-min(arr(:)));
-% end
-
-% function arr = flatten()
-% % for i = 1:length(ev)
-% %    x1{i} = ev(i).* ones(size(ed{i}));
-% %    x2{i} = ev(i).* ones(size(ee{i}));
-% % end
-% % x1 = vertcat(x1{:});
-% % y1 = vertcat(ed{:});
-% % x2 = vertcat(x2{:});
-% % y2 = vertcat(ee{:});
-% arr = 1;
-% end
