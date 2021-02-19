@@ -91,6 +91,8 @@ orange_color = [0.8500, 0.3250, 0.0980];
 green_color = [0.4660    0.6740    0.1880];
 green_color = [61/255, 176/255, 125/255];
 red_color = [0.6350    0.0780    0.1840];
+grey_color = [187/255 187/255 187/255];
+black_color = [70/255 70/255 70/255];
 
 red_to_blue(:, 1) = ...
     linspace(red_color(1),blue_color(1),len)';

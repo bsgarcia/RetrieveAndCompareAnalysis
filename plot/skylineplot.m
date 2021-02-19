@@ -35,7 +35,7 @@ for n = 1:Nbar
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmean(DataMatrix);
+    curve = nanmedian(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(Nsub);
     conf  = tinv(1 - 0.5*(1-ConfInter),Nsub);
     
