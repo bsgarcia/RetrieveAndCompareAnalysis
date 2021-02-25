@@ -4,13 +4,14 @@ function [ RHO PVAL b stats ] = scatterCorr(X, Y, color, alpha, stat,...
 % Corr
 [RHO, PVAL] = corr(X, Y);
 
-% RobustFit
-[b, stats] = robustfit(X, Y);
+
 
 % Text variable
 if stat == 1
     test = ['coef= ' num2str(RHO) ' / P= ' num2str(round(PVAL,10))];
 elseif stat==2
+    % RobustFit
+	[b, stats] = robustfit(X, Y);
     test = ['RobustFit pval= ' num2str(stats.p(2,1))];
 else
     test = ['no test performed'];
@@ -24,7 +25,7 @@ if exist('noscatter') && noscatter
 else
     scat = scatter(X, Y,120, 'MarkerEdgeColor', markeredgecolor,...
         'MarkerFaceColor', color, 'MarkerEdgeAlpha', 1,...
-        'MarkerFaceAlpha', alpha, 'linewidth', 1.5);
+        'MarkerFaceAlpha', alpha, 'linewidth', 1);
 end
 
 hold on

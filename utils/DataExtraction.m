@@ -236,16 +236,24 @@ classdef DataExtraction < handle
             end                 
          
         end
-        function [data, sub_ids, sess] = prepare(obj, exp_num)
+        function [data, sub_ids, sess, name, nsub] = prepare(obj, exp_num)
             sess = obj.get_sess_from_exp_num(exp_num);
             name = obj.get_name_from_exp_num(exp_num);
+            nsub = obj.get_nsub_from_exp_num(exp_num);
             data = obj.d.(name).data;
             sub_ids = obj.d.(name).sub_ids;
         end
         
         function new_data = extract_LE(obj, exp_num)
+            [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
             new_data = struct();
-            [data, sub_ids, session] = prepare(obj, exp_num);
+
+            new_data.sess = session;
+            new_data.name = name;
+            new_data.nsub = nsub;
+                        new_data.exp_num = exp_num;
+
+            
             i = 1;
             error_exclude = [];
             for id = 1:length(sub_ids)
@@ -302,8 +310,14 @@ classdef DataExtraction < handle
         end
         
         function new_data = extract_ED(obj, exp_num)
+            [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
             new_data = struct();
-            [data, sub_ids, session] = prepare(obj, exp_num);
+
+            new_data.sess = session;
+            new_data.name = name;
+            new_data.nsub = nsub;
+                        new_data.exp_num = exp_num;
+
             i = 1;
             for id = 1:length(sub_ids)
                  try
@@ -367,8 +381,14 @@ classdef DataExtraction < handle
         end
         
         function new_data = extract_EE(obj, exp_num)
+            [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
             new_data = struct();
-            [data, sub_ids, session] = prepare(obj, exp_num);
+
+            new_data.sess = session;
+            new_data.name = name;
+            new_data.nsub = nsub;
+            new_data.exp_num = exp_num;
+            
             i = 1;
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);

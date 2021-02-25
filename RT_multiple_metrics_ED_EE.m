@@ -93,12 +93,22 @@ for exp_num = selected_exp
                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
                 
             end
-        case 'estimatePM'
-            data = de.extract_PM(exp_num);
-            sym_p = unique(data.cho);
+        case 'estimateLE'
             
+            sim_params.de = de;
+            sim_params.sess = sess;
+            sim_params.exp_name = name;
+            sim_params.exp_num = exp_num;
+            sim_params.nsub = nsub;
+            sim_params.model = 1;
+
+            [Q, tt] = get_qvalues(sim_params);
             for 
-    
+%             Q((Q>.5).*(Q<.6)) = .6;
+%             Q((Q>.4).*(Q<.5)) = .4;
+% 
+%             Q{i} = Q
+%     
     
     end
             

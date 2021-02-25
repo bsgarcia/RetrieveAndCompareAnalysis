@@ -6,10 +6,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3];%, 6.2, 7.1, 7.2];
+selected_exp = [3];%, 6.2, 7.1, 7.2];
 modalities = {'EE', 'ED'};
 displayfig = 'off';
-x = 'symbol_{pwin}';
+x = 'abs(ev1-ev2)';
 zscored = 1;
 
 % ------------------------------------------------------------------------%
@@ -34,7 +34,7 @@ for exp_num = selected_exp
     end
     
 %     data_ee = de.extract_EE(exp_num);
-    data_ed = de.extract_ED(exp_num);
+    data_ed = de.extract_LE(exp_num);
     
     switch x
         case 'pavlovian'

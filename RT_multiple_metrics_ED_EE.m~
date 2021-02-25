@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];%, 6.2, 7.1, 7.2];
+selected_exp = [5, 6.1, 6.2];%, 6.2, 7.1, 7.2];
 modalities = {'EE', 'ED'};
 displayfig = 'off';
 x = 'estimatePM';
@@ -33,7 +33,7 @@ for exp_num = selected_exp
         de.zscore_RT(exp_num);
     end
     
-%     data_ee = de.extract_EE(exp_num);
+    data_ee = de.extract_EE(exp_num);
     data_ed = de.extract_ED(exp_num);
     
     switch x
@@ -43,7 +43,7 @@ for exp_num = selected_exp
             X = sum_ev;
             for i = 1:length(sum_ev)
                 ed{i} = [ed{i,:}; -data_ed.rtime(round(data_ed.ev1+data_ed.ev2, 1)==sum_ev(i))];
-%                 ee{i} = [ee{i,:}; -data_ee.rtime(round(data_ee.ev1+data_ee.ev2, 1)==sum_ev(i))];
+                ee{i} = [ee{i,:}; -data_ee.rtime(round(data_ee.ev1+data_ee.ev2, 1)==sum_ev(i))];
                 
             end
             
@@ -55,9 +55,9 @@ for exp_num = selected_exp
                 ed{i} = [ed{i,:}; -data_ed.rtime(...
                     round(abs(data_ed.ev1-data_ed.ev2), 1)==abs_ev(i)...
                     )];
-%                 ee{i} = [ee{i,:}; -data_ee.rtime(...
-%                     round(abs(data_ee.ev1-data_ee.ev2), 1)==abs_ev(i)...
-%                     )];
+                ee{i} = [ee{i,:}; -data_ee.rtime(...
+                    round(abs(data_ee.ev1-data_ee.ev2), 1)==abs_ev(i)...
+                    )];
             end
         case 'chosenSymbol_{pwin}'
             sym_p = unique([data_ed.p1]);
@@ -66,8 +66,8 @@ for exp_num = selected_exp
             for i = 1:length(sym_p)
                 ed{i} = [ed{i}; -data_ed.rtime(logical(...
                     (data_ed.cho==1).*(data_ed.p1==sym_p(i))))];
-%                 ee{i} = [ee{i}; -data_ee.rtime(logical(...
-%                     (data_ee.cho==1).*(data_ee.p1==sym_p(i)) + (data_ee.cho==2).*(data_ee.p2==sym_p(i))))];
+                ee{i} = [ee{i}; -data_ee.rtime(logical(...
+                    (data_ee.cho==1).*(data_ee.p1==sym_p(i)) + (data_ee.cho==2).*(data_ee.p2==sym_p(i))))];
             end
             
         case 'symbol_{pwin}'
@@ -77,9 +77,9 @@ for exp_num = selected_exp
             for i = 1:length(sym_p)
                 ed{i} = [ed{i, :}; -data_ed.rtime(logical(...
                     (data_ed.p1==sym_p(i))))];
-%                 ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
-%                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
-%                 
+                ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
+                    (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
+                
             end
             
         case 'lottery_{pwin}'
@@ -89,24 +89,31 @@ for exp_num = selected_exp
             for i = 1:length(sym_p)
                 ed{i} = [ed{i, :}; -data_ed.rtime(logical(...
                     (data_ed.p2==sym_p(i))))];
-%                 ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
-%                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
+                ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
+                    (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
                 
             end
-%         case 'estimateLE'
-%             
-%             sym_p = unique([data_ed.p1]);
-%                    
-%             for i = 1:length(sym_p)
-%                 ed{i} = [ed{i, :}; -data_ed.rtime(logical(...
-%                     (data_ed.p1==sym_p(i))
-%             )];
-%                 ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
-%                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
-%                 
-%             end
+        case 'estimateLE'
+            
+            sim_params.de = de;
+            sim_params.sess = sess;
+            sim_params.exp_name = name;
+            sim_params.exp_num = exp_num;
+            sim_params.nsub = nsub;
+            sim_params.model = 1;
+
+            [Q, tt] = get_qvalues(sim_params);
+            Q((Q>.5).*(Q<.6)) = .6;
+            Q((Q>.4).*(Q<.5)) = .4;
+
+            Q{i} = Q
+    
+    
     end
-      
+            
+    end
+    
+    
 end
 
 
@@ -115,7 +122,7 @@ end
 % ------------------------------------------------------------------------%
 % save fig
 ed = ed(~cellfun('isempty',ed));
-% ee = {ee{1:length(ed)}}';
+ee = {ee{1:length(ed)}}';
 
 varrgin = X;
 x_values = 5:100/length(X):110;
