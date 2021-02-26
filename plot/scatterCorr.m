@@ -2,7 +2,7 @@ function [ RHO PVAL b stats ] = scatterCorr(X, Y, color, alpha, stat,...
     markersize, markeredgecolor, noscatter)
 
 % Corr
-[RHO, PVAL] = corr(X, Y);
+[RHO, PVAL] = corr(X, Y, 'rows','complete');
 
 
 
@@ -18,7 +18,7 @@ else
 end
 
 
-P = polyfit(X, Y, 1);
+P = polyfit(X(~isnan(Y)), Y(~isnan(Y)), 1);
 Yf = polyval(P, X);
 
 if exist('noscatter') && noscatter

@@ -5,9 +5,9 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,5,6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [5,6.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
-zscored = 0;
+zscored = 1;
 
 num = 0;
 %
@@ -34,7 +34,18 @@ for exp_num = selected_exp
     
     for sub = 1:data.nsub
         for i = 1:length(symp)
-            ed{num}(sub,i) = -median(data.rtime(sub, data.p1(sub,:)==symp(i)));     
+            ed{num}(sub,i) = -nanmean(data.rtime(sub, logical(...
+                (data.p1(sub,:)==symp(i)).*(data.cho(sub,:)==1))) );     
+        end
+    end
+    
+    data = de.extract_EE(exp_num);
+    
+    for sub = 1:data.nsub
+        for i = 1:length(symp)
+            ee{num}(sub,i) = -nanmean(data.rtime(sub, logical(...
+                (data.p1(sub,:)==symp(i)).*(data.cho(sub,:)==1) +...
+                (data.p2(sub,:)==symp(i)).*(data.cho(sub,:)==2))));     
         end
     end
     
@@ -72,23 +83,43 @@ end
 x1 = reshape(vertcat(le{:}), [], 1);
 x2 = reshape(vertcat(pm{:}), [], 1);
 
-y = reshape(vertcat(ed{:}), [],1);
+y1 = reshape(vertcat(ed{:}), [],1);
+y2 = reshape(vertcat(ee{:}), [],1);
 
-figure('Position', [0, 0, 2000, 800], 'visible', 'on', 'Renderer', 'painter');
-subplot(1,2, 1)
 
-scatterCorr(x1, y, blue_color, .5, 1, 50, 'w', 0);
+figure('Position', [0, 0, 1500, 1600], 'visible', 'on', 'Renderer', 'painter');
+subplot(2,2, 1)
+
+scatterCorr(x1, y1, orange_color, .5, 1, 50, 'w', 0);
 xlabel('LE estimates');
 %xlim([.2, 1.08])
 ylabel('-RT ED (ms)');
 box off
 set(gca, 'tickdir', 'out');
 
-subplot(1,2, 2)
+subplot(2,2, 2)
 
-scatterCorr(x2, y, magenta_color, .5, 1, 50, 'w', 0);
+scatterCorr(x2, y1, orange_color, .5, 1, 50, 'w', 0);
 xlabel('PM estimates');
 ylabel('-RT ED (ms)');
+%xlim([.2, 1.08])
+
+box off
+set(gca, 'tickdir', 'out');
+subplot(2,2, 3)
+
+scatterCorr(x1, y2, green_color, .5, 1, 50, 'w', 0);
+xlabel('LE estimates');
+%xlim([.2, 1.08])
+ylabel('-RT EE (ms)');
+box off
+set(gca, 'tickdir', 'out');
+
+subplot(2,2, 4)
+
+scatterCorr(x2, y2, green_color, .5, 1, 50, 'w', 0);
+xlabel('PM estimates');
+ylabel('-RT EE (ms)');
 %xlim([.2, 1.08])
 
 box off
@@ -115,7 +146,7 @@ set(gca, 'tickdir', 'out');
 % set(gca, 'tickdir', 'out');
 
 
-suptitle('Estimates predict -RT from ED phase (ms) / Pooled Exp. 1,2,3,5,6.2');
+suptitle(sprintf('Estimates predict -RT (ms) / Pooled Exp. %.1f', selected_exp(:)));
 
 saveas(gcf, 'fig/score_RT_1234.svg');
 
