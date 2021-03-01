@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,5,6.1,6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [5,6.1,6.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
 x = 'lottery_{pwin}';
 zscored = 1;
@@ -20,7 +20,9 @@ ed2 = cell(50, 1);
 
 num = 0;
 
+T = table();
 
+sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
   
@@ -32,17 +34,34 @@ for exp_num = selected_exp
         de.zscore_RT(exp_num);
     end
     
-    data_ed = de.extract_ED(exp_num);
+    data_ed = de.extract_EE(exp_num);
+    ntrials = size(data_ed.cho, 2);
+
+    % fill data for stats
+    for i = 1:nsub
+    T1 = table(...
+            repelem(sub_count+i, ntrials)', (1:ntrials)',data_ed.p1(i,:)', data_ed.p2(i,:)', data_ed.rtime(i,:)',...
+            'variablenames',...
+            {'sub', 'trial' 'p1', 'p2', 'RT'}...
+            );
+    T = [T; T1];
+
+    end
+    sub_count = sub_count + nsub;
     
+       
     [ed1, X1] = measure('symbol_{pwin}', data_ed, ed1);
-    
-    [ed2, X2] = measure('lottery_{pwin}', data_ed, ed2);
+    disp(ed1)
+   
+    %[ed2, X2] = measure('lottery_{pwin}', data_ed, ed2);
     
       
 end
 
+      
+
+
 ed1 = ed1(~cellfun('isempty',ed1));
-ed2 = ed2(~cellfun('isempty',ed2));
 
 %-------------------------------------------------------------------------%
 % plot fig                                             %
@@ -51,7 +70,7 @@ ed2 = ed2(~cellfun('isempty',ed2));
 x_lim = [0 100];
 
 if zscored
-    y_lim = [-.3, .2];
+    y_lim = [-.5, .5];
 else
     y_lim = [-2500, -500];
 end
@@ -63,30 +82,23 @@ subplot(1, 2, 1)
 varrgin = X1;
 x_values = 5:100/length(X1):110;
 
-brickplot(ed1, orange_color.*ones(length(ed1),1), y_lim, fontsize+5,...
+brickplot(ed1, green_color.*ones(length(ed1),1), y_lim, fontsize+5,...
     'E', 'symbol_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
 set(gca, 'tickdir', 'out');
 box off
-
-
-varrgin = X2;
-x_values = 5:100/length(X2):110;
-
-subplot(1, 2, 2)
-brickplot(ed2, orange_color.*ones(length(ed2),1), y_lim, fontsize+5,...
-    'D', 'lottery_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
-
-set(gca, 'tickdir', 'out');
-box off
+% 
+% 
+% varrgin = X2;
+% x_values = 5:100/length(X2):110;
+% 
+% subplot(1, 2, 2)
+% brickplot(ed2, orange_color.*ones(length(ed2),1), y_lim, fontsize+5,...
+%     'D', 'lottery_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
+% 
+% set(gca, 'tickdir', 'out');
+% box off
 
 suptitle('Pooled exp. 1,2,3,5,6.1,6.2');
-
-
-%-------------------------------------------------------------------------%
-% stats                                           
-% ------------------------------------------------------------------------%
-
-
 
 %-------------------------------------------------------------------------%
 % functions                                           
@@ -133,7 +145,7 @@ function [ed, X] = measure(x, data_ed, ed)
 
             for i = 1:length(sym_p)
                 ed{i} = [ed{i, :}; -data_ed.rtime(logical(...
-                    (data_ed.p1==sym_p(i))))];
+                    (data_ed.p1==sym_p(i))+(data_ed.p2==sym_p(i))))];
                 %                 ee{i} = [ee{i, :}; -data_ee.rtime(logical(...
                 %                     (data_ee.p1==sym_p(i)) + (data_ee.p2==sym_p(i))))];
                 %
@@ -153,3 +165,4 @@ function [ed, X] = measure(x, data_ed, ed)
     end
 %
 end
+

@@ -20,7 +20,9 @@ ed2 = cell(50, 1);
 
 num = 0;
 
+T = table();
 
+sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
   
@@ -33,11 +35,20 @@ for exp_num = selected_exp
     end
     
     data_ed = de.extract_ED(exp_num);
-    
-    [ed1, X1] = measure('symbol_{pwin}', data_ed, ed1);
-    
-    [ed2, X2] = measure('lottery_{pwin}', data_ed, ed2);
-    
+    ntrials = size(data_ed.cho, 2);
+
+    % fill data for stats
+    for i = 1:nsub
+    T1 = table(...
+            repelem(sub_count+i, ntrials)', (1:ntrials)',data_ed.p1(i,:)', data_ed.p2(i,:)', data_ed.rtime(i,:)',...
+            'variablenames',...
+            {'sub', 'trial' 'pE', 'pD', 'RT'}...
+            );
+    T = [T; T1];
+
+    end
+    sub_count = sub_count + nsub;
+
       
 end
 
@@ -86,6 +97,35 @@ suptitle('Pooled exp. 1,2,3,5,6.1,6.2');
 % stats                                           
 % ------------------------------------------------------------------------%
 
+for i = 1:length(ed1)
+    p = X1(i);
+    x1{i,1} = ones(size(ed1{i})).* p;
+end
+for i = 1:length(ed2)
+    p = X2(i);
+    x2{i,1} = ones(size(ed2{i})).* p;
+end
+
+x1 = vertcat(x1{:});
+x2 = vertcat(x2{:});
+% 
+y1 = vertcat(ed1{:});
+y2 = vertcat(ed2{:});
+
+T = table();
+
+% fill data for stats
+T1 = table(...
+        (1:length(x1))', x1, y1, repelem(1, length(x1))', 'variablenames',...
+        {'id', 'probability', 'RT',  'modality'}...
+        );
+T = [T; T1];
+
+T1 = table(...
+    (1:length(x2))', x2, y2,  repelem(2, length(x2))', 'variablenames',...
+    {'id', 'probability', 'RT',  'modality'}...
+    );
+T = [T; T1];
 
 
 %-------------------------------------------------------------------------%
