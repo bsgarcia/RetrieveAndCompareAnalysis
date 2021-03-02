@@ -8,7 +8,7 @@ show_current_script_name(mfilename('fullpath'));
 selected_exp = [1,2,3,4,5,6.1,6.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
 colors = [orange_color; blue_color; grey_color;black_color;];
-
+zscored = 1;
 
 num = 0;
 %
@@ -32,14 +32,18 @@ for exp_num = selected_exp
     symp = unique(throw.p1);
     lotp = unique(throw.p2);
     
+    if zscored
+        de.zscore_RT(exp_num);
+    end
+    
     heur = heuristic(throw, symp, lotp);
     mean_heur{num} = mean(heur, 2);
    
     data = de.extract_ED(exp_num);
     
-    for sub = 1:nsub
-            ed{num}(sub,1) = -median(data.rtime(sub,:))';          
-    end
+%     for sub = 1:nsub
+%             ed{num}(sub,1) = -median(data.rtime(sub,:))';          
+%     end
     
     sim_params.de = de;
     sim_params.sess = sess;
@@ -50,37 +54,13 @@ for exp_num = selected_exp
     
     [Q, tt] = get_qvalues(sim_params);
     dd1 = argmax_estimate(data, symp, lotp, Q);
-%    
-%              
-%     sim_params.model = 2;
-%     [Q, tt] = get_qvalues(sim_params);
-% 
-%     dd2 = argmax_estimate(data, symp, lotp, Q);
     
-%     for sub = 1:nsub
-%         o_heur{num,1}(sub,1) = data.rtime(data.cho== heur) .* (data.cho~=dd1) .* (data.cho~=dd2));
-%         o_le{num,1}(sub,1) = mean((data.cho(sub,:) ~= heur(sub,:)) .* (data.cho(sub, :)==dd1(sub,:)) .* (data.cho(sub, :)~=dd2(sub,:)));
-%         o_pm{num,1}(sub,1) = mean((data.cho(sub,:) ~= heur(sub,:)) .* (data.cho(sub, :)~=dd1(sub,:)) .* (data.cho(sub, :)==dd2(sub,:)));
-%         other1(sub) = mean((data.cho(sub,:) ~= heur(sub,:)) .* (data.cho(sub, :)~=dd1(sub,:)) .* (data.cho(sub, :)~=dd2(sub,:)));
-%         other2(sub) = mean((data.cho(sub,:) == heur(sub,:)) .* (data.cho(sub, :)==dd1(sub,:)) .* (data.cho(sub, :)==dd2(sub,:)));
-%         other3(sub) = mean((data.cho(sub,:) == heur(sub,:)) .* (data.cho(sub, :)~=dd1(sub,:)) .* (data.cho(sub, :)==dd2(sub,:)));
-%         other4(sub) = mean((data.cho(sub,:) ~= heur(sub,:)) .* (data.cho(sub, :)==dd1(sub,:)) .* (data.cho(sub, :)==dd2(sub,:)));
-%         other5(sub) = mean((data.cho(sub,:) == heur(sub,:)) .* (data.cho(sub, :)==dd1(sub,:)) .* (data.cho(sub, :)~=dd2(sub,:)));
-% 
-%     end
-%      for sub = 1:nsub
-        o_heur{num,1} = -data.rtime(logical((data.cho== heur) .* (data.cho~=dd1)));
-        o_le{num,1} = -data.rtime(logical((data.cho~= heur) .* (data.cho==dd1)));
-        none{num,1} = -data.rtime(logical((data.cho~=heur).*(data.cho~=dd1)));
-        both{num,1} = -data.rtime(logical((data.cho==heur).*(data.cho==dd1)));
-
-    
-%     param = load(...
-%         sprintf('data/post_test_fitparam_EE_exp_%d_%s',...
-%         round(exp_num), num2str(sess)));
-%     Q = param.midpoints;
-% 
-%     ee{num,1} = mean(argmax_estimate(data, symp, lotp, Q),2); 
+    for sub = 1:nsub
+        o_heur{num,1}(sub,1) = -mean(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
+        o_le{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
+        none{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
+        both{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
+    end
 
 
 
@@ -99,17 +79,27 @@ y = reshape(vertcat(ed{:}), [],1);
 
 figure('Position', [0, 0, 1000, 800], 'visible', 'on');
 
+if zscored
+    y1 = -3;
+    y2 = 1;
+else
+    y1 = -3000;
+    y2 = -300;
+end
 
- skylineplot({x1'; x2'; x3'; x4'}, 10,...
+ skylineplot({x1'; x2'; x3'; x4'}, 20,...
         colors,...
-        -5000,...
-        -200,...
+        y1,...
+        y2,...
         fontsize+5,...
         '',...
-        '',...
-        '-RT (ms)',...
-        {'Heur', 'LE estimates', 'Both', 'None'},...
+        'Explained solely by',...
+        'Average zscore(-RT) per subject',...
+        {'Heuristic', 'LE estimates', 'Both', 'None'},...
         0);
+set(gca, 'tickdir', 'out');
+box off;
+
 % subplot(1,3, 1)
 % 
 % scatterCorr(x1, y, orange_color, .5, 1, 50, 'w', 0);

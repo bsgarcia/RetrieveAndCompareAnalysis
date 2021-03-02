@@ -36,21 +36,33 @@ for exp_num = selected_exp
     
     data_ed = de.extract_EE(exp_num);
     ntrials = size(data_ed.cho, 2);
-
+    
+    
     % fill data for stats
     for i = 1:nsub
-    T1 = table(...
-            repelem(sub_count+i, ntrials)', (1:ntrials)',data_ed.p1(i,:)', data_ed.p2(i,:)', data_ed.rtime(i,:)',...
-            'variablenames',...
-            {'sub', 'trial' 'p1', 'p2', 'RT'}...
-            );
-    T = [T; T1];
+        p_chosen = nan(ntrials, 1);
+        p_unchosen = nan(ntrials, 1);
+
+        cho = data_ed.cho(i,:);
+        cfcho = data_ed.cfcho(i,:);
+        p = [data_ed.p1(i,:)' data_ed.p2(i,:)'];
+        for t = 1:ntrials
+            p_chosen(t) = p(t, cho(t));
+            p_unchosen(t) = p(t, cfcho(t));
+        end
+        
+        T1 = table(...
+                repelem(sub_count+i, ntrials)', (1:ntrials)',p_chosen, p_unchosen, data_ed.rtime(i,:)',...
+                'variablenames',...
+                {'sub', 'trial' 'p_chosen', 'p_unchosen', 'RT'}...
+                );
+        T = [T; T1];
 
     end
     sub_count = sub_count + nsub;
     
        
-    [ed1, X1] = measure('symbol_{pwin}', data_ed, ed1);
+    [ed1, X1] = measure('chosenSymbol_{pwin}', data_ed, ed1);
     disp(ed1)
    
     %[ed2, X2] = measure('lottery_{pwin}', data_ed, ed2);
@@ -82,7 +94,7 @@ varrgin = X1;
 x_values = 5:100/length(X1):110;
 
 brickplot(ed1, green_color.*ones(length(ed1),1), y_lim, fontsize+5,...
-    'E', 'symbol_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
+    'E', 'chosenSymbol_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
 set(gca, 'tickdir', 'out');
 box off
 % 
@@ -133,7 +145,7 @@ function [ed, X] = measure(x, data_ed, ed)
 
             for i = 1:length(sym_p)
                 ed{i} = [ed{i}; -data_ed.rtime(logical(...
-                    (data_ed.cho==1).*(data_ed.p1==sym_p(i))))];
+                    (data_ed.cho==1).*(data_ed.p1==sym_p(i))+(data_ed.cho==2).*(data_ed.p2==sym_p(i))))];
                 %                 ee{i} = [ee{i}; -data_ee.rtime(logical(...
                 %                     (data_ee.cho==1).*(data_ee.p1==sym_p(i)) + (data_ee.cho==2).*(data_ee.p2==sym_p(i))))];
             end
