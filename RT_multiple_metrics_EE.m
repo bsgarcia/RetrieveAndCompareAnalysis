@@ -111,6 +111,11 @@ box off
 
 suptitle('Pooled exp. 5,6.1,6.2');
 
+disp(fitglm(T, 'RT~p_chosen+p_unchosen'));
+
+ saveas(gcf, ...
+            sprintf('fig/exp/RT.svg',...
+            num2str(exp_num)));
 %-------------------------------------------------------------------------%
 % functions                                           
 % ------------------------------------------------------------------------%

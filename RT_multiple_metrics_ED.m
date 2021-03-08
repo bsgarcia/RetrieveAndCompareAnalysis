@@ -90,13 +90,15 @@ x_values = 5:100/length(X2):110;
 
 subplot(1, 2, 2)
 brickplot(ed2, orange_color.*ones(length(ed2),1), y_lim, fontsize+5,...
-    'D', 'lottery_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
+    'D', 'lottery_{pwin}', '-RT', varrgin, 1, x_lim, x_values,.18, median);
 
 set(gca, 'tickdir', 'out');
 box off
 
-suptitle('Pooled exp. 1,2,3,5,6.1,6.2');
-
+suptitle('Pooled exp. 1,2,3,5, 6.1, 6.2');
+  saveas(gcf, ...
+            sprintf('fig/exp/RT.svg',...
+            num2str(exp_num)));
 
 %-------------------------------------------------------------------------%
 % stats                                           

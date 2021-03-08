@@ -5,17 +5,19 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4,5,6.1,6.2];%, 6.2, 7.1, 7.2];
+selected_exp = [5,6.1,6.2,7.1,7.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
 colors = [orange_color; blue_color; grey_color;black_color;];
-zscored = 1;
+zscored = 0;
 
 num = 0;
 %
 ed = cell(length(selected_exp),1);
 pm = cell(length(selected_exp), 1);
 mean_heur = cell(length(selected_exp), 1);
-
+symp = [.1, .2, .3, .4, .6, .7, .8, .9];
+lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
+    figure('Position', [0, 0, 2200, 800], 'visible', 'on');
 
 for exp_num = selected_exp
     
@@ -29,8 +31,8 @@ for exp_num = selected_exp
     nsub = de.get_nsub_from_exp_num(exp_num);
     
     throw = de.extract_ED(exp_num);
-    symp = unique(throw.p1);
-    lotp = unique(throw.p2);
+%     symp = unique(throw.p1);
+%     lotp = unique(throw.p2);
     
     if zscored
         de.zscore_RT(exp_num);
@@ -40,10 +42,7 @@ for exp_num = selected_exp
     mean_heur{num} = mean(heur, 2);
    
     data = de.extract_ED(exp_num);
-    
-%     for sub = 1:nsub
-%             ed{num}(sub,1) = -median(data.rtime(sub,:))';          
-%     end
+   
     
     sim_params.de = de;
     sim_params.sess = sess;
@@ -56,49 +55,60 @@ for exp_num = selected_exp
     dd1 = argmax_estimate(data, symp, lotp, Q);
     
     for sub = 1:nsub
-        o_heur{num,1}(sub,1) = -mean(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
-        o_le{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
-        none{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
-        both{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
+        o_heur{num,1}(sub,1) = -median(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
+        o_le{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
+        none{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
+        both{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
     end
 
-
+    subplot(1, 5, num)
+    if zscored
+        y1 = -3;
+        y2 = 1;
+    else
+        y1 = -7000;
+        y2 = 0;
+    end
+    x1 = o_heur{num,1}(:);
+    x2 = o_le{num,1}(:);
+    x3 = none{num,1}(:);
+    x4 = both{num,1}(:);
+    
+    if num == 1
+        labely = 'Median -RT per sub';
+        
+    else
+        labely = '';
+    end
+    
+     skylineplot({x1'; x2'; x3'; x4'}, 20,...
+            colors,...
+            y1,...
+            y2,...
+            fontsize+5,...
+            sprintf('Exp. %s', num2str(exp_num)),...
+            'Explained exclusively by',...
+            labely,...
+            {'Heuristic', 'LE', 'Both', 'None'},...
+            0);
+    set(gca, 'tickdir', 'out');
+    box off;
 
 end
+return
 
-%-------------------------------------------------------------------------%
-% plot                                                                    %
-% ------------------------------------------------------------------------%
-
-x1 = reshape(vertcat(o_heur{:}), [], 1);
-x2 = reshape(vertcat(o_le{:}), [], 1);
-x4 = reshape(vertcat(none{:}), [], 1);
-x3 = reshape(vertcat(both{:}), [], 1);
-
-y = reshape(vertcat(ed{:}), [],1);
-
-figure('Position', [0, 0, 1000, 800], 'visible', 'on');
-
-if zscored
-    y1 = -3;
-    y2 = 1;
-else
-    y1 = -3000;
-    y2 = -300;
-end
-
- skylineplot({x1'; x2'; x3'; x4'}, 20,...
-        colors,...
-        y1,...
-        y2,...
-        fontsize+5,...
-        '',...
-        'Explained solely by',...
-        'Average zscore(-RT) per subject',...
-        {'Heuristic', 'LE estimates', 'Both', 'None'},...
-        0);
-set(gca, 'tickdir', 'out');
-box off;
+% %-------------------------------------------------------------------------%
+% % plot                                                                    %
+% % ------------------------------------------------------------------------%
+% 
+% x1 = reshape(vertcat(o_heur{:}), [], 1);
+% x2 = reshape(vertcat(o_le{:}), [], 1);
+% x4 = reshape(vertcat(none{:}), [], 1);
+% x3 = reshape(vertcat(both{:}), [], 1);
+% 
+% y = reshape(vertcat(ed{:}), [],1);
+% 
+% 
 
 % subplot(1,3, 1)
 % 
@@ -140,7 +150,7 @@ box off;
 % set(gca, 'tickdir', 'out');
 
 
-suptitle('ED choices RT / Pooled Exp. 1,2,3,4,5,6.1,6.2');
+suptitle('Pooled Exp. 5,6.1,6.2,7.1,7.2');
 
 saveas(gcf, 'fig/score_RT_1234.svg');
 
