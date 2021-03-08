@@ -55,8 +55,8 @@ for exp_num = selected_exp
     dd1 = argmax_estimate(data, symp, lotp, Q);
     
     for sub = 1:nsub
-        o_heur{num,1}(sub,1) = -median(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
-        o_le{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
+        o_heur{num,1}(sub,1) = -mean(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
+        o_le{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
         none{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
         both{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
     end

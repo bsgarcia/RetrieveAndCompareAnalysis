@@ -7,7 +7,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [5,6.1,6.2,7.1,7.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
-colors = [orange_color; green_color];
+colors = [orange_color; orange_color; green_color];
 zscored = 0;
 
 num = 0;
@@ -37,8 +37,10 @@ for exp_num = selected_exp
     ed = nan(nsub,1);
     
     for sub = 1:nsub
-        ed(sub) = -median(data_ed.rtime(sub, ismember(data_ed.p2(sub,:), symp)));
-        ee(sub) = -median(data_ee.rtime(sub,:));
+        e(sub) = -mean(data_ed.rtime(sub, logical((ismember(data_ed.p2(sub,:), symp)).* (data_ed.cho(sub,:)==1))));
+        d(sub) = -mean(data_ed.rtime(sub, logical((ismember(data_ed.p2(sub,:), symp)).* (data_ed.cho(sub,:)==2))));
+
+        ee(sub) = -mean(data_ee.rtime(sub,:));
     end
     
 
@@ -50,8 +52,9 @@ for exp_num = selected_exp
         y1 = -7000;
         y2 = 0;
     end
-    x1 = ed;
-    x2 = ee;
+    x1 = e';
+    x2 = d';
+    x3 = ee;
 
     if num == 1
         labely = 'Median -RT per sub';
@@ -60,7 +63,7 @@ for exp_num = selected_exp
         labely = '';
     end
     
-     skylineplot({x1'; x2'}, 20,...
+     skylineplot({x1'; x2'; x3'}, 20,...
             colors,...
             y1,...
             y2,...
@@ -68,7 +71,7 @@ for exp_num = selected_exp
             sprintf('Exp. %s', num2str(exp_num)),...
             'Modality',...
             labely,...
-            {'ED', 'EE'},...
+            {'E', 'D', 'EE'},...
             0);
     set(gca, 'tickdir', 'out');
     box off;
