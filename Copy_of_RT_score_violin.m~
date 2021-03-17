@@ -7,15 +7,15 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [5,6.1,6.2,7.1,7.2];%, 6.2, 7.1, 7.2];
 displayfig = 'off';
-colors = [orange_color; blue_color; grey_color;black_color;];
+colors = [orange_color; orange_color; green_color];
 zscored = 0;
 
 num = 0;
 %
-ed = cell(length(selected_exp),1);
-pm = cell(length(selected_exp), 1);
+% ed = cell(length(selected_exp),1);
+% pm = cell(length(selected_exp), 1);
 mean_heur = cell(length(selected_exp), 1);
-symp = [.1, .2, .3, .4, .6, .7, .8, .9];
+symp = [0, .1, .2, .3, .4, .5,.6, .7, .8, .9, 1];
 lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
     figure('Position', [0, 0, 2200, 800], 'visible', 'on');
 
@@ -32,9 +32,18 @@ for exp_num = selected_exp
     
     data_ed = de.extract_ED(exp_num);
     data_ee = de.extract_EE(exp_num);
+    
+    ee = nan(nsub,1);
+    ed = nan(nsub,1);
+    
     for sub = 1:nsub
-        ed(sub) = -median(data_ed.rtime(sub, ismember(data_ed.p2, symp)));
-        ee(sub) = -median(data_ee.rtime(sub, ism
+        mask_lot = (ismember(data_ed.p2(sub,:), symp));
+        mask_cho1 = (data_ed.cho(sub,:)==1);
+        mask_cho2 = (data_ed.cho(sub,:)==2);
+        e(sub) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho1)));
+        d(sub) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho2)));
+
+        ee(sub) = median(data_ee.rtime(sub,:));
     end
     
 
@@ -46,11 +55,10 @@ for exp_num = selected_exp
         y1 = -7000;
         y2 = 0;
     end
-    x1 = o_heur{num,1}(:);
-    x2 = o_le{num,1}(:);
-    x3 = none{num,1}(:);
-    x4 = both{num,1}(:);
-    
+    x1 = e';
+    x2 = d';
+    x3 = ee;
+
     if num == 1
         labely = 'Median -RT per sub';
         
@@ -58,16 +66,16 @@ for exp_num = selected_exp
         labely = '';
     end
     
-     skylineplot({x1'; x2'; x3'; x4'}, 20,...
+     skylineplot({x1'; x2'; x3'}, 20,...
             colors,...
             y1,...
             y2,...
             fontsize+5,...
             sprintf('Exp. %s', num2str(exp_num)),...
-            'Explained exclusively by',...
+            'Modality',...
             labely,...
-            {'Heuristic', 'LE', 'Both', 'None'},...
-            0);
+            {'E', 'D', 'EE'});
+       
     set(gca, 'tickdir', 'out');
     box off;
 

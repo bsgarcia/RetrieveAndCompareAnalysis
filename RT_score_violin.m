@@ -5,8 +5,8 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5,6.1,6.2,7.1,7.2];%, 6.2, 7.1, 7.2];
-displayfig = 'off';
+selected_exp = [5,6.1,6.2];%, 6.2, 7.1, 7.2];
+displayfig = 'on';
 colors = [orange_color; blue_color; grey_color;black_color;];
 zscored = 0;
 
@@ -17,7 +17,11 @@ pm = cell(length(selected_exp), 1);
 mean_heur = cell(length(selected_exp), 1);
 symp = [.1, .2, .3, .4, .6, .7, .8, .9];
 lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
-    figure('Position', [0, 0, 2200, 800], 'visible', 'on');
+ 
+figure('Units', 'centimeters',...
+    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+
+sub_count = 0;
 
 for exp_num = selected_exp
     
@@ -55,46 +59,45 @@ for exp_num = selected_exp
     dd1 = argmax_estimate(data, symp, lotp, Q);
     
     for sub = 1:nsub
-        o_heur{num,1}(sub,1) = -mean(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
-        o_le{num,1}(sub,1) = -mean(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
-        none{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
-        both{num,1}(sub,1) = -median(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
-    end
-
-    subplot(1, 5, num)
-    if zscored
-        y1 = -3;
-        y2 = 1;
-    else
-        y1 = -7000;
-        y2 = 0;
-    end
-    x1 = o_heur{num,1}(:);
-    x2 = o_le{num,1}(:);
-    x3 = none{num,1}(:);
-    x4 = both{num,1}(:);
-    
-    if num == 1
-        labely = 'Median -RT per sub';
-        
-    else
-        labely = '';
+        o_heur(sub+sub_count,1) = median(data.rtime(sub, logical((data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=dd1(sub,:)))));
+        o_le(sub+sub_count,1) = median(data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==dd1(sub,:)))));
+        none(sub+sub_count,1) = median(data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=dd1(sub,:)))));
+        both(sub+sub_count,1) = median(data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==dd1(sub,:)))));
     end
     
-     skylineplot({x1'; x2'; x3'; x4'}, 20,...
-            colors,...
-            y1,...
-            y2,...
-            fontsize+5,...
-            sprintf('Exp. %s', num2str(exp_num)),...
-            'Explained exclusively by',...
-            labely,...
-            {'Heuristic', 'LE', 'Both', 'None'},...
-            0);
-    set(gca, 'tickdir', 'out');
-    box off;
-
+    sub_count = sub_count + sub;
+    
+  
 end
+
+if zscored
+    y1 = -3;
+    y2 = 1;
+else
+    y1 = 0;
+    y2 = 6500;
+end
+x1 = o_heur;
+x2 = o_le;
+x3 = none;
+x4 = both;
+
+labely = 'Median RT per subject';
+
+
+skylineplot({x1'; x2'; x3'; x4'}, 20,...
+    colors,...
+    y1,...
+    y2,...
+    fontsize+5,...
+    '',...
+    'Explained exclusively by',...
+    labely,...
+    {'Heuristic', 'LE', 'Both', 'None'},...
+    0);
+set(gca, 'tickdir', 'out');
+box off;
+
 return
 
 % %-------------------------------------------------------------------------%

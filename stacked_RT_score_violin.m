@@ -5,20 +5,16 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5,6.1,6.2,7.1,7.2];%, 6.2, 7.1, 7.2];
-displayfig = 'off';
+selected_exp = [5,6.1,6.2];%, 6.2, 7.1, 7.2];
+displayfig = 'on';
 colors = [orange_color; orange_color; green_color];
 zscored = 0;
 
 num = 0;
-%
-% ed = cell(length(selected_exp),1);
-% pm = cell(length(selected_exp), 1);
-mean_heur = cell(length(selected_exp), 1);
-symp = [.1, .2, .3, .4, .6, .7, .8, .9];
-lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
-    figure('Position', [0, 0, 2200, 800], 'visible', 'on');
 
+mean_heur = cell(length(selected_exp), 1);
+lotp = [0, .1, .2, .3, .4, .5,.6, .7, .8, .9, 1];
+sub_count = 0;
 for exp_num = selected_exp
     
     num = num + 1;
@@ -33,50 +29,50 @@ for exp_num = selected_exp
     data_ed = de.extract_ED(exp_num);
     data_ee = de.extract_EE(exp_num);
     
-    ee = nan(nsub,1);
-    ed = nan(nsub,1);
-    
     for sub = 1:nsub
-        e(sub) = -mean(data_ed.rtime(sub, logical((ismember(data_ed.p2(sub,:), symp)).* (data_ed.cho(sub,:)==1))));
-        d(sub) = -mean(data_ed.rtime(sub, logical((ismember(data_ed.p2(sub,:), symp)).* (data_ed.cho(sub,:)==2))));
+        mask_lot = (ismember(data_ed.p2(sub,:), lotp));
+        mask_cho1 = (data_ed.cho(sub,:)==1);
+        mask_cho2 = (data_ed.cho(sub,:)==2);
+        e(sub+sub_count) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho1)));
+        d(sub+sub_count) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho2)));
 
-        ee(sub) = -mean(data_ee.rtime(sub,:));
+        ee(sub+sub_count) = median(data_ee.rtime(sub,:));
     end
     
-
-    subplot(1, 5, num)
-    if zscored
-        y1 = -3;
-        y2 = 1;
-    else
-        y1 = -7000;
-        y2 = 0;
-    end
-    x1 = e';
-    x2 = d';
-    x3 = ee;
-
-    if num == 1
-        labely = 'Median -RT per sub';
-        
-    else
-        labely = '';
-    end
-    
-     skylineplot({x1'; x2'; x3'}, 20,...
-            colors,...
-            y1,...
-            y2,...
-            fontsize+5,...
-            sprintf('Exp. %s', num2str(exp_num)),...
-            'Modality',...
-            labely,...
-            {'E', 'D', 'EE'},...
-            0);
-    set(gca, 'tickdir', 'out');
-    box off;
+    sub_count = sub_count + sub;
 
 end
+
+figure('Units', 'centimeters',...
+    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+
+if zscored
+    y1 = -3;
+    y2 = 1;
+else
+    y1 = 0;
+    y2 = 6500;
+end
+
+
+x1 = e';
+x2 = d';
+x3 = ee';
+
+labely = 'Median reaction time per subject';
+    
+skylineplot({x1'; x2'; x3'}, 5,...
+    colors,...
+    y1,...
+    y2,...
+    fontsize,...
+    '',...
+    '',...
+    labely,...
+    {'ED_{e}', 'ED_{d}', 'EE'});
+
+set(gca, 'tickdir', 'out');
+box off;
 return
 
 % %-------------------------------------------------------------------------%
