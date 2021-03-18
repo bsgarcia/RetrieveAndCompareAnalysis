@@ -1,4 +1,4 @@
-function [Nbar, Nsub] = skylineboxplot(DataCell, markersize, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin)
+function [Nbar, Nsub] = skylineboxplot(DataCell, error, markersize, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin)
 
 % Sophie Bavard - December 2018 / Modified Basile Garcia
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -30,7 +30,14 @@ for n = 1:Nbar
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
     curve = nanmedian(DataMatrix);
-    sem   = nanstd(DataMatrix')'/sqrt(Nsub);
+    switch error
+        case 'sem'
+            sem   = nanstd(DataMatrix')'/sqrt(Nsub);
+        case 'std'
+            sem  = nanstd(DataMatrix')';
+        otherwise 
+            disp('Error estimator not recognized! Available estimators: "sem", "std"');
+    end
     conf  = tinv(1 - 0.5*(1-ConfInter),Nsub);
     
     % PLOT THE VIOLINS
