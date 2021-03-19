@@ -203,9 +203,15 @@ classdef DataExtraction < handle
         end
         
         function sess = get_sess_from_exp_num(obj, exp_num)
-            if length(exp_num) == 1
-                sess = round((exp_num - round(exp_num)) * 10 - 1);
-                sess = sess .* (sess ~= -1);
+            if length(exp_num) == 1 
+                if (length(num2str(exp_num)) == 1) && (exp_num >= 6)
+                    sess = [0,1];
+                else
+
+                    sess = round((exp_num - round(exp_num)) * 10 - 1);
+                    sess = sess .* (sess ~= -1);
+                end
+                
             elseif length(exp_num) == 2
                 sess = [0,1];
                 

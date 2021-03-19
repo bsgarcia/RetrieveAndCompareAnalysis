@@ -7,14 +7,14 @@ import seaborn as sns
 
 
 def main():
-    tests = ['RT_ED_e_ED_d_ED_EE']#['LE_ED_PM', 'ED_EE', 'LE_ED_EE_PM']
+    infos = [dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE') ]
 
-    pairwise_ttests(tests)
+    pairwise_ttests(infos)
 
 
-def lme(tests):
-    for t_name in tests:
-        print('*' * 5, t_name, '*' * 5)
+def lme(infos):
+    for info in infos:
+        print('*' * 5, t_name['name'], '*' * 5)
         df = pd.read_csv(f'../data/stats/{t_name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
@@ -37,33 +37,35 @@ def lme(tests):
         plt.show()
 
 
-def pairwise_ttests(tests):
-    for t_name in tests:
-        print('*' * 5, t_name, '*' * 5)
-        df = pd.read_csv(f'../data/stats/{t_name}.csv')
+def pairwise_ttests(infos):
+    for info in infos:
+        name = info['name']
+        dv = info['dv']
+        print('*' * 5, name ,'*' * 5)
+        df = pd.read_csv(f'../data/stats/{name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
         res = pg.pairwise_ttests(
-            dv='slope', within='modality', between='exp_num', subject='subject',
-            data=df, padjust='bonf', within_first=False, parametric=False)
+            dv=dv, within='modality', between='exp_num', subject='subject',
+            data=df, padjust='bonf', within_first=False, parametric=True)
 
         pg.print_table(res, floatfmt='.6f')
 
-        res = pg.anova(data=df[df['modality']=='LE'], dv='slope', between='exp_num')
+        # res = pg.anova(data=df[df['modality']==''], dv=dv, between='exp_num')
 
-        pg.print_table(res, floatfmt='.6f')
-        
-        print('ED')
-        res = pg.anova(data=df[df['modality']=='ED'], dv='slope', between='exp_num')
-        pg.print_table(res, floatfmt='.6f')
-
-        print('LE')
-        res = pg.anova(data=df[df['modality']=='LE'], dv='slope', between='exp_num')
-        pg.print_table(res, floatfmt='.6f')
-
-        res = pg.mixed_anova(data=df, dv='slope', between='exp_num', within='modality', subject='subject')
-
-        pg.print_table(res, floatfmt='.6f')
+        # pg.print_table(res, floatfmt='.6f')
+        #
+        # print('ED')
+        # res = pg.anova(data=df[df['modality']=='ED'], dv='RT', between='exp_num')
+        # pg.print_table(res, floatfmt='.6f')
+        #
+        # print('LE')
+        # res = pg.anova(data=df[df['modality']=='LE'], dv='RT', between='exp_num')
+        # pg.print_table(res, floatfmt='.6f')
+        #
+        # res = pg.mixed_anova(data=df, dv='RT', between='exp_num', within='modality', subject='subject')
+        #
+        # pg.print_table(res, floatfmt='.6f')
 
 
 if __name__ == '__main__':
