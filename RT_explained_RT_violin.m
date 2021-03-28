@@ -12,9 +12,7 @@ zscored = 0;
 
 num = 0;
 %
-ed = cell(length(selected_exp),1);
-pm = cell(length(selected_exp), 1);
-mean_heur = cell(length(selected_exp), 1);
+
 symp = [.1, .2, .3, .4, .6, .7, .8, .9];
 % lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
 %  
@@ -23,7 +21,6 @@ figure('Units', 'centimeters',...
 
 sub_count = 0;
 stats_data = table();
-
 
 for exp_num = selected_exp
     
@@ -105,7 +102,7 @@ x2 = o_le;
 x3 = both;
 x4 = none;
 
-labely = 'Median RT per subject';
+labely = 'Median reaction time per subject';
 
 
 skylineplot({x1'; x2'; x3'; x4'}, 5*2,...
@@ -118,6 +115,7 @@ skylineplot({x1'; x2'; x3'; x4'}, 5*2,...
     labely,...
     {'Heuristic', 'LE estimates', 'Both', 'None'},0);
 set(gca, 'tickdir', 'out');
+set(gca, 'fontname', 'Helvetica')
 box off;
 
 mkdir('fig', 'violinplot');

@@ -6,13 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,5,6.1,6.2];
+selected_exp = [5,6.1,6.2];
 displayfig = 'off';
-x = 'lottery_{pwin}';
-zscored = 1;
+zscored = 0;
 
 % ------------------------------------------------------------------------%
-median = zscored ~= 1;
+median = 0;
 
 
 ed1 = cell(50, 1);
@@ -79,8 +78,8 @@ subplot(1, 2, 1)
 varrgin = X1;
 x_values = 5:100/length(X1):110;
 
-brickplot(ed1, orange_color.*ones(length(ed1),1), y_lim, fontsize+5,...
-    'E', 'symbol_{pwin}', 'zscore(-RT)', varrgin, 1, x_lim, x_values,.18, median);
+brickplot(ed1, orange.*ones(length(ed1),1), y_lim, fontsize+5,...
+    'E', 'symbol_{pwin}', 'RT', varrgin, 1, x_lim, x_values,.18, median);
 set(gca, 'tickdir', 'out');
 box off
 
@@ -89,13 +88,13 @@ varrgin = X2;
 x_values = 5:100/length(X2):110;
 
 subplot(1, 2, 2)
-brickplot(ed2, orange_color.*ones(length(ed2),1), y_lim, fontsize+5,...
-    'D', 'lottery_{pwin}', '-RT', varrgin, 1, x_lim, x_values,.18, median);
+brickplot(ed2, orange.*ones(length(ed2),1), y_lim, fontsize+5,...
+    'D', 'lottery_{pwin}', 'RT', varrgin, 1, x_lim, x_values,.18, median);
 
 set(gca, 'tickdir', 'out');
 box off
 
-suptitle('Pooled exp. 1,2,3,5, 6.1, 6.2');
+%suptitle('Pooled exp. 1,2,3,5, 6.1, 6.2');
   saveas(gcf, ...
             sprintf('fig/exp/RT.svg',...
             num2str(exp_num)));
@@ -157,7 +156,7 @@ function [ed, X] = measure(x, data_ed, ed)
             X = sym_p;
 
             for i = 1:length(sym_p)
-                ed{i} = [ed{i, :}; -data_ed.rtime(logical(...
+                ed{i} = [ed{i, :}; data_ed.rtime(logical(...
                     (data_ed.p2==sym_p(i))))];
       
 
