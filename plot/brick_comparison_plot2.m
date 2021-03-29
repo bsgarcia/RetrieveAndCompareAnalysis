@@ -1,6 +1,5 @@
-function [nbar, nsub] = brick_comparison_plot(data1, data2, color1, color2, y_lim,fontsize,mytitle, ... 
-    x_label,y_label,varargin, noscatter)
-
+function [nbar, nsub] = brick_comparison_plot2(data1, data2, color1, color2, y_lim,fontsize,mytitle, ... 
+    x_label,y_label,varargin, noscatter, x_lim, x_values)
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
 % Warning: the function can accept any number of arguments > 9.
@@ -21,13 +20,15 @@ end
 % number of factors/groups/conditions
 nbar = size(data1,1);
 % bar size
-Wbar = 0.30;
+Wbar = .025.*100;
+%disp(Wbar)
 
 % confidence interval
 ConfInter = 0.95;
 
 % color of the box + error bar
 trace = [0.5 0.5 0.5];
+% 
 
 for n = 1:nbar
     
@@ -46,28 +47,14 @@ for n = 1:nbar
     mystd = nanstd(Data1Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
-    width = Wbar/4.5;
+    width = Wbar/15;
     
-    fill([n+width n+Wbar n+Wbar n+width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        color1,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
-    hold on
-    
-    fill([n+width n+Wbar n+Wbar n+width],...
+    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        color1,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.23);
+        set_alpha(color1, .7), 'linewidth', .3, 'edgecolor', color1);
+ 
     hold on
-    
-%     fill([n+width n+Wbar n+Wbar n+width],...
-%         [curve-mystd curve-mystd curve+mystd curve+mystd],...
-%         color1,...
-%         'EdgeColor', 'none',...%trace,...
-%         'FaceAlpha',0.25);
-%     hold on
+       
         
     if ~noscatter
         scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data1Matrix, 10,...
@@ -77,18 +64,19 @@ for n = 1:nbar
         hold on
     end
     
-    xMean = [n+width ; n+Wbar];
+    xMean = [x_values(n)+width ; x_values(n)+Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',2,'Color',color1);
+    plot(xMean,yMean,'-','LineWidth',.3,'Color','black');
     hold on
     
+     % ERROR BARS
     % ERROR BARS
-%     errorbar(n+(Wbar+width)/2,curve,sem,...
-%         'Color','k',...Colors(n,:),...
-%         'LineStyle','none',...
-%         'LineWidth',1);
-%     hold on
-    
+    errorbar(x_values(n)+Wbar/2,curve,sem,...
+        'Color','k',...Colors(n,:),...
+        'LineStyle','none','CapSize',.5,...
+        'LineWidth',.3);
+    hold on    
+
     % -- 2nd dataset
     
     % number of subjects
@@ -98,71 +86,70 @@ for n = 1:nbar
     sem   = nanstd(Data2Matrix')'/sqrt(nsub);
     mystd = nanstd(Data2Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
+    
+    
         
-    fill([n-width n-Wbar n-Wbar n-width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        color2,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.5);
-    hold on
-    
-    
-    fill([n-width n-Wbar n-Wbar n-width],...
+    fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        color2,...
-        'EdgeColor', 'none',...%trace,...
-        'FaceAlpha',0.23);
+        set_alpha(color2, .7), 'linewidth', .2, 'edgecolor', color2);%,...
+     
     hold on
 %     
-%     fill([n-width n-Wbar n-Wbar n-width],...
-%         [curve-mystd curve-mystd curve+mystd curve+mystd],...
-%         color2,...
-%         'EdgeColor', 'none',...%trace,...
-%         'FaceAlpha',0.25);
-%     hold on
-        
+
     if ~noscatter
         scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data2Matrix, 10,...
             colors(n,:),'filled',...
-            'marker','o',...
+            'marker','o',...    
             'MarkerFaceAlpha',0.4);
         hold on
     end
-    
-    xMean = [n-width ; n-Wbar];
+    xMean = [x_values(n)-width ; x_values(n)-Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',2,'Color',color2);
+    plot(xMean,yMean,'-','LineWidth',.3,'Color','black');
     hold on
-    
+     % ERROR BARS
     % ERROR BARS
-%     errorbar(n-(Wbar+width)/2,curve,sem,...
-%         'Color','k',...Colors(n,:),...
-%         'LineStyle','none',...
-%         'LineWidth',1);
-%     hold on
+    errorbar(x_values(n)-Wbar/2,curve,sem,...
+        'Color','k',...Colors(n,:),...
+        'LineStyle','none','CapSize',.5,...
+        'LineWidth',.3);
+    hold on    
+    
+
 end
 
 % axes and stuff
 ylim(y_lim);
-
+if ~exist('x_lim')
+    x_lim = [0, nbar+1];
+end
+if ~exist('x_values')
+    x_values = 1:nbar;
+end
 set(gca,'FontSize',fontsize,...
-    'XLim', [0, nbar+1],...
-    'XTick',1:nbar,...
+    'XLim', x_lim ,...
+    'XTick',varargin,...
     'XTickLabel',varargin);
 
 title(mytitle);
 xlabel(x_label);
 ylabel(y_label);
 
+x_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');get(gca, 'XLim');
+y_lim = [min(varargin), max(varargin)];%get(gca, 'YLim');
 
+y0 = plot(linspace(x_lim(1), x_lim(2), 10),...
+    ones(10,1).*50, 'LineStyle', '--', 'Color', 'k', 'linewidth', .4);
+y0.Color(4) = .45;
+uistack(y0, 'bottom');
 
+hold on
 
+x = linspace(x_lim(1), x_lim(2), 10);
 
+y = linspace(y_lim(1), y_lim(2), 10);
+p0 = plot(x, y, 'linewidth', .4, 'LineStyle', '--', 'Color', 'k');
 
-
-
-
-
-
-
-
+p0.Color(4) = .45;
+hold on
+uistack(p0, 'bottom');

@@ -4,11 +4,11 @@
 tic
 close all
 
-%if exist('de')
+if exist('de')
     clearvars -except de
-%else
+else
     clear all
-%end
+end
 
 addpath './fit'
 addpath './plot'

@@ -35,7 +35,7 @@ for exp_num = selected_exp
 
     slope1 = add_linear_reg(midpoints1.*100, ev, orange);   
     hold on
-    slope2 = add_linear_reg(midpoints2.*100, ev, green);
+    slope2 = add_linear_reg(midpoints2.*100, ev, green_);
     hold on
     
     brick_comparison_plot2(...

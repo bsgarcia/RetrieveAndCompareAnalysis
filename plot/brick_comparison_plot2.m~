@@ -1,4 +1,4 @@
-function [nbar, nsub] = brick_comparison_plot(data1, data2, color1, color2, y_lim,fontsize,mytitle, ... 
+function [nbar, nsub] = brick_comparison_plot2(data1, data2, color1, color2, y_lim,fontsize,mytitle, ... 
     x_label,y_label,varargin, noscatter, x_lim, x_values)
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -48,16 +48,10 @@ for n = 1:nbar
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
     width = Wbar/15;
-
-    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
-        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        set_alpha(color1, .23),...
-        'EdgeColor', 'black', 'linewidth', .2);
-    hold on
     
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        set_alpha(color1, .7), 'linewidth', .2);
+        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
+        set_alpha(color1, .7), 'linewidth', .3, 'edgecolor', color1);
  
     hold on
        
@@ -72,8 +66,16 @@ for n = 1:nbar
     
     xMean = [x_values(n)+width ; x_values(n)+Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',.8,'Color',color1);
+    plot(xMean,yMean,'-','LineWidth',.3,'Color','black');
     hold on
+    
+     % ERROR BARS
+    % ERROR BARS
+    errorbar(x_values(n)+Wbar/1.9,curve,sem,...
+        'Color','k',...Colors(n,:),...
+        'LineStyle','none','CapSize',.5,...
+        'LineWidth',.3);
+    hold on    
 
     % -- 2nd dataset
     
@@ -89,7 +91,7 @@ for n = 1:nbar
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
         set_alpha(color2, .23),...
-        'edgecolor', 'black', 'linewidth', .2);
+        'edgecolor', 'black', 'linewidth', .2, 'edgecolor', co);
     hold on
       
         
@@ -107,11 +109,17 @@ for n = 1:nbar
             'MarkerFaceAlpha',0.4);
         hold on
     end
-    
-    xMean = [x_values(n)-width ; x_values(n)-Wbar];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',0.8,'Color', color2);
+      yMean = [curve; curve];
+    plot(xMean,yMean,'-','LineWidth',.3,'Color','black');
     hold on
+    
+     % ERROR BARS
+    % ERROR BARS
+    errorbar(x_values(n)-Wbar/1.9,curve,sem,...
+        'Color','k',...Colors(n,:),...
+        'LineStyle','none','CapSize',.5,...
+        'LineWidth',.3);
+    hold on    
     
 
 end
