@@ -5,7 +5,7 @@ show_current_script_name(mfilename('fullpath'));
 selected_exp = [5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
 
 displayfig = 'on';
-force = true;
+force = false;
 
 for exp_num = selected_exp
     

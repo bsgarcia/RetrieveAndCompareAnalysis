@@ -40,6 +40,12 @@ for exp_num = selected_exp
             mask_lot = (data_ed.p2(sub,:)==lotp(p));
                 d(sub+sub_count,p) = median(...
                 data_ed.rtime(sub, logical(mask_lot)));   
+            T1 = table(...
+                    sub+sub_count, exp_num, d(sub+sub_count,p), lotp(p),...
+                    {'ED_d'}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
+                    );
+            stats_data = [stats_data; T1];
  
         end
         
@@ -52,7 +58,22 @@ for exp_num = selected_exp
              e(sub+sub_count,p) = median(...
                 data_ed.rtime(sub, logical(mask_lot)));  
             ee(sub+sub_count,p) = median(data_ee.rtime(sub, logical((mask_p1.*mask_cho1) + (mask_p2.*mask_cho2))));
+            
+            T1 = table(...
+                    sub+sub_count, exp_num, e(sub+sub_count,p), symp(p),...
+                    {'ED_e'}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
+                    );
+            stats_data = [stats_data; T1];
+            T1 = table(...
+                    sub+sub_count, exp_num, ee(sub+sub_count,p), symp(p),...
+                    {'EE'}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
+                    );
+            stats_data = [stats_data; T1];
+ 
         end
+        
     end
 %         for mod_num = 1:3
 %             T1 = table(...
@@ -144,7 +165,7 @@ saveas(gcf, 'fig/violinplot/RT/RT.svg');
 
 % save stats file
 mkdir('data', 'stats');
-stats_filename = 'data/stats/RT_E_D_EE.csv';
+stats_filename = 'data/stats/RT_FIT.csv';
 writetable(stats_data, stats_filename);
 
 % ------------------------------------------------------------------------%
@@ -190,8 +211,5 @@ for sub = 1:size(data.cho,1)
     end
 end
 end
-
-
-
 
         
