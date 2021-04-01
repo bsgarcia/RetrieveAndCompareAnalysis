@@ -11,6 +11,7 @@ colors = [orange; orange];
 zscored = 0;
 
 stats_data = table();
+full_rt = table();
 %d = cell(11, 1);
 %e = cell(8, 1);
 
@@ -74,6 +75,17 @@ for exp_num = selected_exp
  
         end
         
+        
+        for t = 1:length(data_ed.p2(sub,:))
+            
+            T1 = table(...
+                    sub+sub_count, exp_num, data_ed.rtime(sub, t), data_ed.p1(sub, t),data_ed.p2(sub, t),...
+                    {'ED'}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'p_symbol', 'p_lottery', 'modality'}...
+                    );
+            full_rt = [full_rt; T1];
+ 
+        end
     end
 %         for mod_num = 1:3
 %             T1 = table(...

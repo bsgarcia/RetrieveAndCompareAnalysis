@@ -4,7 +4,7 @@ function slope = add_linear_reg(data, X, color)
         Y = data(sub, :);
         [slope(sub, :), thrw1, thrw2] = glmfit(X, Y);
         b = glmfit(X, Y);
-        pY2(sub, :) = glmval(b,X, 'identity');
+        pY2(sub, :) = glmval(b,X);
     end
 
     mn = mean(pY2, 1);
