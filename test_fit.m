@@ -72,8 +72,8 @@ function nll = tofit(params, X, Y)
     midpoints = params(2:end);
     ll = 0;
     for i = 1:size(Y, 1)
-        yhat = logfun(X(i,:)', midpoints(i), temp);
-        ll = ll + sum(log(yhat) .* Y(i,:)' + log(1-yhat).*(1-Y(i,:)')); 
+        yhat = logfun(X(i,:), midpoints(i), temp);
+        ll = ll + sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
     end
     nll = -ll;
 end

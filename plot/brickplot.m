@@ -50,7 +50,7 @@ for n = 1:nbar
     else
         curve = nanmean(DataMatrix);
     end
-
+    
     sem   = nanstd(DataMatrix')'/sqrt(nsub);
     
     mystd = nanstd(DataMatrix);
@@ -59,23 +59,22 @@ for n = 1:nbar
     width = Wbar/15;
     
     fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
-            [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-            set_alpha(colors(n,:), .23),...
-            'edgecolor', 'black', 'linewidth', .2);%,...%trace,...
-            %'FaceAlpha',0.23);
-        hold on
+        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
+        set_alpha(colors(n,:), .23),...
+        'edgecolor', 'black', 'linewidth', .4);%,...%trace,...
+    %'FaceAlpha',0.23);
+    hold on
 
-
-        fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
-            [curve-sem curve-sem curve+sem curve+sem],...
-            set_alpha(colors(n,:), .6), 'edgecolor','black', 'linewidth', .2);%,...
-     
-        hold on
-
-        xMean = [x_values(n)-Wbar; x_values(n)+Wbar];
-        yMean = [curve; curve];
-        ppp = plot(xMean,yMean,'LineWidth',.8,'Color',colors(n,:));
-        hold on
+    fill([x_values(n)-Wbar x_values(n)+Wbar x_values(n)+Wbar x_values(n)-Wbar],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(colors(n,:), .6), 'edgecolor','black', 'linewidth', .4);%,...
+    
+    hold on
+    
+    xMean = [x_values(n)-Wbar+.4; x_values(n)+Wbar-.4];
+    yMean = [curve; curve];
+    ppp = plot(xMean,yMean,'LineWidth',1.8,'Color',colors(n,:));
+    hold on
 
 %         
     if ~noscatter

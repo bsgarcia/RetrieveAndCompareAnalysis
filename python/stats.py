@@ -10,10 +10,12 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='RT', name='RT_FIT')]
-        #dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE') ]
+    infos = [#dict(dv='RT', name='RT_FIT'),
+             dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
 
-    polyfit(infos)
+    # polyfit(infos[0])
+    pairwise_ttests(infos)
+    # pairwise_ttests(infos[2])
 
 def polyfit_full(infos):
     for info in infos:
@@ -46,22 +48,6 @@ def polyfit_full(infos):
         model = sm.OLS(y, xp, missing='drop').fit()
         # ypred = model.predict(xp)
 
-        # y = []
-        # for p in np.unique(x):
-        #     y.append(np.mean(ypred[p==x.flatten()]))
-        #
-        # y = np.array(y)
-        # x = np.unique(x)
-        #
-        # plt.scatter(x,
-        #             df[df['modality']=='ED_d']
-        #             .groupby('p')['RT'].mean())
-        #
-        # plt.plot(x, y)
-        # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
-        # plt.ylim([1000, 2000])
-        # plt.show()
-        #
         print(model.summary())
 
 
@@ -85,6 +71,7 @@ def polyfit(infos):
         xp = polynomial_features.fit_transform(x)
 
         model = sm.OLS(y, xp, missing='drop').fit()
+        lmodel = sm.OLS.from_formula('RT ~ p', data=df[df['modality']=='ED_d']).fit()
         ypred = model.predict(xp)
 
         y = []
@@ -96,19 +83,29 @@ def polyfit(infos):
 
         plt.scatter(x,
                     df[df['modality']=='ED_d']
-                    .groupby('p')['RT'].mean())
+                    .groupby('p')['RT'].mean(), alpha=.6, color='C1')
 
-        plt.plot(x, y)
+        plt.plot(x, y, color='C1')
+        plt.plot(x, lmodel.predict(pd.DataFrame({'p': x})), color='C4')
         # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
         plt.ylim([1000, 2000])
-        plt.show()
-        #
+        plt.title('$ED_d$')
+        plt.text(x=.5, y=1800, s=f'$R^2$ = {np.round(model.rsquared, 3)}'
+                                 f'\n$R$= {np.round(np.sqrt(model.rsquared), 2)}'
+                                 f'\np(x1), p(x2) = {np.round(model.pvalues[[1,2]], 10)}')
+        plt.xlabel('P(lottery)')
+        plt.ylabel('RT')
+        
         print(model.summary())
+        print(lmodel.summary())
 
+        plt.show()
+        # import pdb;pdb.set_trace()
+        
         # ------------------------------------------------------ #
         print('*' * 20, 'EE')
-        x = df[df['modality']=='EE']['p']
-        y = df[df['modality']=='EE']['RT']
+        x = df[df['modality']=='ED_e']['p']
+        y = df[df['modality']=='ED_e']['RT']
 
         x = np.array(x).reshape(len(x), 1)
         y = np.array(y).reshape(len(y), 1)
@@ -117,6 +114,7 @@ def polyfit(infos):
         xp = polynomial_features.fit_transform(x)
 
         model = sm.OLS(y, xp, missing='drop').fit()
+        lmodel = sm.OLS.from_formula('RT ~ p', data=df[df['modality']=='ED_e']).fit()
         ypred = model.predict(xp)
 
         y = []
@@ -127,16 +125,28 @@ def polyfit(infos):
         x = np.unique(x)
 
         plt.scatter(x,
-                    df[df['modality']=='EE']
-                    .groupby('p')['RT'].mean())
+                    df[df['modality']=='ED_e']
+                    .groupby('p')['RT'].mean(), alpha=.6, color='C1')
 
-        plt.plot(x, y)
+        plt.plot(x, y, color='C1')
         # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
+        
         plt.ylim([1000, 2000])
-        plt.show()
+        plt.title('$ED_e$')
+        plt.text(x=.55, y=1800, s=f'$R^2$ = {np.round(model.rsquared, 3)}'
+                                 f'\n$R$= {np.round(np.sqrt(model.rsquared), 2)}'
+                                 f'\np(x1), p(x2) = {np.round(model.pvalues[[1,2]], 5)}')
+
+        plt.plot(x, lmodel.predict(pd.DataFrame({'p': x})), color='C4')
+        plt.xlabel('P(symbol)')
+        plt.ylabel('RT')
         #
         print(model.summary())
+        print(lmodel.summary())
 
+        plt.show()
+        
+       
         x = df[df['modality']=='EE']['p'].unique()
         y = df[df['modality']=='EE'].groupby('p')['RT'].mean()
         model = sm.OLS.from_formula('RT~p', data=df[df['modality']=='EE']).fit()
@@ -146,14 +156,21 @@ def polyfit(infos):
         for p in x:
             y2.append(np.mean(ypred[df[df['modality']=='EE']['p']==p]))
 
-        plt.scatter(x, y)
-        plt.plot(x, y2)
+        plt.scatter(x, y, alpha=.6, color='C2')
+        plt.plot(x, y2, color='C2')
         plt.ylim([1000, 2500])
+        plt.title('EE')
+        plt.text(x=.6, y=2000, s=f'$R^2$ = {np.round(model.rsquared, 3)}'
+                                 f'\n$R$= {np.round(np.sqrt(model.rsquared), 2)}'
+                                 f'\np = {np.round(model.pvalues[-1], 10)}')
+        plt.xlabel('P(symbol)')
+        plt.ylabel('RT')
         plt.show()
 
         print(model.summary())
-
         # ------------------------------------------------------ #
+
+
 def anova(infos):
     for info in infos:
         name = info['name']
@@ -163,12 +180,20 @@ def anova(infos):
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
 
-        res = pg.rm_anova(data=df, dv='RT', within=['p_symbol', 'p_lottery'], subject='subject')
+        res = pg.rm_anova(data=df[df['modality']=='ED_e'], dv='RT', within='p', subject='subject')
 
         # model = sm.GLM.from_formula('RT ~ p1*p2', data=df).fit()
         # print(model.summary())
 
-        pg.print_table(res, floatfmt='.6f', tablefmt='latex')
+        pg.print_table(res, floatfmt='.6f')
+
+        res = pg.rm_anova(data=df[df['modality']=='ED_d'], dv='RT', within='p', subject='subject')
+
+        # model = sm.GLM.from_formula('RT ~ p1*p2', data=df).fit()
+        # print(model.summary())
+
+        pg.print_table(res, floatfmt='.6f')
+
 
         # res= pg.friedman(data=df, dv='RT', within='p1', subject='subject')
         # pg.print_table(res, floatfmt='.6f')
