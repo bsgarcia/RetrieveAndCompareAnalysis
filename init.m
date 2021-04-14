@@ -65,7 +65,6 @@ displayfig = 'off';
 %     0.1533    0.4964    0.2730];
 % 
 % %blue_color = [0.0274 0.427 0.494];
-blue_color = [0    0.4470    0.7410];
 % %blue_color = [14/255, 151/255, 165/255];
 % %blue_color = colors(1, :);
 % blue_color_min = [0 0.686 0.8];
@@ -75,7 +74,6 @@ blue_color = [0    0.4470    0.7410];
 % light_magenta = [231/255,138/255,195/255];
 % light_green = [173/255,205/255,131/255];
 % 
-magenta_color = [166/255 77/255 121/255];
 % 
 % % create a default color map ranging from blue to dark blue
 % len = 8;
@@ -89,14 +87,21 @@ magenta_color = [166/255 77/255 121/255];
 % 
 % created using coloors website
 orange = [0.8500, 0.3250, 0.0980];
+blue = [0    0.4470    0.7410];
 %green_color = [0.4660    0.6740    0.1880];
 green = [61/255, 176/255, 125/255];
 red = [0.6350    0.0780    0.1840];
 dark_green = [37/255 89/255 87/255];
+magenta = [166/255 77/255 121/255];
 black = [73/255 72/255 80/255];
 pink = [146 119 135]./255;
 yellow = [255 200 87]./255;
 dark_blue = [42 30 92]./255;
+
+
+% from fig 5 explained choices
+% grey = 
+% violet = 
 
 
 % red_to_blue(:, 1) = ...

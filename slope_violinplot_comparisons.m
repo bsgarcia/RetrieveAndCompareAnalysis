@@ -6,10 +6,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];
-modalities = {'ED', 'EE'};
+selected_exp = [1, 2, 3, 4];
+modalities = {'LE', 'ED'};
 displayfig = 'on';
-colors = [orange_color;green_color];
+colors = [blue;orange];
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -53,6 +53,7 @@ for exp_num = selected_exp
     sim_params.de = de;
     sim_params.sess = sess;
     sim_params.exp_name = name;
+    sim_params.nsub = nsub;
     
     for mod_num = 1:length(modalities)
         
@@ -98,7 +99,7 @@ for exp_num = selected_exp
     % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
     
-    skylineboxplot(slope(:, :, 2), 8,...
+    skylineplot(slope(:, :, 2), 8,...
         colors,...
         -1.2,...
         1.5,...

@@ -2,52 +2,43 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [5];
+selected_exp = [8];
 
 displayfig = 'on';
-sessions = [0, 1];
 
-figure('Renderer', 'painters',...
-    'Position', [145,157,828*length(selected_exp)/37,600/37], 'visible', displayfig)
+figure('Renderer', 'painters','Units', 'centimeters',...
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
-    idx1 = (exp_num - round(exp_num)) * 10;
-    idx1 = idx1 + (idx1==0);
-    sess = sessions(uint64(idx1));
-    
-    % load data
-    name = char(filenames{round(exp_num)});
-    
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
     
     data = de.extract_EE(exp_num);
     
-    
-    d.(name).nsub = size(data.cho, 1);
+    nsub = data.nsub;
+    p1 = data.p1;
+    p2 = data.p2;
+    cho = data.cho;
+   
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ------------------------------------------------------------------------
     
-    pcue = unique(data.p2)';
-    psym = unique(data.p1)';
+    pcue = unique(p2)';
+    psym = unique(p1)';
     
-    chose_symbol = nan(d.(name).nsub, length(pcue), length(psym), 2);
-    for i = 1:d.(name).nsub
+    chose_symbol = nan(nsub, length(pcue), length(psym));
+    for i = 1:nsub
         for j = 1:length(pcue)
             for k = 1:length(psym)
                 temp = ...
                     cho(i, logical((data.p2(i, :) == pcue(j)) .* (data.p1(i, :) == psym(k))));
-                for l = 1:length(temp)
-                    chose_symbol(i, j, k, l) = temp(l) == 1;
-                end
+                
             end
         end
     end
     
-    nsub = size(data.cho, 1);
+    nsub = size(cho, 1);
     k = 1:nsub;
     
     prop = zeros(length(psym), length(pcue));
@@ -113,7 +104,7 @@ for exp_num = selected_exp
         if num == 1
             ylabel('P(choose symbol) (%)');
         end
-        xlabel('Lottery p(win) (%)');
+        xlabel('Symbol p(win) (%)');
         
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);

@@ -29,7 +29,7 @@ for n = 1:Nbar
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmedian(DataMatrix);
+    curve = nanmean(DataMatrix);
     switch error
         case 'sem'
             sem   = nanstd(DataMatrix')'/sqrt(Nsub);

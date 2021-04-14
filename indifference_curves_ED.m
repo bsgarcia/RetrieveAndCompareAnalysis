@@ -2,10 +2,9 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1,2,3,4];
+selected_exp = [8];
 
 displayfig = 'on';
-sessions = [0, 1];
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
@@ -13,19 +12,13 @@ figure('Renderer', 'painters','Units', 'centimeters',...
 num = 0;
 for exp_num = selected_exp
     num = num + 1;
-    idx1 = (exp_num - round(exp_num)) * 10;
-    idx1 = idx1 + (idx1==0);
-    sess = sessions(uint64(idx1));
-   
-    % load data
-    name = char(filenames{round(exp_num)});
-   
-    data = d.(name).data;
-    sub_ids = d.(name).sub_ids;
-   
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
+    
+    data = de.extract_ED(exp_num);
+    
+    nsub = data.nsub;
+    p1 = data.p1;
+    p2 = data.p2;
+    cho = data.cho;
    
     % ----------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
@@ -34,15 +27,13 @@ for exp_num = selected_exp
     pcue = unique(p2)';
     psym = unique(p1)';
    
-    chose_symbol = zeros(d.(name).nsub, length(pcue), length(psym), 2);
-    for i = 1:d.(name).nsub
+    chose_symbol = zeros(nsub, length(pcue), length(psym));
+    for i = 1:nsub
         for j = 1:length(pcue)
             for k = 1:length(psym)
                 temp = ...
                     cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
-                for l = 1:length(temp)
-                    chose_symbol(i, j, k, l) = temp(l) == 1;
-                end
+            
             end
         end
     end
@@ -91,7 +82,7 @@ for exp_num = selected_exp
        
         lin3 = plot(...
             pcue.*100,  prop(i, :).*100,...
-            'Color', orange_color, 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
+            'Color', orange, 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
             );
        
        

@@ -2,13 +2,13 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [6.1, 8.1];
+selected_exp = [6, 8];
 sessions = [0, 1];
 
 displayfig = 'on';
 
-figure('Units', 'centimeters',...
-    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+figure('Renderer', 'painters', 'Units', 'centimeters',...
+    'Position', [100,100,5.3*2, 5.3/1.25*2], 'visible', displayfig)
 num = 0;
 
 for exp_num = selected_exp
@@ -27,8 +27,8 @@ for exp_num = selected_exp
     
 end
 
-x1 = CCR{1, 2};
-x2 = CCR{2, 2};
+x1 = CCR{1, 1};
+x2 = CCR{2, 1};
 
 skylineplot({x1;x2},8,...
     [orange; orange],...
@@ -40,8 +40,7 @@ skylineplot({x1;x2},8,...
     'Correct choice rate',...
     {'Exp. 6', 'Exp. 7'},...
     0);
-hold on
-scatter([1], [.8], 'markerfacecolor', 'black', 'markeredgecolor', 'w');
+
 box off
 hold on
-set(gca, 'tickdir', 'out');
+set(gca, 'tickdir', 'out')
