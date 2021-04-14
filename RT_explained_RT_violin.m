@@ -7,7 +7,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [5, 6];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
-colors = [colors(5,:); colors(6,:); colors(7,:); colors(8,:)];
+colors = [red; dark_blue; grey; black];
 zscored = 0;
 
 num = 0;

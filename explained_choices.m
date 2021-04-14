@@ -5,14 +5,18 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [6, 8];%, 6.2, 7.1, 7.2];
+selected_exp = [6.1, 6.2, 8.1, 8.2, 6, 8];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
-colors = [dark_green; dark_blue; pink; black];
-
+colors = [red; dark_blue; grey; black];
+alphas = [.5, .5, 1, .8];
+for i = 1:4
+    colors(i, :) = set_alpha(colors(i, :), alphas(i));
+end
+colors = flip(colors);
 num = 0;
 
 figure('Units', 'centimeters',...
-    'Position', [0,0,5.3*2, 5.3/1.25*2], 'visible', displayfig)
+    'Position', [0,0,6.7, 3.5], 'visible', displayfig)
 
 sub_count = 0;
 stats_data = table();
@@ -33,8 +37,7 @@ for exp_num = selected_exp
  
     heur = heuristic(data);
     le = [];
-    
-    
+        
     % get le q values estimates
     for i = 1:length(sess)
         sim_params.de = de;
@@ -62,16 +65,25 @@ for exp_num = selected_exp
     none = nan(nsub, 1);
     both = nan(nsub, 1);
     
-    for sub = 1:nsub
-        o_heur(sub,1) = mean(...
-            logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
-        o_le(sub,1) = mean(...
-            logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
-        
-        none(sub,1) = mean(...
-            logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:))));
-        both(sub,1) = mean(...
-            logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:))));
+    o_heur = mean(...
+            logical((data.cho==heur) .* (data.cho~=le)), 'all');
+    o_le = mean(...
+            logical((data.cho~=heur) .* (data.cho==le)), 'all');       
+    none = mean(...
+            logical((data.cho~=heur).*(data.cho~=le)), 'all');
+    both = mean(...
+            logical((data.cho==heur).*(data.cho==le)), 'all');
+%     
+%     for sub = 1:nsub
+%         o_heur(sub,1) = mean(...
+%             logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
+%         o_le(sub,1) = mean(...
+%             logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
+%         
+%         none(sub,1) = mean(...
+%             logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:))));
+%         both(sub,1) = mean(...
+%             logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:))));
         
 %         for mod_num = 1:4
 %                 T1 = table(...
@@ -81,12 +93,14 @@ for exp_num = selected_exp
 %                     );
 %                 stats_data = [stats_data; T1];
 %         end
-    end
-
-    dd(num, :) = [mean(o_heur), mean(o_le), mean(both), mean(none)];    
+%     end
+    %disp(o_heur)
+    sam(num,1) = o_heur;
+    total(num,1) =  numel(data.cho);
+  
+    dd(num, :) = flip([mean(o_heur), mean(o_le), mean(both), mean(none)]);    
   
 end
-
 
 b = bar(dd, 'stacked', 'facecolor','flat', 'edgecolor', 'w');
 
@@ -111,44 +125,37 @@ box off;
 
 function score = heuristic(data)
 
-for sub = 1:size(data.cho,1)
-    count = 0;
-    
-    for t = 1:size(data.cho,2)
-        
-        count = count + 1;
-        
-        if data.p2(sub,t) >= .5
-            prediction = 2;
-        else
-            prediction = 1;
+    for sub = 1:size(data.cho,1)
+
+        for t = 1:size(data.cho,2)
+
+            if data.p2(sub,t) >= .5
+                prediction = 2;
+            else
+                prediction = 1;
+            end
+
+            score(sub, t) = prediction;
+
         end
-        
-        score(sub, count) = prediction;
-        
     end
-end
 end
 
 
 function score = argmax_estimate(data, symp, values)
-for sub = 1:size(data.cho,1)
-    count = 0;
-    
-    for t = 1:size(data.cho,2)
-        
-        count = count + 1;
-        
-        if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
-            prediction = 2;
-        else
-            prediction = 1;
+    for sub = 1:size(data.cho,1)    
+        for t = 1:size(data.cho,2)
+
+            if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
+                prediction = 2;
+            else
+                prediction = 1;
+            end
+
+            score(sub, t) = prediction;
+
         end
-        
-        score(sub, count) = prediction;
-        
     end
-end
 end
 
 

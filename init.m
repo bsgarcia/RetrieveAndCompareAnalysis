@@ -100,9 +100,9 @@ dark_blue = [42 30 92]./255;
 
 
 % from fig 5 explained choices
-% grey = 
-% violet = 
-
+light_blue = [166 177 225]./255;
+purple = [220 214 247]./255;
+grey = [202 207 214]./255;
 
 % red_to_blue(:, 1) = ...
 %     linspace(red_color(1),blue_color(1),len)';

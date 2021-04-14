@@ -335,11 +335,12 @@ classdef DataExtraction < handle
                     % before exp. 5 op2 has value -1 in ED while after it
                     % takes value 0 (because there were no EE before)
                     mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
+                    
                     mask_sess = ismember(data(:, obj.idx.sess), session);
                     mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
-                    
                     [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-                    
+                    %trialorder = 1:length(trialorder);
+
                     temp_corr = data(mask, obj.idx.corr);
                     new_data.corr(i, :) = temp_corr(trialorder);
                     
