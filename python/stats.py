@@ -12,6 +12,7 @@ import scipy.stats as stats
 def main():
     infos = [#dict(dv='RT', name='RT_FIT'),
              dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
+    infos = [dict(dv='score', name='score_explained'),]
 
     # polyfit(infos[0])
     pairwise_ttests(infos)
@@ -238,7 +239,7 @@ def pairwise_ttests(infos):
         pd.set_option('max_columns', None)
         res = pg.pairwise_ttests(
             dv=dv, within='modality', between='exp_num', subject='subject',
-            data=df, padjust='bonf', within_first=False, parametric=True)
+            data=df, padjust='bonf', within_first=True, parametric=True)
 
         pg.print_table(res, floatfmt='.6f')
 

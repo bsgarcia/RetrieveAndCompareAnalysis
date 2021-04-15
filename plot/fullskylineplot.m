@@ -14,7 +14,7 @@ end
 % number of factors/groups/conditions
 Nbar = size(DataCell,1);
 % bar size
-Wbar = 0.7;
+Wbar = 0.4;
 
 % confidence interval
 ConfInter = 0.95;
@@ -64,7 +64,14 @@ for n = 1:Nbar
         'EdgeColor', 'none'...%trace,...
         );
     hold on
-    
+
+        % plot the violin
+    fill([n n-density*width n],...
+        [value(1) value value(end)],...
+        set_alpha(Colors(n,:), .3), 'linewidth', .2,...
+        'EdgeColor', 'none'...%trace,...
+        );
+    hold on
     % CONFIDENCE INTERVAL    
     inter = unique(DataMatrix(DataMatrix<curve+sem*conf & DataMatrix>curve-sem*conf),'stable')';
     if length(density) > 1
@@ -72,19 +79,19 @@ for n = 1:Nbar
     else % all data is identical
         d = repmat(density*width,1,2);
     end 
-    fill([n-(Wbar/10) n-(Wbar/10)+ones(1,length(d)).*(Wbar/5) n-(Wbar/10)],...
-        [curve-sem curve-sem sort(inter) curve+sem curve+sem],...
-        set_alpha(Colors(n,:), .7),...
-        'EdgeColor', 'none'...%trace,...
-    );
-    hold on
+%     fill([n-(Wbar/10) n-(Wbar/10)+ones(1,length(d)).*(Wbar/5) n-(Wbar/10)],...
+%         [curve-sem curve-sem sort(inter) curve+sem curve+sem],...
+%         set_alpha(Colors(n,:), .7),...
+%         'EdgeColor', 'none'...%trace,...
+%     );
+%     hold on
     
         % CONFIDENCE INTERVAL
-    rectangle('Position',[n-(Wbar/10), curve-sem, Wbar/5, sem*2],...
-        'EdgeColor','k',...
-        'LineWidth',0.5);
-    hold on
-    
+%     rectangle('Position',[n-(Wbar/10), curve-sem, Wbar/5, sem*2],...
+%         'EdgeColor','k',...
+%         'LineWidth',0.5);
+%     hold on
+%     
     % INDIVIDUAL DOTS
     if length(density) > 1
         jitterstrength = interp1(value, density*width, DataMatrix);
@@ -94,26 +101,31 @@ for n = 1:Nbar
 
     jitter=abs(zscore(1:length(DataMatrix))'/max(zscore(1:length(DataMatrix))'));
     
-    s = scatter(n - Wbar/6 - jitter.*(Wbar/2- Wbar/8), DataMatrix, markersize,...
+    jit = linspace(-Wbar/3, Wbar/3, length(DataMatrix));
+    s = scatter(n + jit, DataMatrix, markersize,...
         Colors(n,:),'filled',...
         'marker','o', 'linewidth', .2,...
         'MarkerEdgeColor','w',...
         'MarkerFaceAlpha',0.6);
     hold on
     
-    xMean = [n-(Wbar/10) ; n + Wbar/10];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'-','Color','k');
-    hold on
-    
-    plot([n, n], [curve+sem, curve+sem*conf], 'color', 'k');
-    hold on
-    plot([n, n], [curve-sem, curve-sem*conf], 'color', 'k');
-    hold on
+    uistack(s, 'top');
 
     
+    plot([n, n], [curve, curve+sem], 'color',  'k', 'linewidth', 2);
     hold on
-    uistack(s, 'top');
+    plot([n, n], [curve, curve-sem], 'color',  'k', 'linewidth', 2);
+    hold on
+    plot([n, n], [curve+sem, curve+sem*conf], 'color', 'k');
+    hold on
+    plot([n, n], [curve-sem, curve-sem*conf], 'color',  'k');
+    hold on
+
+    xMean = [n];
+    yMean = [curve];
+    scatter(xMean,yMean, 12, 'markerfacecolor', 'w', 'markeredgecolor','k');
+    hold on
+    hold on
     
 
 end

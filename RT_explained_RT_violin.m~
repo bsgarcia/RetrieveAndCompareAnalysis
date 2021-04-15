@@ -16,8 +16,8 @@ num = 0;
 symp = [.1, .2, .3, .4, .6, .7, .8, .9];
 % lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
 %  
-figure('Renderer', 'Painter', 'Units', 'centimeters',...
-    'Position', [0,0,5.3*2, 5.3/1.25*2], 'visible', displayfig)
+figure('Renderer', 'Pa'Units', 'centimeters',...
+    'Position', [0,0,5.3*1.5, 5.3/1.25*1.5], 'visible', displayfig)
 
 sub_count = 0;
 stats_data = table();
@@ -105,7 +105,7 @@ x4 = none;
 labely = 'Median reaction time per subject';
 
 
-skylineboxplot({x1'; x2'; x3'; x4'}, 'sem', 5, ...
+skylineplot({x1'; x2'; x3'; x4'}, 5*2,...
     colors,...
     y1,...
     y2,...
@@ -113,14 +113,14 @@ skylineboxplot({x1'; x2'; x3'; x4'}, 'sem', 5, ...
     '',...
     'Choices exclusively explained by',...
     labely,...
-    {'Heuristic', 'LE estimates', 'Both', 'None'});
+    {'Heuristic', 'LE estimates', 'Both', 'None'},0);
 set(gca, 'tickdir', 'out');
 set(gca, 'fontsize', fontsize)
 box off;
 
 mkdir('fig', 'violinplot');
 mkdir('fig/violinplot/', 'RT');
-saveas(gcf, 'fig/violinplot/RT/explained.pdf');
+saveas(gcf, 'fig/violinplot/RT/explained.svg');
 
 % save stats file
 mkdir('data', 'stats');

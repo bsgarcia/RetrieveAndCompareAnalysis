@@ -72,19 +72,19 @@ for n = 1:Nbar
     else % all data is identical
         d = repmat(density*width,1,2);
     end 
-    fill([n-(Wbar/10) n-(Wbar/10)+ones(1,length(d)).*(Wbar/5) n-(Wbar/10)],...
-        [curve-sem curve-sem sort(inter) curve+sem curve+sem],...
-        set_alpha(Colors(n,:), .7),...
-        'EdgeColor', 'none'...%trace,...
-    );
-    hold on
+%     fill([n-(Wbar/10) n-(Wbar/10)+ones(1,length(d)).*(Wbar/5) n-(Wbar/10)],...
+%         [curve-sem curve-sem sort(inter) curve+sem curve+sem],...
+%         set_alpha(Colors(n,:), .7),...
+%         'EdgeColor', 'none'...%trace,...
+%     );
+%     hold on
     
         % CONFIDENCE INTERVAL
-    rectangle('Position',[n-(Wbar/10), curve-sem, Wbar/5, sem*2],...
-        'EdgeColor','k',...
-        'LineWidth',0.5);
-    hold on
-    
+%     rectangle('Position',[n-(Wbar/10), curve-sem, Wbar/5, sem*2],...
+%         'EdgeColor','k',...
+%         'LineWidth',0.5);
+%     hold on
+%     
     % INDIVIDUAL DOTS
     if length(density) > 1
         jitterstrength = interp1(value, density*width, DataMatrix);
@@ -101,17 +101,21 @@ for n = 1:Nbar
         'MarkerFaceAlpha',0.6);
     hold on
     
-    xMean = [n-(Wbar/10) ; n + Wbar/10];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'-','Color','k');
-    hold on
     
-    plot([n, n], [curve+sem, curve+sem*conf], 'color', 'k');
+    
+    plot([n, n], [curve, curve+sem], 'color',  set_alpha(Colors(n,:), .8), 'linewidth', 2);
     hold on
-    plot([n, n], [curve-sem, curve-sem*conf], 'color', 'k');
+    plot([n, n], [curve, curve-sem], 'color',  set_alpha(Colors(n,:), .8), 'linewidth', 2);
+    hold on
+    plot([n, n], [curve+sem, curve+sem*conf], 'color', set_alpha(Colors(n,:), .8));
+    hold on
+    plot([n, n], [curve-sem, curve-sem*conf], 'color',  set_alpha(Colors(n,:), .8));
     hold on
 
-    
+    xMean = [n];
+    yMean = [curve];
+    scatter(xMean,yMean, 12, 'markerfacecolor', 'w', 'markeredgecolor',set_alpha(Colors(n,:), .8));
+    hold on
     hold on
     uistack(s, 'top');
     
