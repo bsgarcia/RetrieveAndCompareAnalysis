@@ -339,7 +339,7 @@ classdef DataExtraction < handle
                     mask_sess = ismember(data(:, obj.idx.sess), session);
                     mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
                     [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-                    %trialorder = 1:length(trialorder);
+                    trialorder = 1:length(trialorder);
 
                     temp_corr = data(mask, obj.idx.corr);
                     new_data.corr(i, :) = temp_corr(trialorder);
