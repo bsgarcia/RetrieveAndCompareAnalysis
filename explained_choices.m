@@ -5,10 +5,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [6.1, 6.2, 8.1, 8.2, 6, 8];%, 6.2, 7.1, 7.2];
+selected_exp = [1,2,3,4,5,6,8];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
-colors = [red; dark_blue; grey; black];
-alphas = [.5, .5, 1, .8];
+colors = [red; dark_blue; pink; black];
+alphas = [.5, .5, .4, .8];
 for i = 1:4
     colors(i, :) = set_alpha(colors(i, :), alphas(i));
 end
@@ -65,39 +65,41 @@ for exp_num = selected_exp
     none = nan(nsub, 1);
     both = nan(nsub, 1);
     
-    o_heur = mean(...
-            logical((data.cho==heur) .* (data.cho~=le)), 'all');
-    o_le = mean(...
-            logical((data.cho~=heur) .* (data.cho==le)), 'all');       
-    none = mean(...
-            logical((data.cho~=heur).*(data.cho~=le)), 'all');
-    both = mean(...
-            logical((data.cho==heur).*(data.cho==le)), 'all');
-%     
-%     for sub = 1:nsub
-%         o_heur(sub,1) = mean(...
-%             logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
-%         o_le(sub,1) = mean(...
-%             logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
-%         
-%         none(sub,1) = mean(...
-%             logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:))));
-%         both(sub,1) = mean(...
-%             logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:))));
+%     o_heur = mean(...
+%             logical((data.cho==heur) .* (data.cho~=le)), 'all');
+%     o_le = mean(...
+%             logical((data.cho~=heur) .* (data.cho==le)), 'all');       
+%     none = mean(...
+%             logical((data.cho~=heur).*(data.cho~=le)), 'all');
+%     both = mean(...
+%             logical((data.cho==heur).*(data.cho==le)), 'all');
+% %     
+    for sub = 1:nsub
+        o_heur(sub,1) = mean(...
+            logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
+        o_le(sub,1) = mean(...
+            logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
         
-%         for mod_num = 1:4
-%                 T1 = table(...
-%                     sub+sub_count, exp_num, dd{mod_num},...
-%                     {modalities{mod_num}}, 'variablenames',...
-%                     {'subject', 'exp_num', 'score', 'modality'}...
-%                     );
-%                 stats_data = [stats_data; T1];
-%         end
+        none(sub,1) = mean(...
+            logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:))));
+        both(sub,1) = mean(...
+            logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:))));
+        dsub = {o_heur(sub,1),  o_le(sub,1),  both(sub,1),  none(sub,1)};
+        modalities = {'HE', 'LE', 'NO', 'BO'};
+        for mod_num = 1:4
+                T1 = table(...
+                    sub+sub_count, exp_num, dsub{mod_num},...
+                    {modalities{mod_num}}, 'variablenames',...
+                    {'subject', 'exp_num', 'score', 'modality'}...
+                    );
+                stats_data = [stats_data; T1];
+        end
+    end
 %     end
     %disp(o_heur)
-    sam(num,1) = o_heur;
-    total(num,1) =  numel(data.cho);
-  
+
+    sub_count = sub_count + sub; 
+    
     dd(num, :) = flip([mean(o_heur), mean(o_le), mean(both), mean(none)]);    
   
 end
@@ -114,14 +116,13 @@ set(gca, 'tickdir', 'out');
 set(gca, 'fontsize', fontsize)
 box off;
 
-% mkdir('fig', 'violinplot');
-% mkdir('fig/violinplot/', 'RT');
-% saveas(gcf, 'fig/violinplot/RT/explained.svg');
-% 
-% % save stats file
-% mkdir('data', 'stats');
-% stats_filename = 'data/stats/RT_H_LE_BOTH_NONE.csv';
-% writetable(stats_data, stats_filename);
+mkdir('fig', 'barplot');
+saveas(gcf, 'fig/barplot/explained.pdf');
+
+% save stats file
+mkdir('data', 'stats');
+stats_filename = 'data/stats/score_explained.csv';
+writetable(stats_data, stats_filename);
 
 
 % ------------------------------------------------------------------------%

@@ -389,11 +389,11 @@ classdef DataExtraction < handle
                         
                         trialorder = data(mask, obj.idx.trial);
                         
-                         if ~issorted(trialorder)
-                             [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-                         else
-                             trialorder = 1:length(trialorder);
-                         end
+%                         if ~issorted(trialorder)
+%                             [noneed, trialorder] = sort(data(mask, obj.idx.trial));
+% %                         else
+                            %trialorder = 1:length(trialorder);
+%                         end
                         
                         temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);

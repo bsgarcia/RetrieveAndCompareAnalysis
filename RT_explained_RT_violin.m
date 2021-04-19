@@ -5,22 +5,20 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6];%, 6.2, 7.1, 7.2];
+selected_exp = [5, 6];
 displayfig = 'on';
-colors = [red; dark_blue; grey; black];
-zscored = 0;
+colors = [red; dark_blue; pink; black];
 
-num = 0;
 %
 
 symp = [.1, .2, .3, .4, .6, .7, .8, .9];
-% lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
 %  
-figure('Units', 'centimeters',...
+figure('Renderer', 'Painter', 'Units', 'centimeters',...
     'Position', [0,0,5.3*2, 5.3/1.25*2], 'visible', displayfig)
 
 sub_count = 0;
 stats_data = table();
+num = 0;
 
 for exp_num = selected_exp
     
@@ -61,23 +59,29 @@ for exp_num = selected_exp
     end
     
     for sub = 1:nsub
-        o_heur(sub+sub_count,1) = median(...
+        s = sub + sub_count;
+        o_heur(s,1) = median(...
             data.rtime(sub, logical((...
                 data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:)))));
-        o_le(sub+sub_count,1) = median(...
-            data.rtime(sub,logical((data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==le(sub,:)))));
+        o_le(s,1) = median(...
+            data.rtime(sub,logical(...
+            (data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==le(sub,:)))));
         
-        none(sub+sub_count,1) = median(...
-            data.rtime(sub,logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:)))));
-        both(sub+sub_count,1) = median(...
-            data.rtime(sub,logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:)))));
+        none(s,1) = median(...
+            data.rtime(sub,logical(...
+            (data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:)))));
+        both(s,1) = median(...
+            data.rtime(sub,logical(...
+            (data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:)))));
         
         modalities = {'heur', 'le', 'both', 'none'};
-        dd = {o_heur(sub+sub_count,1); o_le(sub+sub_count,1); both(sub+sub_count,1); none(sub+sub_count,1)};
+        
+        dd = {o_heur(s,1); o_le(s,1);...
+            both(s,1); none(s,1)};
 
         for mod_num = 1:4
                 T1 = table(...
-                    sub+sub_count, exp_num, dd{mod_num},...
+                    s, exp_num, dd{mod_num},...
                     {modalities{mod_num}}, 'variablenames',...
                     {'subject', 'exp_num', 'RT', 'modality'}...
                     );
@@ -90,13 +94,9 @@ for exp_num = selected_exp
   
 end
 
-if zscored
-    y1 = -3;
-    y2 = 1;
-else
-    y1 = 0;
-    y2 = 6500;
-end
+
+ y1 = 0;
+y2 = 6500;
 x1 = o_heur;
 x2 = o_le;
 x3 = both;
@@ -105,7 +105,7 @@ x4 = none;
 labely = 'Median reaction time per subject';
 
 
-skylineplot({x1'; x2'; x3'; x4'}, 5*2,...
+skylineplot({x1'; x2'; x3'; x4'},  5*2, ...
     colors,...
     y1,...
     y2,...
@@ -113,14 +113,14 @@ skylineplot({x1'; x2'; x3'; x4'}, 5*2,...
     '',...
     'Choices exclusively explained by',...
     labely,...
-    {'Heuristic', 'LE estimates', 'Both', 'None'},0);
+    {'Heuristic', 'LE estimates', 'Both', 'None'});
 set(gca, 'tickdir', 'out');
-set(gca, 'fontname', 'Helvetica')
+set(gca, 'fontsize', fontsize)
 box off;
 
 mkdir('fig', 'violinplot');
 mkdir('fig/violinplot/', 'RT');
-saveas(gcf, 'fig/violinplot/RT/explained.svg');
+saveas(gcf, 'fig/violinplot/RT/explained.pdf');
 
 % save stats file
 mkdir('data', 'stats');
@@ -133,11 +133,9 @@ writetable(stats_data, stats_filename);
 function score = heuristic(data)
 
 for sub = 1:size(data.cho,1)
-    count = 0;
     
     for t = 1:size(data.cho,2)
         
-        count = count + 1;
         
         if data.p2(sub,t) >= .5
             prediction = 2;
@@ -145,7 +143,7 @@ for sub = 1:size(data.cho,1)
             prediction = 1;
         end
         
-        score(sub, count) = prediction;
+        score(sub, t) = prediction;
         
     end
 end
@@ -154,11 +152,9 @@ end
 
 function score = argmax_estimate(data, symp, values)
 for sub = 1:size(data.cho,1)
-    count = 0;
     
     for t = 1:size(data.cho,2)
         
-        count = count + 1;
         
         if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
             prediction = 2;
@@ -166,7 +162,7 @@ for sub = 1:size(data.cho,1)
             prediction = 1;
         end
         
-        score(sub, count) = prediction;
+        score(sub, t) = prediction;
         
     end
 end

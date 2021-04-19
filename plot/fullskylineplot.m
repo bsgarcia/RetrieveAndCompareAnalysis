@@ -1,6 +1,6 @@
-function [Nbar,Nsub] = skylineboxplot(DataCell, markersize, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin, noscatter)
+function [Nbar, Nsub] = skylineboxplot(DataCell, error, markersize, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin)
 
-% Sophie Bavard - December 2018
+% Sophie Bavard - December 2018 / Modified Basile Garcia
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
 % Warning: the function can accept any number of arguments > 9.
 % After the Title, LabelX, LabelY : varargin for bar names under X-axis
@@ -10,20 +10,14 @@ if iscell(DataCell)==0
     DataCell = num2cell(DataCell,2);
 end
 
-if ~exist('noscatter')
-    noscatter = 0;
-end
 
 % number of factors/groups/conditions
 Nbar = size(DataCell,1);
 % bar size
-Wbar = 0.75;
+Wbar = 0.4;
 
 % confidence interval
 ConfInter = 0.95;
-
-% color of the box + error bar
-trace = [0.5 0.5 0.5];
 
 for n = 1:Nbar
     
@@ -35,8 +29,15 @@ for n = 1:Nbar
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmedian(DataMatrix);
-    sem   = nanstd(DataMatrix')'/sqrt(Nsub);
+    curve = nanmean(DataMatrix);
+    switch error
+        case 'sem'
+            sem   = nanstd(DataMatrix')'/sqrt(Nsub);
+        case 'std'
+            sem  = nanstd(DataMatrix')';
+        otherwise 
+            disp('Error estimator not recognized! Available estimators: "sem", "std"');
+    end
     conf  = tinv(1 - 0.5*(1-ConfInter),Nsub);
     
     % PLOT THE VIOLINS
@@ -59,11 +60,18 @@ for n = 1:Nbar
     % plot the violin
     fill([n n+density*width n],...
         [value(1) value value(end)],...
-        set_alpha(Colors(n,:), .3),...
+        set_alpha(Colors(n,:), .3), 'linewidth', .2,...
         'EdgeColor', 'none'...%trace,...
         );
     hold on
-    
+
+        % plot the violin
+    fill([n n-density*width n],...
+        [value(1) value value(end)],...
+        set_alpha(Colors(n,:), .3), 'linewidth', .2,...
+        'EdgeColor', 'none'...%trace,...
+        );
+    hold on
     % CONFIDENCE INTERVAL    
     inter = unique(DataMatrix(DataMatrix<curve+sem*conf & DataMatrix>curve-sem*conf),'stable')';
     if length(density) > 1
@@ -71,19 +79,19 @@ for n = 1:Nbar
     else % all data is identical
         d = repmat(density*width,1,2);
     end 
-    fill([n-(Wbar/8) n-(Wbar/8)+ones(1,length(d)).*(Wbar/4) n-(Wbar/8)],...
-        [curve-sem*conf curve-sem*conf sort(inter) curve+sem*conf curve+sem*conf],...
-        set_alpha(Colors(n,:), .7),...
-        'EdgeColor', 'none'...%trace,...
-    );
-    hold on
+%     fill([n-(Wbar/10) n-(Wbar/10)+ones(1,length(d)).*(Wbar/5) n-(Wbar/10)],...
+%         [curve-sem curve-sem sort(inter) curve+sem curve+sem],...
+%         set_alpha(Colors(n,:), .7),...
+%         'EdgeColor', 'none'...%trace,...
+%     );
+%     hold on
     
         % CONFIDENCE INTERVAL
-    rectangle('Position',[n-(Wbar/8), curve - sem*conf, Wbar/4, sem*conf*2],...
-        'EdgeColor','k',...
-        'LineWidth',0.5);
-    hold on
-    
+%     rectangle('Position',[n-(Wbar/10), curve-sem, Wbar/5, sem*2],...
+%         'EdgeColor','k',...
+%         'LineWidth',0.5);
+%     hold on
+%     
     % INDIVIDUAL DOTS
     if length(density) > 1
         jitterstrength = interp1(value, density*width, DataMatrix);
@@ -93,38 +101,42 @@ for n = 1:Nbar
 
     jitter=abs(zscore(1:length(DataMatrix))'/max(zscore(1:length(DataMatrix))'));
     
-    if ~noscatter
-        s = scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, markersize,...
-            Colors(n,:),'filled',...
-            'marker','o',...
-            'MarkerEdgeColor', 'none',...
-            'MarkerFaceAlpha',0.6);
-        hold on
-    end
-    
-    xMean = [n-(Wbar/8) ; n + Wbar/8];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',0.5,'Color','k');
+    jit = linspace(-Wbar/3, Wbar/3, length(DataMatrix));
+    s = scatter(n + jit, DataMatrix, markersize,...
+        Colors(n,:),'filled',...
+        'marker','o', 'linewidth', .2,...
+        'MarkerEdgeColor','w',...
+        'MarkerFaceAlpha',0.6);
     hold on
     
-    % ERROR BARS
-    errorbar(n,curve,sem,...
-        'Color','k',...Colors(n,:),...
-        'LineStyle','none', 'CapSize',0,...
-        'LineWidth',0.5);
-    plot(n, 
+    uistack(s, 'top');
+
     
+    plot([n, n], [curve, curve+sem], 'color',  'k', 'linewidth', 2);
     hold on
-    uistack(s, 'bottom');
+    plot([n, n], [curve, curve-sem], 'color',  'k', 'linewidth', 2);
+    hold on
+    plot([n, n], [curve+sem, curve+sem*conf], 'color', 'k');
+    hold on
+    plot([n, n], [curve-sem, curve-sem*conf], 'color',  'k');
+    hold on
+
+    xMean = [n];
+    yMean = [curve];
+    scatter(xMean,yMean, 12, 'markerfacecolor', 'w', 'markeredgecolor','k');
+    hold on
+    hold on
+    
 
 end
 
 % axes and stuff
 ylim([Yinf Ysup]);
+disp(Font);
 set(gca,'FontSize',Font,...
     'XLim',[0 Nbar+1],...
     'XTick',1:Nbar,...
-    'XTickLabel',varargin);
+    'XTickLabel',varargin{:});
 
 title(Title);
 xlabel(LabelX);

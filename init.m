@@ -168,14 +168,18 @@ function de = load_data(filenames, folder,  rtime_threshold,...
         d = setfield(d, char(f), struct());
         new_d = getfield(d, char(f));
         
+        % exclude subject based on exclusion criteria
         before_sub_ids = DataExtraction.exclude_subjects(...
             dd{i}, sub_ids{i}, idx, catch_threshold, rtime_threshold,...
             n_best_sub, allowed_nb_of_rows);
         
+        % try to retrieve data and see if there is any error (missing
+        % trials etc..)
         [cho, cfcho, out, cfout, corr2, con, p1, p2, rew, rt, ev1, ev2, error_exclude] = ...
             DataExtraction.extract_learning_data(...
                 dd{i}, before_sub_ids, idx, [0, 1]);
             
+        % if there is one exclude them
         to_select = 1:length(before_sub_ids);
         to_select(error_exclude) = [];
         
