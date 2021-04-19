@@ -102,6 +102,9 @@ for exp_num = selected_exp
   
 end
 
+disp(dd);
+return
+
 b = bar(dd, 'stacked', 'facecolor','flat', 'edgecolor', 'w');
 
 for i = 1:4
