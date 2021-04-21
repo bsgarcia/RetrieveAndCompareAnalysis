@@ -1,6 +1,6 @@
 import pandas as pd
 import pingouin as pg
-import pymc3 as pm
+# import pymc3 as pm
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import seaborn as sns
@@ -10,9 +10,11 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [#dict(dv='RT', name='RT_FIT'),
-             dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
-    # infos = [dict(dv='score', name='score_explained'),]
+    #infos = [#dict(dv='RT', name='RT_FIT'),
+     #        dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
+    infos = [dict(dv='score', name='score_explained'),]
+
+    #infos = [dict(dv='C', name='Fig5C')]
 
     # polyfit(infos[0])
     pairwise_ttests(infos)

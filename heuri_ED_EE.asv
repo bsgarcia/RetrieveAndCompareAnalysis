@@ -10,12 +10,14 @@ displayfig = 'on';
 figure('Units', 'centimeters',...
     'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
 num = 0;
-
+sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
     
-    corr1 = de.extract_ED(exp_num).corr;
-    corr2 = de.extract_EE(exp_num).corr;
+    dED = de.extract_ED(exp_num);
+    dEE = de.extract_EE(exp_num);
+    
+    mean(
     
     % add ED exp_%num
     CCR{num, 1} = mean(corr1,2)';
@@ -23,8 +25,17 @@ for exp_num = selected_exp
     % add EE exp_%num
     CCR{num, 2} = mean(corr2,2)';
     
+    dd = mean(corr
+    for sub = 1:
+        T1 = table(...
+                    sub+sub_count, exp_num, dd{mod_num},...
+                    {modalities{mod_num}}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'modality'}...
+                    );
+                stats_data = [stats_data; T1];
+    end
     
-    
+    sub_count = sub_count + sub;
 end
 
 x1 = CCR{1, 2};
@@ -40,6 +51,8 @@ skylineplot({x1;x2},8,...
     'Correct choice rate',...
     {'Exp. 6', 'Exp. 7'},...
     0);
+
+
 hold on
 scatter([1], [.8], 'markerfacecolor', 'black', 'markeredgecolor', 'w');
 box off
