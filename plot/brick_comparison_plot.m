@@ -52,12 +52,12 @@ for n = 1:nbar
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
         set_alpha(color1, .23),...
-        'EdgeColor', 'black', 'linewidth', .2);
+        'EdgeColor', 'black', 'linewidth', .4);
     hold on
     
     fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
         [curve-sem curve-sem curve+sem curve+sem],...
-        set_alpha(color1, .7), 'linewidth', .2);
+        set_alpha(color1, .6), 'linewidth', .4);
  
     hold on
        
@@ -70,10 +70,9 @@ for n = 1:nbar
         hold on
     end
     
-    xMean = [x_values(n)+width ; x_values(n)+Wbar];
+    xMean = [x_values(n)+width; x_values(n)+Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',.8,'Color',color1);
-    hold on
+    plot(xMean,yMean,'LineWidth',1.8,'Color',color1);
 
     % -- 2nd dataset
     
@@ -89,13 +88,13 @@ for n = 1:nbar
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
         set_alpha(color2, .23),...
-        'edgecolor', 'black', 'linewidth', .2);
+        'edgecolor', 'black', 'linewidth', .4);
     hold on
       
         
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem curve-sem curve+sem curve+sem],...
-        set_alpha(color2, .7), 'linewidth', .2);%,...
+        set_alpha(color2, .6), 'linewidth', .4);%,...
      
     hold on
 %     
@@ -108,9 +107,10 @@ for n = 1:nbar
         hold on
     end
     
-    xMean = [x_values(n)-width ; x_values(n)-Wbar];
+    
+    xMean = [x_values(n)-width; x_values(n)-Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'-','LineWidth',0.8,'Color', color2);
+    plot(xMean,yMean,'LineWidth',1.8,'Color',color2);
     hold on
     
 

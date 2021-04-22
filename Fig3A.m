@@ -1,8 +1,19 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
+%-------------------------------------------------------------------------%
+% parameters of the script                                                %
+%-------------------------------------------------------------------------%
 selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
+colors = [orange; blue];
+% filenames
+filename = 'Fig3A';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
@@ -40,14 +51,14 @@ for exp_num = selected_exp
     sim_params.model = 2;
     [midpoints3, throw] = get_qvalues(sim_params);
     
-    slope1 = add_linear_reg(midpoints1.*100, ev, blue_color);   
+    slope1 = add_linear_reg(midpoints1.*100, ev,  colors(2,:));   
     hold on
-    slope2 = add_linear_reg(midpoints2.*100, ev, orange_color);
+    slope2 = add_linear_reg(midpoints2.*100, ev,  colors(1,:));
     hold on
     
-    brick_comparison_plot2(...
+    brick_comparison_plot(...
         midpoints2'.*100,midpoints1'.*100,...
-        orange_color, blue_color, ...
+        colors(1,:), colors(2,:), ...
         [-8, 108], 11,...
         '',...
         '',...
@@ -66,9 +77,7 @@ for exp_num = selected_exp
     
 end
 
-mkdir('fig/exp', 'brickplot');
-saveas(gcf, ...
-    'fig/exp/brickplot/LT_ED.svg');
+saveas(gcf, figname);
 
 
 

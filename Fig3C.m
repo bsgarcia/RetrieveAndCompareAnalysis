@@ -7,9 +7,16 @@ show_current_script_name(mfilename('fullpath'));
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
 selected_exp = [1, 2, 3, 4];
-modalities = {'LE', 'ED'};
+modalities = {'LE', 'ED', 'PM'};
 displayfig = 'on';
-colors = [blue;orange];
+colors = [blue;orange;magenta];
+% filenames
+filename = 'Fig3C';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -17,13 +24,6 @@ colors = [blue;orange];
 % stats_data is table that is used to compute stats later
 stats_data = table();
 
-% filenames
-% name = modality1_modality2_modalityN
-filename = [cell2mat(strcat(modalities(1:end-1), '_')), modalities{end}];
-figfolder = 'violinplot';
-
-figname = sprintf('fig/exp/%s/%s.svg', figfolder, filename);
-stats_filename = sprintf('data/stats/%s.csv', filename);
 
 figure('Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)

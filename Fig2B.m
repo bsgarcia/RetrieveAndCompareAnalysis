@@ -2,9 +2,19 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [8];
-
+%-------------------------------------------------------------------------%
+% parameters of the script                                                %
+%-------------------------------------------------------------------------%
+selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
+colors = [orange];
+% filenames
+filename = 'Fig2B';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
@@ -53,23 +63,10 @@ for exp_num = selected_exp
         end
     end
    
-    X = reshape(...
-        repmat(pcue, size(k, 2), size(chose_symbol, 4)), [], 1....
-        );
-   
-    pp = zeros(length(psym), length(pcue));
-   
-    for i = 1:length(psym)
-        Y = reshape(chose_symbol(k, :, i, :), [], 1);
-        [logitCoef, dev] = glmfit(...
-            X, Y, 'binomial','logit');
-        pp(i, :) = glmval(logitCoef, pcue', 'logit');
-    end
    
     subplot(1, length(selected_exp), num);
    
     pwin = psym;
-    %alpha = [fliplr(linspace(.4, .9, length(psym)/2)), linspace(.4, .9, length(psym)/2)];
     alpha = linspace(.15, .95, length(psym));
     lin1 = plot(...
         linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
@@ -82,7 +79,7 @@ for exp_num = selected_exp
        
         lin3 = plot(...
             pcue.*100,  prop(i, :).*100,...
-            'Color', orange, 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
+            'Color', colors(1,:), 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
             );
        
        
@@ -116,6 +113,4 @@ for exp_num = selected_exp
     clear pp pcue psym temp err_prop prop i
    
 end
-mkdir('fig/exp', 'ind_curves_bhv');
-saveas(gcf, ...
-    sprintf('fig/exp/ind_curves_bhv/full_ED.svg'));
+saveas(gcf, figname);

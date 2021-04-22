@@ -12,12 +12,13 @@ import scipy.stats as stats
 def main():
     #infos = [#dict(dv='RT', name='RT_FIT'),
      #        dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
-    infos = [dict(dv='score', name='score_explained'),]
+    # infos = [dict(dv='score', name='score_explained'),]
 
-    #infos = [dict(dv='C', name='Fig5C')]
+    infos = [dict(dv='slope', name='Fig4D')]
 
     # polyfit(infos[0])
-    pairwise_ttests(infos)
+    # pairwise_ttests(infos)
+    mixed_anova(infos)
     # pairwise_ttests(infos[2])
 
 def polyfit_full(infos):
@@ -174,34 +175,21 @@ def polyfit(infos):
         # ------------------------------------------------------ #
 
 
-def anova(infos):
+def mixed_anova(infos):
     for info in infos:
         name = info['name']
         dv = info['dv']
-        print('*' * 5, name ,'*' * 5)
+        print('*' * 5, name,'*' * 5)
         df = pd.read_csv(f'../data/stats/{name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
 
-        res = pg.rm_anova(data=df[df['modality']=='ED_e'], dv='RT', within='p', subject='subject')
+        res = pg.mixed_anova(data=df, dv=dv, between='exp_num', within='modality', subject='subject')
 
         # model = sm.GLM.from_formula('RT ~ p1*p2', data=df).fit()
         # print(model.summary())
 
         pg.print_table(res, floatfmt='.6f')
-
-        res = pg.rm_anova(data=df[df['modality']=='ED_d'], dv='RT', within='p', subject='subject')
-
-        # model = sm.GLM.from_formula('RT ~ p1*p2', data=df).fit()
-        # print(model.summary())
-
-        pg.print_table(res, floatfmt='.6f')
-
-
-        # res= pg.friedman(data=df, dv='RT', within='p1', subject='subject')
-        # pg.print_table(res, floatfmt='.6f')
-        # res= pg.friedman(data=df, dv='RT', within='p2', subject='subject')
-        # pg.print_table(res, floatfmt='.6f')
 
 
 def lme(infos):
