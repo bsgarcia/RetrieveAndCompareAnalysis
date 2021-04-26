@@ -65,12 +65,6 @@ for exp_num = selected_exp
     
     for sub = 1:nsub
         s = sub + sub_count;
-        
-        S1 = mean(logical((...
-                data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
-        S2 = mean(logical((...
-                data.cho(sub,:)~= heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
-           
         o_heur(s,1) = median(...
             data.rtime(sub, logical((...
                 data.cho(sub,:)== heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:)))));
@@ -89,16 +83,14 @@ for exp_num = selected_exp
         
         dd = {o_heur(s,1); o_le(s,1);...
             both(s,1); none(s,1)};
-        
-        score = {S1, S2, NaN, NaN};
 
         for mod_num = 1:4
-            T1 = table(...
-                s, exp_num, dd{mod_num}, score{mod_num},...
-                {modalities{mod_num}}, 'variablenames',...
-                {'subject', 'exp_num', 'RT', 'score', 'modality'}...
-                );
-            stats_data = [stats_data; T1];
+                T1 = table(...
+                    s, exp_num, dd{mod_num},...
+                    {modalities{mod_num}}, 'variablenames',...
+                    {'subject', 'exp_num', 'RT', 'modality'}...
+                    );
+                stats_data = [stats_data; T1];
         end
     end
     
@@ -115,55 +107,27 @@ x2 = o_le;
 x3 = both;
 x4 = none;
 
-labely = 'Median reaction time per subject (ms)';
-
-x = stats_data;
-x1 = x(logical(strcmp(x.modality, 'heur')), 'score').score;
-x2 =  x(logical(strcmp(x.modality, 'le')), 'score').score;
-y1 = x(logical(strcmp(x.modality, 'heur')), 'RT').RT;
-y2 =  x(logical(strcmp(x.modality, 'le')), 'RT').RT;
+labely = 'Median reaction time per subject';
 
 
-labelx = 'Heuristic score';
-subplot(1, 2, 1)
-scatterCorr(x1, y1, red, .6, 2, 2, 'w'); 
-xlim([-0.05, .4])
-ylim([300, 5000])
-xlabel(labelx);
+skylineplot({x1'; x2'; x3'; x4'},  5*2, ...
+    colors,...
+    y1,...
+    y2,...
+    fontsize,...
+    '',...
+    'Choices exclusively explained by',...
+    labely,...
+    {'Heuristic', 'LE estimates', 'Both', 'None'});
+set(gca, 'tickdir', 'out');
+set(gca, 'fontsize', fontsize)
+box off;
 
-set(gca, 'tickdir', 'out')
+saveas(gcf, figname);
 
-
-labelx = 'LE estimates score';
-subplot(1, 2, 2)
-ylim([300, 5000])
-labelx = 'LE estimates score';
-
-scatterCorr(x2, y2, dark_blue, .6, 2, 2, 'w'); 
-xlabel(labelx);
-xlim([-0.05, .4])
-set(gca, 'tickdir', 'out')
-
-
-return
-% skylineplot({x1'; x2'; x3'; x4'},  5*2, ...
-%     colors,...
-%     y1,...
-%     y2,...
-%     fontsize,...
-%     '',...
-%     'Choices exclusively explained by',...
-%     labely,...
-%     {'Heuristic', 'LE estimates', 'Both', 'None'});
-% set(gca, 'tickdir', 'out');
-% set(gca, 'fontsize', fontsize)
-% box off;
-% 
-% saveas(gcf, figname);
-% 
-% % save stats file
-% mkdir('data', 'stats');
-% writetable(stats_data, stats_filename);
+% save stats file
+mkdir('data', 'stats');
+writetable(stats_data, stats_filename);
 
 
 % ------------------------------------------------------------------------%

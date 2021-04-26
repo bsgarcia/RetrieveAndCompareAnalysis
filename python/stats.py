@@ -14,11 +14,11 @@ def main():
      #        dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
     # infos = [dict(dv='score', name='score_explained'),]
 
-    infos = [dict(dv='slope', name='Fig4D')]
+    infos = [dict(dv='RT', name='Fig6D')]
 
     # polyfit(infos[0])
     # pairwise_ttests(infos)
-    mixed_anova(infos)
+    pairwise_ttests(infos)
     # pairwise_ttests(infos[2])
 
 def polyfit_full(infos):
