@@ -14,6 +14,13 @@ stats_data = table();
 full_rt = table();
 %d = cell(11, 1);
 %e = cell(8, 1);
+% filenames
+filename = 'Fig6B';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 
 num = 0;
 
@@ -171,57 +178,8 @@ box off;
 
 
 
-mkdir('fig', 'violinplot');
-mkdir('fig/violinplot/', 'RT');
-saveas(gcf, 'fig/violinplot/RT/RT.svg');
+saveas(gcf, figname);
 
-% save stats file
-mkdir('data', 'stats');
-stats_filename = 'data/stats/RT_FIT.csv';
 writetable(stats_data, stats_filename);
 
 % ------------------------------------------------------------------------%
-
-function score = heuristic(data, symp,lotp)
-
-for sub = 1:size(data.cho,1)
-    count = 0;
-    
-    for t = 1:size(data.cho,2)
-        
-        count = count + 1;
-        
-        if data.p2(sub,t) >= .5
-            prediction = 2;
-        else
-            prediction = 1;
-        end
-        
-        score(sub, count) = prediction;
-        
-    end
-end
-end
-
-
-function score = argmax_estimate(data, symp, lotp, values)
-for sub = 1:size(data.cho,1)
-    count = 0;
-    
-    for t = 1:size(data.cho,2)
-        
-        count = count + 1;
-        
-        if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
-            prediction = 2;
-        else
-            prediction = 1;
-        end
-        
-        score(sub, count) = prediction;
-        
-    end
-end
-end
-
-        

@@ -14,12 +14,13 @@ def main():
      #        dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
     # infos = [dict(dv='score', name='score_explained'),]
 
-    infos = [dict(dv='RT', name='Fig6D')]
+    infos = [dict(dv='RT', name='Fig6B')]
 
-    # polyfit(infos[0])
+    polyfit(infos)
     # pairwise_ttests(infos)
-    pairwise_ttests(infos)
+    # pairwise_ttests(infos)
     # pairwise_ttests(infos[2])
+
 
 def polyfit_full(infos):
     for info in infos:
@@ -38,7 +39,7 @@ def polyfit_full(infos):
         #
         # x = pd.concat([x1, x2], axis=1)
         # y = pd.concat([y1, y2], axis=1)#np.array([y1, y2]).reshape(len(y1), 2)
-        x = np.array([df['p1'], df['p2']]).T
+        x = np.array([df['p_lottery'], df['p_symbol']]).T
         y = np.array(df['RT'])
 
 
@@ -48,7 +49,6 @@ def polyfit_full(infos):
         polynomial_features = PolynomialFeatures(degree=2)
         xp = polynomial_features.fit_transform(x)
 
-        import pdb;pdb.set_trace()
         model = sm.OLS(y, xp, missing='drop').fit()
         # ypred = model.predict(xp)
 
@@ -65,8 +65,11 @@ def polyfit(infos):
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
 
-        x = df[df['modality']=='ED_d']['p']
-        y = df[df['modality']=='ED_d']['RT']
+        # --------------------------------------------------------- #
+        print('*' * 20, 'ED_d')
+        data = df[df['modality'] == 'ED_d']
+        x = data['p']
+        y = data['RT']
 
         x = np.array(x).reshape(len(x), 1)
         y = np.array(y).reshape(len(y), 1)
@@ -75,7 +78,7 @@ def polyfit(infos):
         xp = polynomial_features.fit_transform(x)
 
         model = sm.OLS(y, xp, missing='drop').fit()
-        lmodel = sm.OLS.from_formula('RT ~ p', data=df[df['modality']=='ED_d']).fit()
+        lmodel = sm.OLS.from_formula('RT ~ p', data=data).fit()
         ypred = model.predict(xp)
 
         y = []
@@ -85,9 +88,7 @@ def polyfit(infos):
         y = np.array(y)
         x = np.unique(x)
 
-        plt.scatter(x,
-                    df[df['modality']=='ED_d']
-                    .groupby('p')['RT'].mean(), alpha=.6, color='C1')
+        plt.scatter(x, data.groupby('p')['RT'].mean(), alpha=.6, color='C1')
 
         plt.plot(x, y, color='C1')
         plt.plot(x, lmodel.predict(pd.DataFrame({'p': x})), color='C4')
@@ -107,7 +108,7 @@ def polyfit(infos):
         # import pdb;pdb.set_trace()
         
         # ------------------------------------------------------ #
-        print('*' * 20, 'EE')
+        print('*' * 20, 'ED_e')
         x = df[df['modality']=='ED_e']['p']
         y = df[df['modality']=='ED_e']['RT']
 
@@ -149,8 +150,11 @@ def polyfit(infos):
         print(lmodel.summary())
 
         plt.show()
-        
-       
+
+        # --------------------------------------------------------- #
+
+        print('*' * 20, 'EE')
+
         x = df[df['modality']=='EE']['p'].unique()
         y = df[df['modality']=='EE'].groupby('p')['RT'].mean()
         model = sm.OLS.from_formula('RT~p', data=df[df['modality']=='EE']).fit()
