@@ -10,16 +10,8 @@ import scipy.stats as stats
 
 
 def main():
-    #infos = [#dict(dv='RT', name='RT_FIT'),
-     #        dict(dv='RT', name='RT_E_D_EE'), dict(dv='RT', name='RT_H_LE_BOTH_NONE')]
-    # infos = [dict(dv='score', name='score_explained'),]
-
-    infos = [dict(dv='RT', name='Fig6B')]
-
-    polyfit(infos)
-    # pairwise_ttests(infos)
-    # pairwise_ttests(infos)
-    # pairwise_ttests(infos[2])
+    infos = [dict(dv='score', name='Fig2A')]
+    anova(infos)
 
 
 def polyfit_full(infos):
@@ -91,6 +83,9 @@ def polyfit(infos):
         plt.scatter(x, data.groupby('p')['RT'].mean(), alpha=.6, color='C1')
 
         plt.plot(x, y, color='C1')
+        print(x)
+        print(y)
+        return
         plt.plot(x, lmodel.predict(pd.DataFrame({'p': x})), color='C4')
         # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
         plt.ylim([1000, 2000])
@@ -100,13 +95,13 @@ def polyfit(infos):
                                  f'\np(x1), p(x2) = {np.round(model.pvalues[[1,2]], 10)}')
         plt.xlabel('P(lottery)')
         plt.ylabel('RT')
-        
+
         print(model.summary())
         print(lmodel.summary())
 
         plt.show()
         # import pdb;pdb.set_trace()
-        
+
         # ------------------------------------------------------ #
         print('*' * 20, 'ED_e')
         x = df[df['modality']=='ED_e']['p']
@@ -135,7 +130,7 @@ def polyfit(infos):
 
         plt.plot(x, y, color='C1')
         # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
-        
+
         plt.ylim([1000, 2000])
         plt.title('$ED_e$')
         plt.text(x=.55, y=1800, s=f'$R^2$ = {np.round(model.rsquared, 3)}'
@@ -180,6 +175,7 @@ def polyfit(infos):
 
 
 def mixed_anova(infos):
+
     for info in infos:
         name = info['name']
         dv = info['dv']
@@ -188,12 +184,45 @@ def mixed_anova(infos):
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
 
-        res = pg.mixed_anova(data=df, dv=dv, between='exp_num', within='modality', subject='subject')
-
-        # model = sm.GLM.from_formula('RT ~ p1*p2', data=df).fit()
-        # print(model.summary())
+        res = pg.mixed_anova(
+            data=df, dv=dv, between='exp_num', within='modality', subject='subject'
+        )
 
         pg.print_table(res, floatfmt='.6f')
+
+
+def anova(infos):
+    for info in infos:
+        name = info['name']
+        dv = info['dv']
+        print('*' * 5, name, '*' * 5)
+        df = pd.read_csv(f'../data/stats/{name}.csv')
+        pd.set_option('display.max_columns', None)
+        pd.set_option('max_columns', None)
+        df = df[(df['exp_num'] ==2) + (df['exp_num']==3)+(df['exp_num']==4)]
+
+        for modality in ('LE', 'ED'):
+            print('*'* 5, modality, '*' * 5)
+
+            res = pg.anova(
+                data=df[df['modality']==modality], dv=dv, between='exp_num', detailed=True
+            )
+            pg.print_table(res, floatfmt='.6f')
+
+
+def lm(infos):
+    for info in infos:
+        name = info['name']
+        dv = info['dv']
+        print('*' * 5, name, '*' * 5)
+        df = pd.read_csv(f'../data/stats/{name}.csv')
+        pd.set_option('display.max_columns', None)
+        pd.set_option('max_columns', None)
+
+        # model = sm.MixedLM.from_formula('CRT~ exp_num*modality', data=df[df['modality']==0], groups=df['exp_num'][df['modality']==0]).fit()
+        model = sm.OLS.from_formula('score ~ 1+ exp1+exp2+exp3+exp4', data=df[df['modality']=='LE']).fit()
+        import pdb;pdb.set_trace()
+        print(model.summary())
 
 
 def lme(infos):
@@ -237,24 +266,6 @@ def pairwise_ttests(infos):
 
         pg.print_table(res, floatfmt='.6f')
 
-        print(len(df[(df['modality']=='H')*(df['exp_num']==6)]))
-        print(len(df[(df['modality']=='H')*(df['exp_num']==8)]))
-
-        # res = pg.anova(data=df[df['modality']==''], dv=dv, between='exp_num')
-
-        # pg.print_table(res, floatfmt='.6f')
-        #
-        # print('ED')
-        # res = pg.anova(data=df[df['modality']=='ED'], dv='RT', between='exp_num')
-        # pg.print_table(res, floatfmt='.6f')
-        #
-        # print('LE')
-        # res = pg.anova(data=df[df['modality']=='LE'], dv='RT', between='exp_num')
-        # pg.print_table(res, floatfmt='.6f')
-        #
-        # res = pg.mixed_anova(data=df, dv='RT', between='exp_num', within='modality', subject='subject')
-        #
-        # pg.print_table(res, floatfmt='.6f')
 
 
 if __name__ == '__main__':

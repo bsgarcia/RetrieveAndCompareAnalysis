@@ -87,19 +87,20 @@ for exp_num = selected_exp
         
         modalities = {'heur', 'le', 'both', 'none'};
         
-        dd = {o_heur(s,1); o_le(s,1);...
-            both(s,1); none(s,1)};
+        %dd = {o_heur(s,1); o_le(s,1);...
+        %    both(s,1); none(s,1)};
         
-        score = {S1, S2, NaN, NaN};
-
-        for mod_num = 1:4
+        %score = {S1, S2, NaN, NaN};
+        rt2 = median(data.rtime(sub, :));
+        
+        %for mod_num = 1:4
             T1 = table(...
-                s, exp_num, dd{mod_num}, score{mod_num},...
-                {modalities{mod_num}}, 'variablenames',...
-                {'subject', 'exp_num', 'RT', 'score', 'modality'}...
+                s, exp_num, rt2, S1, S2, ...
+                 'variablenames',...
+                {'subject', 'exp_num', 'RT', 'S1', 'S2'}...
                 );
             stats_data = [stats_data; T1];
-        end
+        %end
     end
     
     sub_count = sub_count + sub;
@@ -118,17 +119,17 @@ x4 = none;
 labely = 'Median reaction time per subject (ms)';
 
 x = stats_data;
-x1 = x(logical(strcmp(x.modality, 'heur')), 'score').score;
-x2 =  x(logical(strcmp(x.modality, 'le')), 'score').score;
-y1 = x(logical(strcmp(x.modality, 'heur')), 'RT').RT;
-y2 =  x(logical(strcmp(x.modality, 'le')), 'RT').RT;
+x1 = x.S1;
+x2 =  x.S2;
+y1 = x.RT;
+y2 = x.RT;
 
 
 labelx = 'Heuristic score';
 subplot(1, 2, 1)
-scatterCorr(x1, y1, red, .6, 2, 2, 'w'); 
-xlim([-0.05, .4])
-ylim([300, 5000])
+scatterCorr(x1, y1, red, .6, 1, 2, 'w'); 
+% xlim([-0.05, .4])
+% ylim([300, 5000])
 xlabel(labelx);
 
 set(gca, 'tickdir', 'out')
@@ -136,12 +137,12 @@ set(gca, 'tickdir', 'out')
 
 labelx = 'LE estimates score';
 subplot(1, 2, 2)
-ylim([300, 5000])
+% ylim([300, 5000])
 labelx = 'LE estimates score';
 
-scatterCorr(x2, y2, dark_blue, .6, 2, 2, 'w'); 
+scatterCorr(x2, y2, dark_blue, .6, 1, 2, 'w'); 
 xlabel(labelx);
-xlim([-0.05, .4])
+% xlim([-0.05, .4])
 set(gca, 'tickdir', 'out')
 
 

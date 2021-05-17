@@ -12,6 +12,12 @@ zscored = 0;
 
 stats_data = table();
 
+filename = 'Fig6C';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 num = 0;
 
 lotp = [0, .1, .2, .3, .4, .5,.6, .7, .8, .9, 1];
@@ -88,13 +94,9 @@ set(gca, 'tickdir', 'out');
 box off;
 
 
-mkdir('fig', 'violinplot');
-mkdir('fig/violinplot/', 'RT');
-saveas(gcf, 'fig/violinplot/RT/RT.svg');
+saveas(gcf, figname);
 
 % save stats file
-mkdir('data', 'stats');
-stats_filename = 'data/stats/RT_E_D_EE.csv';
 writetable(stats_data, stats_filename);
 
 % ------------------------------------------------------------------------%

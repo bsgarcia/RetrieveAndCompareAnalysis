@@ -108,9 +108,10 @@ for exp_num = selected_exp
 
 end
 figure('Units', 'centimeters',...
-    'Position', [0,0,5.3*2.2, 5.3/1.25*2], 'visible', displayfig)
+    'Position', [0,0,5.3*3.65, 5.3/1.25*2], 'visible', displayfig)
 
 labely = 'Median reaction time per subject (ms)';
+labelx = 'P(lottery) (%)';
 x_lim = [0,100];
 x_values = 5:100/11:100;
 
@@ -124,17 +125,21 @@ brickplot(d',...
     labely,...
     lotp.*100,1,[0,100], x_values, .18,0);
 
+plot_poly(x_values, d, orange, 2);
 set(gca, 'tickdir', 'out');
 %set(gca,'XTick',0:20:100);
 %set(gca,'XTickLabels',0:20:100);
 set(gca, 'ytick', 1000:200:2500);
 set(gca,'yTickLabels',1000:200:2500);
-
-
 box off;
+xtickangle(0)
+xlabel(labelx)
+
+% - ------------------------------ 
 
 x_lim = [0,100];
 x_values = 5:100/8:100;
+labelx = 'P(symbol) (%)';
 
 subplot(1, 3, 2)
     
@@ -147,19 +152,24 @@ brickplot(e',...
     '',...
     symp.*100,1,[0,100], x_values, .18,0);
 
-% set(gca,'XTick', 5:100/4:100);
-% set(gca,'xticklabels',10:20:90);
+plot_poly(x_values, e, orange, 2);
+
+
 set(gca, 'ytick', 1000:200:2500);
 set(gca,'yTickLabels',1000:200:2500);
 set(gca, 'tickdir', 'out');
 box off;
+xtickangle(0)
+xlabel(labelx)
 
+
+% - ------------------------------ 
 subplot(1, 3, 3)
+labelx = 'P(chosen symbol) (%)';
 
 x_lim = [0,100];
 x_values = 5:100/8:100;
 
-    
 brickplot(ee',...
     green.*ones(8, 3),...
     [1000, 2500],...
@@ -168,14 +178,16 @@ brickplot(ee',...
     '',...
     '',...
     symp.*100,1,[0,100], x_values, .18,0);
-% %set(gca,'XTick',10:20:90);
-% set(gca,'xticklabels',10:20:90);
+
 set(gca, 'ytick', 1000:200:2500);
 set(gca,'yTickLabels',1000:200:2500);
 
 set(gca, 'tickdir', 'out');
 box off;
+xtickangle(0)
+xlabel(labelx)
 
+plot_linear(x_values, ee, green);
 
 
 saveas(gcf, figname);
@@ -183,3 +195,20 @@ saveas(gcf, figname);
 writetable(stats_data, stats_filename);
 
 % ------------------------------------------------------------------------%
+
+function plot_poly(x_values, d, color, npoly)
+    hold on 
+    x = x_values.*ones(size(d));
+    p = polyfit(x, d, npoly);
+    y = polyval(p, x);
+    plot(x_values, mean(y,1), 'color', color, 'linewidth', 1.5);
+end
+
+function plot_linear(x_values, d, color)
+    hold on 
+    d = nanmean(d);
+    x = x_values;    
+    b = glmfit(x, d);
+    y = glmval(b, x, 'identity');  
+    plot(x_values, y, 'color', color, 'linewidth', 1.5);
+end
