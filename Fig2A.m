@@ -103,4 +103,20 @@ end
 
 writetable(stats_data, stats_filename);
 
+T = stats_data;
+cond_ED = strcmp(T.modality, 'ED');
+cond_LE = strcmp(T.modality, 'LE');
+
+disp('FULL');
+fitlm(T, 'score ~ modality*exp_num')
+disp('********************************************');
+disp('LE');
+fitlm(T(cond_LE,:), 'score ~ exp_num')
+disp('********************************************');
+
+disp('ED');
+fitlm(T(cond_ED,:), 'score ~ exp_num')
+disp('********************************************');
+
+
 %

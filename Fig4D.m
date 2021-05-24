@@ -128,3 +128,23 @@ saveas(gcf, figname);
 % save stats file
 mkdir('data', 'stats');
 writetable(stats_data, stats_filename);
+
+
+T = stats_data;
+cond_ED = strcmp(T.modality, 'ED');
+cond_EE = strcmp(T.modality, 'EE');
+cond_exp = ismember(T.exp_num, [6.1, 6.2]);
+
+disp('FULL');
+disp('********************************************');
+fitlm(T, 'slope ~ modality*exp_num')
+disp('********************************************');
+disp('FULL - 6.1/6.2');
+fitlm(T(cond_exp,:), 'slope ~ modality*exp_num')
+disp('********************************************');
+disp('EE - 6.1/6.2');
+fitlm(T(logical(cond_EE.*cond_exp),:), 'slope ~ exp_num')
+disp('********************************************');
+disp('ED - 6.1/6.2');
+fitlm(T(logical(cond_ED.*cond_exp),:), 'slope ~ exp_num')
+disp('********************************************');
