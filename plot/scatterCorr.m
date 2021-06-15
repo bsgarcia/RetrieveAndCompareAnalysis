@@ -19,6 +19,7 @@ end
 
 
 P = polyfit(X(~isnan(Y)), Y(~isnan(Y)), 1);
+disp(P);
 Yf = polyval(P, X);
 
 if exist('noscatter') && noscatter

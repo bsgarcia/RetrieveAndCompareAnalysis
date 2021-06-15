@@ -81,6 +81,7 @@ for exp_num = selected_exp
         reshape_midpoints(:, :) = midpoints(mod_num, :, :);
         slope(mod_num,:,:) = add_linear_reg(...
             reshape_midpoints.*100, p1, colors(mod_num, :));
+       
         
         % fill data for stats
         for sub = 1:nsub

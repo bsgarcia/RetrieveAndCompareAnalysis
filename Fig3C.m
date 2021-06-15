@@ -134,9 +134,10 @@ T = stats_data;
 cond_ED = strcmp(T.modality, 'ED');
 cond_LE = strcmp(T.modality, 'LE');
 cond_PM = strcmp(T.modality, 'PM');
+cond_exp = T.exp_num==1;
 
-disp('********************************************');
-disp('PM');
-disp('********************************************');
-fitlm(T(cond_PM,:), 'slope ~ exp_num')
-disp('********************************************');
+% disp('********************************************');
+% disp('PM');
+% disp('********************************************');
+% fitlm(T(cond_PM,:), 'slope ~ exp_num')
+% disp('********************************************');

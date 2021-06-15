@@ -15,7 +15,7 @@ classdef DataExtraction < handle
             data = data.data;
             
             sub_ids = unique(data(:, 1));
-            sub_ids = sub_ids(~isnan(sub_ids));
+            sub_ids = sub_ids(isnan(sub_ids));
             
             % idx
             %-------------------------------------------------------------

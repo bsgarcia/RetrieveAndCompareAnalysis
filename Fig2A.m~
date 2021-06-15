@@ -20,6 +20,7 @@ stats_filename = sprintf('data/stats/%s.csv', filename);
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+%subaxis(4,6,1, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0, 'SpacingVert', 0.03);
 
 sub_count = 0;
 num = 0;
@@ -36,27 +37,28 @@ for exp_num = selected_exp
     ncon = length(unique(data.con));
     
     dd = NaN(ncon, data.nsub);
-    cons = flip(unique(data.con));
-    
+    cons =flip(unique(data.con));
     for i = 1:ncon
         for sub = 1:data.nsub
-            
-            dd(i, sub) = mean(...
-                data.corr(sub, data.con(sub,:)==cons(i)));
- 
+            dd(i, sub) = mean(data.corr(sub, data.con(sub,:)==cons(i)));
+            if dd(i, sub) == 0
+            end
         end
     end
     
     for sub = 1:data.nsub
-        s1 = mean(data.corr(sub, :));
-        s2 = mean(data_ed.corr(sub, :));
+        s1= mean(data.corr(sub,:));
+        s2 = mean(data_ed.corr(sub,:));
+        if s1 == 0
+            disp('he');
+        end
         
         T1 = table(...
             sub+sub_count, exp_num, s1, {'LE'}, ...
             'variablenames',...
             {'subject', 'exp_num', 'score', 'modality'}...
             );
-        T2 = table(sub+sub_count, exp_num, s2, {'ED'}, ...
+        T2 = table(sub+sub_count, exp_num, s2,{'ED'}, ...
             'variablenames',...
             {'subject', 'exp_num', 'score', 'modality'}...
             );
@@ -77,18 +79,18 @@ for exp_num = selected_exp
     plot([10, 85], [50, 50], 'color', 'k', 'linestyle', ':')
     
     brickplot(...
-        dd.*100,...                             %data
-        color.*ones(4, 3),...                   %color
-        [-0.08*100, 1.08*100], fontsize,...     %ylim     % fontsize
-        '',...                                  %title
-        '',...                                  %xlabel
-        '',...                                  %ylabel
+        dd.*100,... %data
+        color.*ones(4, 3),...%color
+        [-0.08*100, 1.08*100], fontsize,...%ylim % fontsize
+        '',...%title
+        '',...%xlabel
+        '',...%ylabel
         {'60/40','70/30', '80/20', '90/10'},... %varargin
-        0,...                                   %noscatter
-        [-10, 105],...                          %xlim
-        [10, 35, 60, 85],...                    %xvalues
-        5, ...                                  %barwidth
-        0 ...                                   %median
+        0,... %noscatter
+        [-10, 105],... %xlim
+        [10, 35, 60, 85],... %xvalues
+        5, ... %barwidth
+        0 ...%median
         );
     
     plot([10, 85], [50, 50], 'color', 'k', 'linestyle', ':')
