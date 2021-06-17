@@ -10,8 +10,8 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='slope', name='Fig3C')]
-    pairwise_ttests(infos)
+    infos = [dict(dv='slope', name='Fig2A')]
+    lm(infos)
 
 
 def polyfit_full(infos):
@@ -216,11 +216,11 @@ def lm(infos):
         df = pd.read_csv(f'../data/stats/{name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
+        df = df.drop(columns=['subject'])
+        # df['score'][df['modality']=='ED'] = df['score'][df['modality']=='LE']
 
         # model = sm.MixedLM.from_formula('CRT~ exp_num*modality', data=df[df['modality']==0], groups=df['exp_num'][df['modality']==0]).fit()
-        model = sm.OLS.from_formula('score ~ 1+ exp1+exp2+exp3+exp4', data=df[df['modality'] == 'LE']).fit()
-        import pdb;
-        pdb.set_trace()
+        model = sm.OLS.from_formula('score ~ exp_num*modality', data=df).fit()
         print(model.summary())
 
 

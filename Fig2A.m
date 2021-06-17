@@ -106,9 +106,12 @@ end
 
 writetable(stats_data, stats_filename);
 
+
 T = stats_data;
 cond_ED = strcmp(T.modality, 'ED');
 cond_LE = strcmp(T.modality, 'LE');
+
+
 
 disp('FULL');
 fitlm(T, 'score ~ modality*exp_num')
@@ -126,6 +129,3 @@ fitlm(T(cond_ED,:), 'score ~ exp_num')
 scatterCorr(T(cond_ED, :).exp_num, T(cond_ED, :).score, orange, .5, 1,...
     10, 'w', 0);
 disp('********************************************');
-
-
-%

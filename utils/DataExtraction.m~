@@ -15,7 +15,7 @@ classdef DataExtraction < handle
             data = data.data;
             
             sub_ids = unique(data(:, 1));
-            sub_ids = sub_ids(isnan(sub_ids));
+            sub_ids = sub_ids(~isnan(sub_ids));
             
             % idx
             %-------------------------------------------------------------
@@ -140,6 +140,7 @@ classdef DataExtraction < handle
                             mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
                             [noneed, trialorder] = sort(data(mask, idx.trial));
                             temp_corr = data(mask, idx.corr);
+                            
                             corr_catch{i, eli} = temp_corr(trialorder);
                             
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
@@ -153,9 +154,8 @@ classdef DataExtraction < handle
                         end
                     end
                     
-                    
                     if (mean(corr_catch{i, 1}) >= catch_threshold)...
-                            && (sum(rtime{i} > rtime_threshold) < 1)
+                            && (sum(rtime{i} > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
                         to_keep(length(to_keep) + 1) = sub;
                         
                     end
