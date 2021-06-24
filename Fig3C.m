@@ -1,143 +1,64 @@
 %-------------------------------------------------------------------------
 init;
-show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-
-%-------------------------------------------------------------------------%
-% parameters of the script                                                %
-%-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4];
-modalities = {'LE', 'ED', 'PM'};
+selected_exp = [5, 6.1, 6.2];
 displayfig = 'on';
-colors = [blue;orange;magenta];
-% filenames
-filename = 'Fig3C';
-figfolder = 'fig';
 
-figname = sprintf('%s/%s.svg', figfolder, filename);
-stats_filename = sprintf('data/stats/%s.csv', filename);
-
-
-%-------------------------------------------------------------------------%
-% prepare data                                                            %
-%-------------------------------------------------------------------------%
-% stats_data is table that is used to compute stats later
-stats_data = table();
-
-
-figure('Units', 'centimeters',...
+figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
-
 num = 0;
-sub_count = 0;
+
 for exp_num = selected_exp
+ 
     num = num + 1;
     
-    %---------------------------------------------------------------------%
-    % get data parameters                                                           %
-    % --------------------------------------------------------------------%
+    data = de.extract_EE(exp_num);
     sess = de.get_sess_from_exp_num(exp_num);
-    name = de.get_name_from_exp_num(exp_num);
-    nsub = de.get_nsub_from_exp_num(exp_num);
+       
+    param = load(...
+        sprintf('data/post_test_fitparam_ED_exp_%d_%s',...
+        round(exp_num), num2str(sess)));
+    midpoints1 = param.midpoints;
     
-    throw = de.extract_ED(exp_num);
-    nsym = length(unique(throw.p1));
-    p1 = unique(throw.p1)'.*100;
+    param = load(...
+        sprintf('data/post_test_fitparam_EE_exp_%d_%s',...
+        round(exp_num), num2str(sess)));
+    midpoints2 = param.midpoints;
+    beta2 = param.beta1;
     
-    % prepare data structure
-    midpoints = nan(length(modalities), nsub, nsym);
-    slope = nan(length(modalities), nsub, 2);
-    reshape_midpoints = nan(nsub, nsym);
+    ev = unique(data.p1)'.*100; 
+    varargin = ev;
+    x_values = ev;
+    x_lim = [0, 100];
     
-    sim_params.exp_num = exp_num;
-    sim_params.de = de;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    sim_params.nsub = nsub;
-    
-    for mod_num = 1:length(modalities)
-        
-        % get data depending on chosen modality
-        switch (modalities{mod_num})
-            
-            case 'LE'
-                sim_params.model = 1;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
-                
-            case {'EE', 'ED'}
-                
-                param = load(...
-                    sprintf('data/post_test_fitparam_%s_exp_%d_%d',...
-                    modalities{mod_num}, round(exp_num), sess));
-                
-                midpoints(mod_num, :, :) = param.midpoints;
-                
-            case 'PM'
-                sim_params.model = 2;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
-        end
-        
-        % fill data
-        reshape_midpoints(:, :) = midpoints(mod_num, :, :);
-        slope(mod_num,:,:) = add_linear_reg(...
-            reshape_midpoints.*100, p1, colors(mod_num, :));
-        
-        % fill data for stats
-        for sub = 1:nsub
-            T1 = table(...
-                sub+sub_count, num, slope(mod_num, sub, 2),...
-                {modalities{mod_num}}, 'variablenames',...
-                {'subject', 'exp_num', 'slope', 'modality'}...
-                );
-            stats_data = [stats_data; T1];
-        end
-    end
-    sub_count = sub_count+sub;
-    
-    %---------------------------------------------------------------------%
-    % Plot                                                                %
-    % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
+
+    slope1 = add_linear_reg(midpoints1.*100, ev, orange);   
+    hold on
+    slope2 = add_linear_reg(midpoints2.*100, ev, green);
+    hold on
     
-    skylineplot(slope(:, :, 2), 8,...
-        colors,...
-        -1.2,...
-        1.5,...
-        fontsize,...
+    brick_comparison_plot2(...
+        midpoints2'.*100,midpoints1'.*100,...
+        green, orange, ...
+        [-8, 108], 11,...
         '',...
         '',...
-        '',...
-        modalities);
-        
+        '', varargin, 1, x_lim, x_values);
     
-    if num == 1; ylabel('Slope'); end
+    if num == 1
+        ylabel('Estimated p(win) (%)')
+    end
     
-    %title(sprintf('Exp. %s', num2str(exp_num)));w
-    set(gca, 'tickdir', 'out');
+    xlabel('Symbol p(win) (%)');
     box off
+    hold on
+
+    set(gca, 'fontsize', fontsize);
+    set(gca,'tickdir','out')
     
 end
 
-%-------------------------------------------------------------------------%
-% Save fig and stats                                                      %
-% ------------------------------------------------------------------------%
-% save fig
-mkdir('fig/exp', figfolder);
-saveas(gcf, figname);
-
-% save stats file
-mkdir('data', 'stats');
-writetable(stats_data, stats_filename);
-
-
-T = stats_data;
-cond_ED = strcmp(T.modality, 'ED');
-cond_LE = strcmp(T.modality, 'LE');
-cond_PM = strcmp(T.modality, 'PM');
-cond_exp = T.exp_num==1;
-
-% disp('********************************************');
-% disp('PM');
-% disp('********************************************');
-% fitlm(T(cond_PM,:), 'slope ~ exp_num')
-% disp('********************************************');
+mkdir('fig/exp', 'brickplot');
+saveas(gcf, ...
+    'fig/exp/brickplot/EE_ED.svg');

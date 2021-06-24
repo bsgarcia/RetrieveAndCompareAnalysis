@@ -10,8 +10,8 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='slope', name='Fig2A')]
-    lm(infos)
+    infos = [dict(dv='slope', name='Fig3C')]
+    pairwise_ttests(infos)
 
 
 def polyfit_full(infos):

@@ -1,160 +1,168 @@
-%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------%
 init;
 show_current_script_name(mfilename('fullpath'));
-%-------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];
-modalities = {'ED', 'EE'};
+selected_exp = [1,2,3,4,5,6,8];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
-colors = [orange;green];
-% filenames
-filename = 'Fig4D';
-figfolder = 'fig';
-
-figname = sprintf('%s/%s.svg', figfolder, filename);
-stats_filename = sprintf('data/stats/%s.csv', filename);
-
-
-%-------------------------------------------------------------------------%
-% prepare data                                                            %
-%-------------------------------------------------------------------------%
-% stats_data is table that is used to compute stats later
-stats_data = table();
-
+colors = [red; dark_blue; pink; black];
+alphas = [.5, .5, .4, .8];
+for i = 1:4
+    colors(i, :) = set_alpha(colors(i, :), alphas(i));
+end
+colors = flip(colors);
+num = 0;
 
 figure('Units', 'centimeters',...
-    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+    'Position', [0,0,6.7, 3.5], 'visible', displayfig)
 
-num = 0;
 sub_count = 0;
+stats_data = table();
+
 for exp_num = selected_exp
     num = num + 1;
     
+    
     %---------------------------------------------------------------------%
-    % get data parameters                                                           %
+    % get data parameters                                                 %
     % --------------------------------------------------------------------%
     sess = de.get_sess_from_exp_num(exp_num);
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
     
-    throw = de.extract_ED(exp_num);
-    nsym = length(unique(throw.p1));
-    p1 = unique(throw.p1)'.*100;
-    
-    % prepare data structure
-    midpoints = nan(length(modalities), nsub, nsym);
-    slope = nan(length(modalities), nsub, 2);
-    reshape_midpoints = nan(nsub, nsym);
-    
-    sim_params.exp_num = exp_num;
-    sim_params.de = de;
-    sim_params.sess = sess;
-    sim_params.exp_name = name;
-    sim_params.nsub = nsub;
-    
-    for mod_num = 1:length(modalities)
+    data = de.extract_ED(exp_num);
+    symp = unique(data.p1(1,:));
+ 
+    heur = heuristic(data);
+    le = [];
         
-        % get data depending on chosen modality
-        switch (modalities{mod_num})
-            
-            case 'LE'
-                sim_params.model = 1;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
-                
-            case {'EE', 'ED'}
-                
-                param = load(...
-                    sprintf('data/post_test_fitparam_%s_exp_%d_%d',...
-                    modalities{mod_num}, round(exp_num), sess));
-                
-                midpoints(mod_num, :, :) = param.midpoints;
-                
-            case 'PM'
-                sim_params.model = 2;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
+    % get le q values estimates
+    for i = 1:length(sess)
+        sim_params.de = de;
+        sim_params.sess = sess(i);
+        sim_params.exp_name = name;
+        sim_params.exp_num = exp_num;
+        sim_params.nsub = nsub;
+        sim_params.model = 1;
+        
+        if length(sess) == 2
+            d = de.extract_ED(...
+                str2num(sprintf('%d.%d', exp_num, sess(i)+1)));
+        else
+            d = data;
         end
         
-        % fill data
-        reshape_midpoints(:, :) = midpoints(mod_num, :, :);
-        slope(mod_num,:,:) = add_linear_reg(...
-            reshape_midpoints.*100, p1, colors(mod_num, :));
-       
+        [Q, tt] = get_qvalues(sim_params);
+
+        le = [le argmax_estimate(d, symp, Q)];
         
-        % fill data for stats
-        for sub = 1:nsub
-            T1 = table(...
-                sub+sub_count, exp_num, slope(mod_num, sub, 2),...
-                {modalities{mod_num}}, 'variablenames',...
-                {'subject', 'exp_num', 'slope', 'modality'}...
-                );
-            stats_data = [stats_data; T1];
+    end
+    
+    o_heur = nan(nsub, 1);
+    o_le = nan(nsub, 1);
+    none = nan(nsub, 1);
+    both = nan(nsub, 1);
+    
+%     o_heur = mean(...
+%             logical((data.cho==heur) .* (data.cho~=le)), 'all');
+%     o_le = mean(...
+%             logical((data.cho~=heur) .* (data.cho==le)), 'all');       
+%     none = mean(...
+%             logical((data.cho~=heur).*(data.cho~=le)), 'all');
+%     both = mean(...
+%             logical((data.cho==heur).*(data.cho==le)), 'all');
+% %     
+    for sub = 1:nsub
+        o_heur(sub,1) = mean(...
+            logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
+        o_le(sub,1) = mean(...
+            logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
+        
+        none(sub,1) = mean(...
+            logical((data.cho(sub,:)~=heur(sub,:)).*(data.cho(sub,:)~=le(sub,:))));
+        both(sub,1) = mean(...
+            logical((data.cho(sub,:)==heur(sub,:)).*(data.cho(sub,:)==le(sub,:))));
+        dsub = {o_heur(sub,1),  o_le(sub,1),  both(sub,1),  none(sub,1)};
+        modalities = {'HE', 'LE', 'NO', 'BO'};
+        for mod_num = 1:4
+                T1 = table(...
+                    sub+sub_count, exp_num, dsub{mod_num},...
+                    {modalities{mod_num}}, 'variablenames',...
+                    {'subject', 'exp_num', 'score', 'modality'}...
+                    );
+                stats_data = [stats_data; T1];
         end
     end
-    sub_count = sub_count+sub;
+%     end
+    %disp(o_heur)
+
+    sub_count = sub_count + sub; 
     
-    %---------------------------------------------------------------------%
-    % Plot                                                                %
-    % --------------------------------------------------------------------%
-    subplot(1, length(selected_exp), num)
-    
-    skylineplot(slope(:, :, 2), 8,...
-        colors,...
-        -1.2,...
-        1.5,...
-        fontsize,...
-        '',...
-        '',...
-        '',...
-        modalities);
-        
-    
-    if num == 1; ylabel('Slope'); end
-    
-    %title(sprintf('Exp. %s', num2str(exp_num)));w
-    set(gca, 'tickdir', 'out');
-    box off
-    
+    dd(num, :) = flip([mean(o_heur), mean(o_le), mean(both), mean(none)]);    
+  
 end
 
-%-------------------------------------------------------------------------%
-% Save fig and stats                                                      %
-% ------------------------------------------------------------------------%
-% save fig
-mkdir('fig/exp', figfolder);
-saveas(gcf, figname);
+disp(dd);
+return
+
+b = bar(dd, 'stacked', 'facecolor','flat', 'edgecolor', 'w');
+
+for i = 1:4
+    b(i).CData = colors(i,:);
+end
+set(gca, 'tickdir', 'out');
+set(gca, 'fontsize', fontsize)
+box off;
+
+mkdir('fig', 'barplot');
+saveas(gcf, 'fig/barplot/explained.pdf');
 
 % save stats file
 mkdir('data', 'stats');
+stats_filename = 'data/stats/score_explained.csv';
 writetable(stats_data, stats_filename);
 
 
-T = stats_data;
-cond_ED = strcmp(T.modality, 'ED');
-cond_EE = strcmp(T.modality, 'EE');
-cond_exp = ismember(T.exp_num, [6.1, 6.2]);
-cond_exp1 = ismember(T.exp_num, [6.1]);
-cond_exp2 = ismember(T.exp_num, [6.2]);
+% ------------------------------------------------------------------------%
 
-disp('********************************************');
-disp('FULL');
-disp('********************************************');
-fitlm(T(cond_exp,:), 'slope ~ modality*exp_num')
-disp('********************************************');
-disp('EE - 6.1/6.2');
-disp('********************************************');
-fitlm(T(logical(cond_exp.*cond_EE),:), 'slope ~  modality')
-disp('********************************************');
-disp('ED - 6.1/6.2');
-disp('********************************************');
-fitlm(T(logical(cond_ED.*cond_exp),:), 'slope ~ exp_num')
-disp('********************************************');
-disp('ED vs EE - 6.1');
-disp('********************************************');
-fitlm(T(logical(cond_exp1),:), 'slope ~ modality')
-disp('********************************************');
-disp('ED vs EE - 6.2');
-disp('********************************************');
-fitlm(T(logical(cond_exp2),:), 'slope ~ modality')
+function score = heuristic(data)
+
+    for sub = 1:size(data.cho,1)
+
+        for t = 1:size(data.cho,2)
+
+            if data.p2(sub,t) >= .5
+                prediction = 2;
+            else
+                prediction = 1;
+            end
+
+            score(sub, t) = prediction;
+
+        end
+    end
+end
+
+
+function score = argmax_estimate(data, symp, values)
+    for sub = 1:size(data.cho,1)    
+        for t = 1:size(data.cho,2)
+
+            if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
+                prediction = 2;
+            else
+                prediction = 1;
+            end
+
+            score(sub, t) = prediction;
+
+        end
+    end
+end
+
+
+
+
+        

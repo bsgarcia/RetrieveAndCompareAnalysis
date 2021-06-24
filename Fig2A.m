@@ -9,6 +9,7 @@ color = blue;
 displayfig = 'on';
 
 stats_data = table();
+T_con = table();
 
 % filenames
 filename = 'Fig2A';
@@ -20,6 +21,7 @@ stats_filename = sprintf('data/stats/%s.csv', filename);
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+
 
 sub_count = 0;
 num = 0;
@@ -43,7 +45,14 @@ for exp_num = selected_exp
             
             dd(i, sub) = mean(...
                 data.corr(sub, data.con(sub,:)==cons(i)));
- 
+            
+            T3 = table(...
+            sub+sub_count, exp_num, dd(i, sub), i, ...
+            'variablenames',...
+            {'subject', 'exp_num', 'score', 'con'}...
+            );
+            
+            T_con = [T_con; T3]; 
         end
     end
     
@@ -110,22 +119,28 @@ writetable(stats_data, stats_filename);
 T = stats_data;
 cond_ED = strcmp(T.modality, 'ED');
 cond_LE = strcmp(T.modality, 'LE');
+cond_exp = T.exp_num == 1;
 
 
 
 disp('FULL');
-fitlm(T, 'score ~ modality*exp_num')
+fitlme(T, 'score ~ exp_num*modality + (1|subject)')
 disp('********************************************');
 disp('LE');
-fitlm(T(cond_LE,:), 'score ~ exp_num')
-figure
-scatterCorr(T(cond_LE, :).exp_num, T(cond_LE, :).score, blue, .5, 1,...
-    10, 'w', 0);
 disp('********************************************');
 
-disp('ED');
-figure
-fitlm(T(cond_ED,:), 'score ~ exp_num')
-scatterCorr(T(cond_ED, :).exp_num, T(cond_ED, :).score, orange, .5, 1,...
-    10, 'w', 0);
+fitlm(T(cond_LE,:), 'score ~ exp_num ')
+% % figure
+% scatterCorr(T(cond_LE, :).exp_num, T(cond_LE, :).score, blue, .5, 1,...
+%     10, 'w', 0);
+% disp('********************************************');
+% 
 disp('********************************************');
+disp('ED');
+disp('********************************************');
+
+% figure
+fitlm(T(cond_ED,:), 'score ~ exp_num')
+% scatterCorr(T(cond_ED, :).exp_num, T(cond_ED, :).score, orange, .5, 1,...
+%     10, 'w', 0);
+% disp('********************************************');

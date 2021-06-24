@@ -1,72 +1,149 @@
-%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------%
 init;
-%-------------------------------------------------------------------------
+show_current_script_name(mfilename('fullpath'));
 
-selected_exp = [6, 8];
+%-------------------------------------------------------------------------%
+% parameters of the script                                                %
+%-------------------------------------------------------------------------%
+selected_exp = [5, 6];%, 6.2, 7.1, 7.2];
+displayfig = 'on';
+colors = [orange; orange; green];
+zscored = 0;
 
 stats_data = table();
 
-displayfig = 'on';
+filename = 'Fig6C';
+figfolder = 'fig';
 
-figure('Units', 'centimeters',...
-    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 num = 0;
+
+lotp = [0, .1, .2, .3, .4, .5,.6, .7, .8, .9, 1];
 sub_count = 0;
 for exp_num = selected_exp
+    
     num = num + 1;
     
-    dED = de.extract_ED(exp_num);
-    dEE = de.extract_EE(exp_num);
+    %---------------------------------------------------------------------%
+    % get data parameters                                                 %
+    % --------------------------------------------------------------------%
+    sess = de.get_sess_from_exp_num(exp_num);
+    name = de.get_name_from_exp_num(exp_num);
+    nsub = de.get_nsub_from_exp_num(exp_num);
     
-    corrED = mean(dED.corr,2)';
-    corrEE = mean(dEE.corr,2)';
-    mean(corrED)
-    % add ED exp_%num
-    CCR{num, 1} = corrED;
+    data_ed = de.extract_ED(exp_num);
+    data_ee = de.extract_EE(exp_num);
     
-    % add EE exp_%num
-    CCR{num, 2} = corrEE;
-    
-    for sub = 1:dED.nsub
+    for sub = 1:nsub
+        mask_lot = (ismember(data_ed.p2(sub,:), lotp));
+        mask_cho1 = (data_ed.cho(sub,:)==1);
+        mask_cho2 = (data_ed.cho(sub,:)==2);
+        e(sub+sub_count,1) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho1)));
+        d(sub+sub_count,1) = median(data_ed.rtime(sub, logical(mask_lot.*mask_cho2)));
+
+        ee(sub+sub_count,1) = median(data_ee.rtime(sub,:));
         
-        modalities = {'ED', 'EE'};
-        dd = {corrED, corrEE};
-        for mod_num = 1:2
-        T1 = table(...
-                    sub+sub_count, exp_num, dd{mod_num}(sub),...
-                    {modalities{mod_num}}, 'variablenames',...
-                    {'subject', 'exp_num', 'C', 'modality'}...
-                    );
-         stats_data = [stats_data; T1];
+        modalities = {'e', 'd', 'EE'};
+        dd = {e(sub+sub_count,1); d(sub+sub_count,1); ee(sub+sub_count,1)};
+        
+        for mod_num = 1:3
+            T1 = table(...
+                sub+sub_count, exp_num, dd{mod_num},...
+                {modalities{mod_num}}, 'variablenames',...
+                {'subject', 'exp_num', 'RT', 'modality'}...
+                );
+            stats_data = [stats_data; T1];
         end
     end
     
     sub_count = sub_count + sub;
+
 end
 
-% save stats file
-mkdir('data', 'stats');
-stats_filename = 'data/stats/Fig5C.csv';
-writetable(stats_data, stats_filename);
+figure('Units', 'centimeters',...
+    'Position', [0,0,5.3*2, 5.3/1.25*2], 'visible', displayfig)
 
-return
-x1 = CCR{1, 2};
-x2 = CCR{2, 2};
+if zscored
+    y1 = -3;
+    y2 = 1;
+else
+    y1 = 0;
+    y2 = 6500;
+end
 
-skylineplot({x1;x2},8,...
-    [green; green],...
-    0,...
-    1,...
+
+x1 = e';
+x2 = d';
+x3 = ee';
+
+labely = 'Median reaction time per subject';
+    
+skylineplot({x1; x2; x3}, 5*2,...
+    colors,...
+    y1,...
+    y2,...
     fontsize,...
     '',...
     '',...
-    'Correct choice rate',...
-    {'Exp. 6', 'Exp. 7'},...
-    0);
+    labely,...
+    {'ED_{e}', 'ED_{d}', 'EE'});
 
-
-hold on
-scatter([1], [.8], 'markerfacecolor', 'black', 'markeredgecolor', 'w');
-box off
-hold on
 set(gca, 'tickdir', 'out');
+box off;
+
+
+saveas(gcf, figname);
+
+% save stats file
+writetable(stats_data, stats_filename);
+
+% ------------------------------------------------------------------------%
+
+function score = heuristic(data, symp,lotp)
+
+for sub = 1:size(data.cho,1)
+    count = 0;
+    
+    for t = 1:size(data.cho,2)
+        
+        count = count + 1;
+        
+        if data.p2(sub,t) >= .5
+            prediction = 2;
+        else
+            prediction = 1;
+        end
+        
+        score(sub, count) = prediction;
+        
+    end
+end
+end
+
+
+function score = argmax_estimate(data, symp, lotp, values)
+for sub = 1:size(data.cho,1)
+    count = 0;
+    
+    for t = 1:size(data.cho,2)
+        
+        count = count + 1;
+        
+        if data.p2(sub,t) >= values(sub, symp==data.p1(sub,t))
+            prediction = 2;
+        else
+            prediction = 1;
+        end
+        
+        score(sub, count) = prediction;
+        
+    end
+end
+end
+
+
+
+
+        
