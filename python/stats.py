@@ -10,8 +10,9 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='slope', name='Fig3C')]
-    pairwise_ttests(infos)
+    infos = [dict(dv='RT', name='Fig5C'), dict(dv='C', name='Fig4C')]
+    polyfit([infos[0]])
+    pairwise_ttests([infos[1]])
 
 
 def polyfit_full(infos):
@@ -82,9 +83,6 @@ def polyfit(infos):
         plt.scatter(x, data.groupby('p')['RT'].mean(), alpha=.6, color='C1')
 
         plt.plot(x, y, color='C1')
-        print(x)
-        print(y)
-        return
         plt.plot(x, lmodel.predict(pd.DataFrame({'p': x})), color='C4')
         # plt.fill_between(x, y1=y-sem, y2=y+sem, alpha=.6)
         plt.ylim([1000, 2000])
@@ -264,7 +262,7 @@ def pairwise_ttests(infos):
         pd.set_option('max_columns', None)
         res = pg.pairwise_ttests(
             dv=dv, within='modality', between='exp_num', subject='subject',
-            data=df, padjust='bonf', within_first=False, parametric=True)
+            data=df, padjust='bonf', within_first=True, parametric=True)
 
         pg.print_table(res, floatfmt='.6f')
 

@@ -46,7 +46,7 @@ end
 
 % save stats file
 mkdir('data', 'stats');
-stats_filename = 'data/stats/Fig5C.csv';
+stats_filename = 'data/stats/Fig4C.csv';
 writetable(stats_data, stats_filename);
 
 return

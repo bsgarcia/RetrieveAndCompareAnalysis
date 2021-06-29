@@ -41,6 +41,7 @@ classdef DataExtraction < handle
             idx.plot = 29;
             idx.cont1 = 14;
             idx.cont2 = 15;
+            idx.prolific_id = 2;
             
             % SIM
             %-------------------------------------------------------------
@@ -336,6 +337,8 @@ classdef DataExtraction < handle
                         
                         temp_trial = data(mask, obj.idx.trial);
                         new_data.real_trial(i, :) = temp_trial(trialorder);
+                        
+                        new_data.prolific_id(i, :) = data(mask, obj.idx.prolific_id);
                         
                         
                         i = i + 1;
