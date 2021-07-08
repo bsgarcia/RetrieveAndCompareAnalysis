@@ -5,8 +5,8 @@
 init;
 % -------------------------------------------------------------------%
 
-selected_exp = [1];
-selected_exp = selected_exp(1);
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 8.1, 8.2];
+%selected_exp = selected_exp(1);
 sessions = [0, 1];
 
 learning_model = [1];
@@ -36,6 +36,7 @@ for exp_num = selected_exp
     fit_params.fit_cf = (exp_num > 2);
     fit_params.ntrials = size(data.cho, 2);
     fit_params.models = learning_model;
+    fit_params.model = 1;
     fit_params.nsub = data.nsub;
     fit_params.sess = data.sess;
     fit_params.exp_num = num2str(exp_num);
@@ -68,12 +69,12 @@ for exp_num = selected_exp
         
     end
     
-    fit_params.alpha1 = fit_params.params{1}(:, 2);
-    
-    Q = get_qvalues(fit_params); 
-    
-    figure('Position', [1,1,900,600]);
-    plot_Q(Q, p1, p2, blue_color, exp_num, 1);
+%     fit_params.alpha1 = fit_params.params{1}(:, 2);
+%     
+%     Q = get_qvalues(fit_params); 
+%     
+%     figure('Position', [1,1,900,600]);
+%     plot_Q(Q, p1, p2, blue_color, exp_num, 1);
 end
 
     

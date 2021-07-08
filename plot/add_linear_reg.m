@@ -1,4 +1,5 @@
 function slope = add_linear_reg(data, X, color)
+    
 
     for sub = 1:size(data, 1)
         Y = data(sub, :);

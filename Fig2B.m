@@ -1,68 +1,116 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.2, 7.2];
+
+%-------------------------------------------------------------------------%
+% parameters of the script                                                %
+%-------------------------------------------------------------------------%
+selected_exp = [5, 6.1, 6.2];
 displayfig = 'on';
+colors = [orange];
+% filenames
+filename = 'Fig4A';
+figfolder = 'fig';
+
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
+
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
-num = 0;
 
+num = 0;
 for exp_num = selected_exp
     num = num + 1;
-    lg
-       
-    param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_%d_%d',...
-        round(exp_num), sess));
-    midpoints1 = param.midpoints;
-       
-    params.exp_name = name;
-    params.exp_num = exp_num;
-    params.model = 2;
-    params.d = d;
-    params.idx = idx;
-    params.sess = sess;
-    params.nsub = d.(name).nsub;
     
-    [midpoints2, throw] = get_qvalues(params);
+    data = de.extract_ED(exp_num);
     
-    [corr, cho, out2, p1, p2, ev1, ev2, ctch, cont1, cont2, dist] = ...
-        DataExtraction.extract_sym_vs_lot_post_test(...
-        data, sub_ids, idx, sess);
-    
-    ev = unique(p1).*100;
-    varargin = ev;
-    x_values = ev;
-    x_lim = [0, 100];
+    nsub = data.nsub;
+    p1 = data.p1;
+    p2 = data.p2;
+    cho = data.cho;
    
-    subplot(1, length(selected_exp), num)
-    
-    slope1 = add_linear_reg(midpoints1.*100, ev', orange_color);
-    hold on
-    slope2 = add_linear_reg(midpoints2.*100, ev', magenta_color);  
-    hold on
-    
-    brick_comparison_plot2(...
-        midpoints1'.*100,midpoints2'.*100,...
-        orange_color, magenta_color, ...
-        [-8, 108], fontsize,...
-        '',...
-        '',...
-        '', varargin, 1, x_lim, x_values);
-%     
-    if num == 1
-        ylabel('Estimated p(win) (%)')
+    % ----------------------------------------------------------------------
+    % Compute for each symbol p of chosing depending on described cue value
+    % ------------------------------------------------------------------------
+   
+    pcue = unique(p2)';
+    psym = unique(p1)';
+   
+    chose_symbol = zeros(nsub, length(pcue), length(psym));
+    for i = 1:nsub
+        for j = 1:length(pcue)
+            for k = 1:length(psym)
+                temp = ...
+                    cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
+            
+            end
+        end
     end
    
-    xlabel('Symbol p(win) (%)');
-    box off
-    hold on
+    nsub = size(cho, 1);
+    k = 1:nsub;
+   
+    prop = zeros(length(psym), length(pcue));
+    temp1 = cho(k, :);
+    for j = 1:length(pcue)
+        for l = 1:length(psym)
+            temp = temp1(...
+                logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
+            prop(l, j) = mean(temp == 1);
+            err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
+           
+        end
+    end
+   
+   
+    subplot(1, length(selected_exp), num);
+   
+    pwin = psym;
+    alpha = linspace(.15, .95, length(psym));
+    lin1 = plot(...
+        linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
+        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+   
+    for i = 1:length(pwin)
+       
+        hold on
+       
+       
+        lin3 = plot(...
+            pcue.*100,  prop(i, :).*100,...
+            'Color', colors(1,:), 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
+            );
+       
+       
+        lin3.Color(4) = alpha(i);
+       
+        hold on      
+       
+        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+       
+        sc2 = scatter(xout, yout, 15, 'MarkerFaceColor', lin3.Color,...
+            'MarkerEdgeColor', 'w');
+        sc2.MarkerFaceAlpha = alpha(i);
+       
+        if num == 1
+            ylabel('P(choose symbol) (%)');
+        end
+        xlabel('Lottery p(win) (%)');
+       
+        ylim([-0.08*100, 1.08*100]);
+        xlim([-0.08*100, 1.08*100]);
+       
+        box off
+    end
+   
     
-    set(gca,'tickdir','out')
+    set(gca,'TickDir','out')
+    set(gca, 'FontSize', fontsize);
+    xticks([0:20:100])
+    %axis equal
 
+    clear pp pcue psym temp err_prop prop i
+   
 end
-mkdir('fig/exp', 'brickplot');
-        saveas(gcf, ...
-            sprintf('fig/exp/brickplot/ED_PM.svg',...
-            num2str(exp_num)));
+saveas(gcf, figname);

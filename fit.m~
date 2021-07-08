@@ -1,47 +1,51 @@
-data = struct(load('spaceRL'));
-
 % -------------------------------------------------------------------%
-addpath './fit'
-addpath './plot'
-addpath './data'
-addpath './'
-addpath './utils'
-addpath './simulation'
+% This script finds the best fitting Values for each exp             %
+% then plots the option value                                        %
+% -------------------------------------------------------------------%
+init;
+% -------------------------------------------------------------------%
 
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 8.1, 8.2];
+%selected_exp = selected_exp(1);
+sessions = [0, 1];
 
 learning_model = [1];
+post_test_model = [1, 2];
 
 fit_folder = 'data/fit/';
+
 
 nfpm = [2, 4];
 
 force = 1;
 
-for sess = 1:2
+for exp_num = selected_exp
     
-    fprintf('Fitting sess. %s \n', num2str(sess));
+    fprintf('Fitting exp. %s \n', num2str(exp_num));
     
     % -------------------------------------------------------------------%
     % LEARNING
     % -------------------------------------------------------------------%
+    data = de.extract_LE(exp_num);
     % set parameters
     fit_params.cho = data.cho;
-    fit_params.cfcho = abs(data.cho-3);
-    fit_params.out = data.out;
-    fit_params.cfout = data.cfout;
+    fit_params.cfcho = data.cfcho;
+    fit_params.out = data.out==1;
+    fit_params.cfout = data.cfout==1;
     fit_params.con = data.con;
-    fit_params.fit_cf = 1;
-    fit_params.ntrials = 120;
+    fit_params.fit_cf = (exp_num > 2);
+    fit_params.ntrials = size(data.cho, 2);
     fit_params.models = learning_model;
-    fit_params.nsub = size(data.cho, 1);
-    fit_params.sess = sess;
+    fit_params.nsub = data.nsub;
+    fit_params.sess = data.sess;
+    fit_params.exp_num = num2str(exp_num);
     fit_params.decision_rule = 1;
-    fit_params.q = 0;
+    fit_params.q = 0.5;
     fit_params.noptions = 2;
     fit_params.ncond = length(unique(data.con));
     
     save_params.fit_file = sprintf(...
-        '%s%s%d', fit_folder, '_space_', sess);
+        '%s%s%s%d', fit_folder, data.name,  '_learning_', data.sess);
     
     % fmincon params
     fmincon_params.init_value = {[1, .5], [0, .5, .5],[0, .5]};
@@ -92,7 +96,7 @@ function [parameters,ll] = ...
         waitbar(...
             sub/fit_params.nsub,...  % Compute progression
             w,...
-            sprintf('%s%d%s%s', 'Fitting subject ', sub, ' in Exp. ', fit_params.sess)...
+            sprintf('%s%d%s%s', 'Fitting subject ', sub, ' in Exp. ', fit_params.exp_num)...
             );
         
         for model = fit_params.models

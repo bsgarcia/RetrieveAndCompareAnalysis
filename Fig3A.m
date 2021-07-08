@@ -5,11 +5,11 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2];
+selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
 colors = [orange];
 % filenames
-filename = 'Fig4A';
+filename = 'Fig2B';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);

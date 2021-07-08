@@ -139,12 +139,13 @@ grey = [202 207 214]./255;
 fontsize = 6;
 
 
-%if ~exist('de')
+if ~exist('de')
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
 de = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
     n_best_sub, allowed_nb_of_rows);
+end
 %end
 show_loaded_data(de.d);
 show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);

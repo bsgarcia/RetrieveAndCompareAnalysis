@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-displayfig = 'off';
+displayfig = 'on';
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.6*3, 5.15/1.25], 'visible', displayfig)
 
@@ -61,7 +61,7 @@ for num = [1, 2, 3]
 
         lin3 = plot(...
             X.*100,  Y.*100,...
-            'Color', orange_color, 'LineWidth', 1.5...
+            'Color', orange, 'LineWidth', 1.5...
             );
         
         
@@ -101,7 +101,7 @@ for num = [1, 2, 3]
 %     subplot(2, 3, num+3)
 %    
 %     scatter(p_sym.*100, xout, 230,...
-%         'markerfacecolor', set_alpha(orange_color, .7), 'markeredgecolor', 'w');% 'markerfacealpha', 0.7);
+%         'markerfacecolor', set_alpha(orange, .7), 'markeredgecolor', 'w');% 'markerfacealpha', 0.7);
 %     hold on
 %     
 %     
