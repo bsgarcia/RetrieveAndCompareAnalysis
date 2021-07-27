@@ -3,10 +3,10 @@ init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
+selected_exp = [1, 2, 3, 4]%5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];%, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
 
 displayfig = 'off';
-force = false;
+force = true;
 
 for exp_num = selected_exp
     
@@ -55,7 +55,7 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat',...
+                 sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
                  round(exp_num), sess ...
              ));
              beta1 = param.beta1;
@@ -72,7 +72,7 @@ for exp_num = selected_exp
                 'MaxFunEval', 10000);
 
             [params(sub, :), nll(sub)] = fmincon(...
-                @(x) tofit(x, X, Y),...
+                @(x) tofit_mle2(x, X, Y),...
                 [1, ones(1, length(p_sym)) .* .5],...
                 [], [], [], [],...
                 [0.01, zeros(1, length(p_sym))],...
@@ -93,24 +93,50 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/post_test_fitparam_ED_exp_%d_%d.mat',...
+        save(sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
             round(exp_num), sess), '-struct', 'param');
     end
     
 end
 
 
-function nll = tofit(params, X, Y)
+function nll = tofit_mle(params, X, Y)
     options = optimset('Display','off');
     temp = params(1);
     midpoints = params(2:end);
     ll = 0;
     for i = 1:size(Y, 1)
-        yhat = logfun(X(i,:)', midpoints(i), temp);
-        ll = ll + sum(log(yhat) .* Y(i,:)' + log(1-yhat).*(1-Y(i,:)')); 
+        yhat = logfun(X(i,:), midpoints(i), temp);
+        ll = ll + sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
     end
     nll = -ll;
 end
+
+function nll = tofit_mle2(params, X, Y)
+    options = optimset('Display','off');
+    temp = params(1);
+    midpoints = params(2:end);
+    ll = 0;
+    for i = 1:size(Y, 1)
+        yhat = logfun(X(i,:), midpoints(i), temp);
+        ll = ll + (1/numel(yhat)) * sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
+    end
+    nll = -ll;
+end
+
+
+function mse = tofit_ols(params, X, Y)
+    options = optimset('Display','off');
+    temp = params(1);
+    midpoints = params(2:end);
+    mse = 0;
+    
+    for i = 1:size(Y, 1)
+        yhat = logfun(X(i,:), midpoints(i), temp);
+        mse =  mse + (1/numel(yhat))*sum((yhat-Y(i,:)).^2);
+    end
+end
+
 
 function p = logfun(x, midpoint, temp)
     p = 1./(1+exp(temp.*(x-midpoint)));

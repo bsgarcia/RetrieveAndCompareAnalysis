@@ -25,9 +25,6 @@ def polyfit_full(infos):
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
 
-        # x1 = df[df['modality']=='ED_d']['p']
-        # y1 = df[df['modality']=='ED_d']['RT']
-        # x2 = df[df['modality'] == 'ED_e']['p']
         # y2 = df[df['modality'] == 'ED_e']['RT']
         #
         # x = pd.concat([x1, x2], axis=1)

@@ -165,21 +165,7 @@ classdef DataExtraction < handle
                 end
                 
             end
-            %             for j = 1:length(to_keep)
-            %                 mask_sub = data(:, idx.sub) == to_keep(j);
-            %                 mask_eli = ismember(data(:, idx.elic), -1);
-            %                 mask_corr = logical(mask_sub .* mask_sess .* mask_eli .* mask_no_catch);
-            %                 corr(j) = mean(data(mask_corr, idx.corr));
-            %             end
-            %             [throw, sorted_idx] = sort(corr);
-            %
-            %             to_keep = to_keep(sorted_idx);
-            %             if n_best_sub ~= 0
-            %                 to_keep = to_keep(end-n_best_sub+1:end);
-            %             else
-            %             end
-            %
-            %new_data = data(ismember(data(:, idx.sub), to_keep), :);
+           
         end
     end
     
