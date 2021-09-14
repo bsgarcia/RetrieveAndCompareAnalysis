@@ -324,7 +324,7 @@ classdef DataExtraction < handle
                         temp_trial = data(mask, obj.idx.trial);
                         new_data.real_trial(i, :) = temp_trial(trialorder);
                         
-                        new_data.prolific_id(i, :) = data(mask, obj.idx.prolific_id);
+                        %new_data.prolific_id(i, :) = data(mask, obj.idx.prolific_id);
                         
                         
                         i = i + 1;

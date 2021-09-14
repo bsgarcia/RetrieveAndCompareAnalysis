@@ -11,13 +11,11 @@ p_lot = [0:10]./10;
 % row = n symbol
 % col = n choice per sym
 p_sym = [.1 .2 .3 .4 .6 .7 .8 .9];
-for z = 1:1000
 
 for i = 1:length(p_sym)
     for j = 1:length(p_lot)
-        Y(z, i, j) = p_sym(i) >= p_lot(j);
+        Y(i, j) = p_sym(i) > p_lot(j);
     end
-end
 end
 
 for i = 1:length(p_sym)
@@ -30,18 +28,13 @@ for i = 1:length(p_sym)
         end
     end
 end
-for z = 1:1000
 for i = 1:length(p_sym)
-    for j = 1:length(p_lot)
-        if rand > .5
-            
-            X(z, i, j) = 0;
-        else
-            X(z, i, j) = 1;
+    for j = 1:length(p_lot)            
+            X( i, j) = p_lot(j) <= .5;
         end
     end
-end
-end
+
+
 return
 
 X = p_lot.*ones(size(Y));
@@ -100,7 +93,7 @@ function nll = tofit(params, X, Y)
     ll = 0;
     for i = 1:size(Y, 1)
         yhat = logfun(X(i,:), midpoints(i), temp);
-        ll = ll + sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
+        ll = ll + (1/sum(log(yhat)) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
     end
     nll = -ll;
 end

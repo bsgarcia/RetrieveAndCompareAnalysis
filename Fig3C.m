@@ -5,7 +5,8 @@ selected_exp = [5, 6.1, 6.2];
 displayfig = 'on';
 
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25],...
+    'visible', displayfig)
 num = 0;
 
 for exp_num = selected_exp
@@ -16,13 +17,13 @@ for exp_num = selected_exp
     sess = de.get_sess_from_exp_num(exp_num);
        
     param = load(...
-        sprintf('data/post_test_fitparam_ED_exp_%d_%s',...
-        round(exp_num), num2str(sess)));
+        sprintf('data/midpoints_ED_exp_%d_%d_mle',...
+        round(exp_num), sess));
     midpoints1 = param.midpoints;
     
     param = load(...
-        sprintf('data/post_test_fitparam_EE_exp_%d_%s',...
-        round(exp_num), num2str(sess)));
+        sprintf('data/midpoints_EE_exp_%d_%d_mle',...
+        round(exp_num), sess));
     midpoints2 = param.midpoints;
     beta2 = param.beta1;
     
@@ -38,7 +39,7 @@ for exp_num = selected_exp
     slope2 = add_linear_reg(midpoints2.*100, ev, green);
     hold on
     
-    brick_comparison_plot2(...
+    brick_comparison_plot(...
         midpoints2'.*100,midpoints1'.*100,...
         green, orange, ...
         [-8, 108], 11,...
@@ -56,6 +57,10 @@ for exp_num = selected_exp
 
     set(gca, 'fontsize', fontsize);
     set(gca,'tickdir','out')
+    
+   % set(gca,'XTick',0.2:0.2:1);
+    set(gca,'YTick',0:20:100);
+   
     
 end
 

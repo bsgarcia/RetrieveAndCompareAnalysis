@@ -56,6 +56,13 @@ for exp_num = selected_exp
         end
     end
     
+    disp('exp_num')
+    disp(exp_num);
+    disp(mean(dd, 'all'));
+    dd1 = mean(dd, 1);
+    disp(size(dd1));
+    disp(std(dd1)/sqrt(numel(dd1)));
+    
     for sub = 1:data.nsub
         s1 = mean(data.corr(sub, :));
         s2 = mean(data_ed.corr(sub, :));
