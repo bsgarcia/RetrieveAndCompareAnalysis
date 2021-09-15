@@ -17,7 +17,7 @@ function [Q, params] = get_qvalues(sim_params)
             params.out = data.out==1;
             params.cfout = data.cfout==1;
             params.ntrials = size(data.cho, 2);
-            params.fit_cf = (sim_params.exp_num>2);
+            params.fit_cf = (exp_num>2);
             params.model = sim_params.model;
             params.ncond = length(unique(data.con));
             params.noptions = 2;
@@ -57,12 +57,13 @@ function [Q, params] = get_qvalues(sim_params)
 
             params.alpha1 = parameters{1}(:, 2);
             params.beta1 = parameters{1}(:, 1);
+            
 
             for sub = 1:size(data.cho, 1)
                 i = 1;      
 
                 for p = unique(data.p1)'
-                    Q(sub, i) = data.cho(sub, (data.p1(sub, :) == p))./100;
+                    Q(sub, i) = mean(data.cho(sub, (data.p1(sub, :) == p))./100);
                     params.corr(sub, i) = abs(Q(sub, i) -  p) <= .1;
                     i = i + 1;          
                 end

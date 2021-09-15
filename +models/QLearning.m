@@ -58,6 +58,7 @@ classdef QLearning < handle
             switch (obj.which_decision_rule)
                 case 1
                     ev = obj.Q(s, :).*1 + -1.*(1-obj.Q(s,:));
+                    %ev = obj.Q(s,:);
                     % logLL softmax
                     p = (obj.beta .* ev(a)) ...
                     - log(sum(exp(obj.beta .* ev)));

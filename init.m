@@ -25,10 +25,11 @@ format long g
 %------------------------------------------------------------------------
 % filenames and folders
 filenames = {
-    'interleaved_incomplete', 'block_incomplete', 'block_complete', 'block_complete_simple',...
-    'block_complete_mixed',  'block_complete_mixed_2s',...
-    'block_complete_mixed_2s_amb_final',...
-    'block_complete_mixed_2s_amb_heuristic'};
+   'interleaved_incomplete', 'block_incomplete', 'block_complete', 'block_complete_simple',...
+   'block_complete_mixed',  'block_complete_mixed_2s',...
+   'block_complete_mixed_2s_amb_final',...
+   'block_complete_mixed_2s_amb_heuristic', 'test2'};
+%filenames = {'test2'};
 
 folder = 'data';
 
@@ -42,6 +43,7 @@ allowed_nb_of_rows = [...
     258, 288,... %exp 1, 2, 8
     255, 285,... %exp 3
     376, 470,... %exp 4 
+    572,... %exp9
     648, 658,... %exp 5
     742, 752 ... %exp 6, 7
     216,... %exp 8
@@ -176,10 +178,11 @@ function de = load_data(filenames, folder,  rtime_threshold,...
         
         % try to retrieve data and see if there is any error (missing
         % trials etc..)
+        
         [cho, cfcho, out, cfout, corr2, con, p1, p2, rew, rt, ev1, ev2, error_exclude] = ...
             DataExtraction.extract_learning_data(...
                 dd{i}, before_sub_ids, idx, [0, 1]);
-            
+       
         % if there is one exclude them
         to_select = 1:length(before_sub_ids);
         to_select(error_exclude) = [];

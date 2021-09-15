@@ -2,17 +2,17 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
+selected_exp = [9.2];
 
 displayfig = 'on';
-force = false;
+force = true;
 
 for exp_num = selected_exp
     
     disp(exp_num);
     sess =  de.get_sess_from_exp_num(exp_num);
     
-    data = de.extract_EE(exp_num);
+    data = de.extract_ED(exp_num);
     % ---------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
     % ---------------------------------------------------------------------
@@ -55,7 +55,7 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/midpoints_EE_exp_%d_%d_mle.mat',...
+                 sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
                  round(exp_num), sess ...
              ));
              beta1 = param.beta1;
@@ -96,7 +96,7 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/midpoints_EE_exp_%d_%d_mle.mat',...
+        save(sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
             round(exp_num), sess),...
             '-struct', 'param');
     end

@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [1, 2, 3, 4];
+selected_exp = [9.2];
 displayfig = 'on';
 
 figure('Renderer', 'painters','Units', 'centimeters',...
@@ -34,7 +34,7 @@ for exp_num = selected_exp
     [midpoints2, throw] = get_qvalues(sim_params);
                                 
     param = load(...
-                    sprintf('data/midpoints_%s_exp_%d_%d_ols',...
+                    sprintf('data/midpoints_%s_exp_%d_%d_mle',...
                     'ED', round(exp_num), sess));
                 
     midpoints1 = param.midpoints;

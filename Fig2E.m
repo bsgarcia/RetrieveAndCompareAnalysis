@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4];
+selected_exp = [9.2];
 modalities = {'LE', 'ED', 'PM'};
 displayfig = 'on';
 colors = [blue;orange;magenta];
