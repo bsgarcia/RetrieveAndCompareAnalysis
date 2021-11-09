@@ -6,8 +6,8 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [9.2];
-modalities = {'LE', 'ED', 'PM'};
+selected_exp = [1,2,3,4];
+modalities = {'LE', 'ED'};
 displayfig = 'on';
 colors = [blue;orange;magenta];
 % filenames
@@ -69,14 +69,14 @@ for exp_num = selected_exp
                 param = load(...
                     sprintf('data/midpoints_%s_exp_%d_%d_mle',...
                     modalities{mod_num}, round(exp_num), sess));
-                
+
                 midpoints(mod_num, :, :) = param.midpoints;
                 
             case 'PM'
                 sim_params.model = 2;
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
         end
-        
+                  
         % fill data
         reshape_midpoints(:, :) = midpoints(mod_num, :, :);
         slope(mod_num,:,:) = add_linear_reg(...

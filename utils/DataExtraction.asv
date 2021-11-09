@@ -43,6 +43,7 @@ classdef DataExtraction < handle
             idx.cont1 = 14;
             idx.cont2 = 15;
             idx.prolific_id = 2;
+            idx.dbtime = 30;
             
             % SIM
             %-------------------------------------------------------------
@@ -124,14 +125,15 @@ classdef DataExtraction < handle
         
         
         function to_keep = exclude_subjects(data, sub_ids, idx,...
-                catch_threshold, rtime_threshold, n_best_sub, allowed_nb_of_rows)
+                ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, rtime_threshold, n_best_sub, allowed_nb_of_rows)
             to_keep = [];
+            sums = [];
             i = 1;
             possible_eli = [0, 2, -1];
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
-                
-                if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows) %255, 285,
+                sums(id) = sum(data(:, idx.sub) == sub);
+                if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows)
                     for eli = 1:length(possible_eli)
                         
                         % if EE, ED, PM
@@ -141,11 +143,20 @@ classdef DataExtraction < handle
                             mask_sub = data(:, idx.sub) == sub;
                             mask_catch = data(:, idx.catch) == 1;
                             mask_sess = ismember(data(:, idx.sess), [0, 1]);
+                            %mask_p = ismember(data(:, idx.p1), [.1, .9]);
                             mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
                             [noneed, trialorder] = sort(data(mask, idx.trial));
-                            temp_corr = data(mask, idx.corr);
                             
-                            corr_catch{i, eli} = temp_corr(trialorder);
+                            if eli == 2
+                                temp_p1 = data(mask, idx.p1);
+                                temp_cho = data(mask, idx.cho);
+                                temp_corr = abs(temp_p1 - temp_cho./100) < PM_corr_threshold;
+                         
+                            else
+                                temp_corr = data(mask, idx.corr);
+                            end
+                            
+                            corr_catch{i, eli} = temp_corr;
                             
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
                             rtime{i, eli} = data(mask, idx.rtime);
@@ -153,13 +164,14 @@ classdef DataExtraction < handle
                         else
                             mask_eli = data(:, idx.elic) == eli;
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
-                            rtime{i, 3} = data(mask, idx.rtime);
+                            rtime{i, eli} = data(mask, idx.rtime);
                             
                         end
                     end
+
                     
-                    if (mean(corr_catch{i, 1}) >= catch_threshold)...
-                            && (sum(rtime{i} > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
+                    if (mean(corr_catch{i, 1}) >= ES_catch_threshold) && (mean(corr_catch{i, 2}) >= PM_catch_threshold)...
+                            && (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
                         to_keep(length(to_keep) + 1) = sub;
                         
                     end
@@ -168,7 +180,10 @@ classdef DataExtraction < handle
                 end
                 
             end
-           
+
+          % disp(mean(vertcat(corr_catch{:, 2})));
+           %disp(mean(vertcat(corr_catch{:, 1})));
+
         end
         
     end
@@ -472,7 +487,7 @@ classdef DataExtraction < handle
                         mask_eli = data(:, obj.idx.elic) == 0;
                         mask_sub = data(:, obj.idx.sub) == sub;
                         mask_catch = data(:, obj.idx.catch) == 0;
-                        mask_ycatch = data(:, obj.idx.catch) == 0;
+                        mask_ycatch = data(:, obj.idx.catch) == 1;
 
                         % before exp. 5 op2 has value -1 in ED while after it
                         % takes value 0 (because there were no EE before)
@@ -480,7 +495,8 @@ classdef DataExtraction < handle
                         
                         
                         mask_sess = data(:, obj.idx.sess) ==  session(isess);
-                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot);
+                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_catch);
+                        mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_ycatch);
                         
                         trialorder = data(mask, obj.idx.trial);
                         
@@ -490,49 +506,54 @@ classdef DataExtraction < handle
                              trialorder = 1:length(trialorder);
                          end
                         
-                        temp_corr = data(mask.*mask_catch, obj.idx.corr);
+                        temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);
                         
-                        temp_cho = data(mask.*mask_catch, obj.idx.cho);
+                        temp_cho = data(mask, obj.idx.cho);
                         new_data.cho(i, :) = temp_cho(trialorder);
                         
                         new_data.cfcho(i, :) = 3 - new_data.cho(i, :);
                         
-                        temp_out = data(mask.*mask_catch, obj.idx.out);
+                        temp_out = data(mask, obj.idx.out);
                         new_data.out(i, :) = temp_out(trialorder);
                         
-                        temp_ev1 = data(mask.*mask_catch, obj.idx.ev1);
+                        temp_ev1 = data(mask, obj.idx.ev1);
                         new_data.ev1(i, :) = temp_ev1(trialorder);
                         
-                        temp_catch = data(mask.*mask_catch, obj.idx.catch);
+                        temp_catch = data(mask, obj.idx.catch);
                         new_data.ctch(i, :) = temp_catch(trialorder);
                         
-                        temp_cont1 = data(mask.*mask_catch, obj.idx.cont1);
+                        new_data.ctch_p1(i, :) = data(mask2, obj.idx.p1);
+                        
+                        new_data.ctch_p2(i, :) = data(mask2, obj.idx.p2);
+                     
+                        new_data.ctch_corr(i, :) = data(mask2, obj.idx.corr);
+                                             
+                        temp_cont1 = data(mask, obj.idx.cont1);
                         new_data.cont1(i, :) = temp_cont1(trialorder);
                         
-                        temp_ev2 = data(mask.*mask_catch, obj.idx.ev2);
+                        temp_ev2 = data(mask, obj.idx.ev2);
                         new_data.ev2(i, :) = temp_ev2(trialorder);
                         
-                        temp_cont2 = data(mask.*mask_catch, obj.idx.cont2);
+                        temp_cont2 = data(mask, obj.idx.cont2);
                         new_data.cont2(i, :) = temp_cont2(trialorder);
                         
-                        temp_p1 = data(mask.*mask_catch, obj.idx.p1);
+                        temp_p1 = data(mask, obj.idx.p1);
                         new_data.p1(i, :) = temp_p1(trialorder);
                         
-                        temp_p2 = data(mask.*mask_catch, obj.idx.p2);
+                        temp_p2 = data(mask, obj.idx.p2);
                         new_data.p2(i, :) = temp_p2(trialorder);
                         
-                        temp_dist = data(mask.*mask_catch, obj.idx.dist);
+                        temp_dist = data(mask, obj.idx.dist);
                         new_data.dist(i, :) = temp_dist(trialorder)./100;
                         
-                        temp_rtime = data(mask.*mask_catch, obj.idx.rtime);
+                        temp_rtime = data(mask, obj.idx.rtime);
                         new_data.rtime(i, :) = temp_rtime(trialorder);
                         
-                        temp_trial = data(mask.*mask_catch, obj.idx.trial);
+                        temp_trial = data(mask, obj.idx.trial);
                         new_data.real_trial(i, :) = temp_trial(trialorder);
                         
-                        temp_ctch = data(mask.*mask_ycatch, obj.idx.trial);
-                        new_data.catch(i, :) = temp_ctch(trialorder);
+                        new_data.catch(i, :) = data(mask2, obj.idx.catch);
                         
                         
                         i = i + 1;
@@ -778,11 +799,23 @@ classdef DataExtraction < handle
                     mask_eli = data(:, obj.idx.elic) == 2;
                     mask_sub = data(:, obj.idx.sub) == sub;
                     mask_catch = data(:, obj.idx.catch) == 0;
+                    mask_ycatch = data(:, obj.idx.catch) == 1;
+
                     %mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
                     mask_sess = ismember(data(:, obj.idx.sess), session);
                     mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
+                    mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_ycatch);
+
                     
                     [noneed, trialorder] = sort(data(mask, obj.idx.trial));
+                    %[noneed, trialorder] = sort(data(mask, obj.idx.trial));
+
+                   
+                    new_data.ctch_p1(i, :) = data(mask2, obj.idx.p1);
+                                            
+                    new_data.ctch_corr(i, :) = data(mask2, obj.idx.corr);
+                    new_data.ctch_cho(i, :) = data(mask2, obj.idx.cho);
+
                     
                     temp_corr = data(mask, obj.idx.corr);
                     new_data.corr(i, :) = temp_corr(trialorder);
@@ -819,6 +852,9 @@ classdef DataExtraction < handle
                     
                     temp_rtime = data(mask, obj.idx.rtime);
                     new_data.rtime(i, :) = temp_rtime(trialorder);
+                    
+                    new_data.catch(i, :) = data(mask2, obj.idx.catch);
+
                     
                     i = i + 1;
                 catch

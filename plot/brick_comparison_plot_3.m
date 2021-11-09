@@ -1,4 +1,4 @@
-function [nbar, nsub] = brick_comparison_plot(data1,data2, color1, color2, x_lim, y_lim,fontsize,mytitle, ... 
+function [nbar, nsub] = brick_comparison_plot(data1,data2,data3, color1, color2, color3, x_lim, y_lim,fontsize,mytitle, ... 
     x_label,y_label,x_labels, x_values, scat)
 % Sophie Bavard - December 2018
 % Creates a violin plot with mean, error bars, confidence interval, kernel density.
@@ -12,11 +12,12 @@ end
 if iscell(data2)==0
     data2 = num2cell(data2,2);
 end
-
-if ~exist('scat')
-   scat = 0;
+if iscell(data3)==0
+    data3 = num2cell(data3,2);
 end
-
+if ~exist('scat')
+    scat = 0;
+end
 % number of factors/groups/conditions
 nbar = size(data1,1);
 % bar size
@@ -32,50 +33,15 @@ trace = [0.5 0.5 0.5];
 
 for n = 1:nbar
     
-    clear Data1Matrix Data2Matrix
+    clear Data1Matrix Data2Matrix Data3Matrix
     clear jitter jitterstrength
     Data1Matrix = data1{n,:}';
     Data2Matrix = data2{n, :}';
-    
-    % -- 1st dataset
+    Data3Matrix = data3{n, :}';
 
-    % number of subjects
-    nsub = length(Data1Matrix(~isnan(Data1Matrix)));
     
-    curve = nanmean(Data1Matrix);
-    sem   = nanstd(Data1Matrix')'/sqrt(nsub);
-    mystd = nanstd(Data1Matrix);
-    conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
-    
-    width = Wbar/15;
-
-    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
-        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        set_alpha(color1, .23),...
-        'EdgeColor', 'black', 'linewidth', .4);
-    hold on
-    
-    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
-        [curve-sem curve-sem curve+sem curve+sem],...
-        set_alpha(color1, .6), 'linewidth', .4);
- 
-    hold on
-       
-        
-    if ~scat
-        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data1Matrix, 10,...
-            colors(n,:),'filled',...
-            'marker','o',...
-            'MarkerFaceAlpha',0.4);
-        hold on
-    end
-    
-    xMean = [x_values(n)+width; x_values(n)+Wbar];
-    yMean = [curve; curve];
-    plot(xMean,yMean,'LineWidth',1.8,'Color',color1);
-
     % -- 2nd dataset
-    
+
     % number of subjects
     nsub = length(Data2Matrix(~isnan(Data2Matrix)));
     
@@ -84,23 +50,62 @@ for n = 1:nbar
     mystd = nanstd(Data2Matrix);
     conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
     
+    width = Wbar/15;
+
+    fill([x_values(n) x_values(n)+Wbar x_values(n)+Wbar x_values(n)],...
+        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
+        set_alpha(color2, .23),...
+        'EdgeColor', 'black', 'linewidth', .4);
+    hold on
+    
+    fill([x_values(n) x_values(n)+Wbar x_values(n)+Wbar x_values(n)],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(color2, .6), 'linewidth', .4);
+ 
+    hold on
+       
+        
+    if scat
+        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data2Matrix, 10,...
+            colors(n,:),'filled',...
+            'marker','o',...
+            'MarkerFaceAlpha',0.4);
+        hold on
+    end
+    
+    xMean = [x_values(n); x_values(n)+Wbar];
+    yMean = [curve; curve];
+    plot(xMean,yMean,'LineWidth',1.8,'Color',color2);
+
+
+    % -- 1st dataset
+
+    
+    % number of subjects
+    nsub = length(Data1Matrix(~isnan(Data1Matrix)));
+    
+    curve = nanmean(Data1Matrix);
+    sem   = nanstd(Data1Matrix')'/sqrt(nsub);
+    mystd = nanstd(Data1Matrix);
+    conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
+    
     
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
-        set_alpha(color2, .23),...
+        set_alpha(color1, .23),...
         'edgecolor', 'black', 'linewidth', .4);
     hold on
       
         
     fill([x_values(n)-width x_values(n)-Wbar x_values(n)-Wbar x_values(n)-width],...
         [curve-sem curve-sem curve+sem curve+sem],...
-        set_alpha(color2, .6), 'linewidth', .4);%,...
+        set_alpha(color1, .6), 'linewidth', .4);%,...
      
     hold on
 %     
 
-    if ~scatter
-        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data2Matrix, 10,...
+    if scat
+        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data1Matrix, 10,...
             colors(n,:),'filled',...
             'marker','o',...    
             'MarkerFaceAlpha',0.4);
@@ -110,10 +115,45 @@ for n = 1:nbar
     
     xMean = [x_values(n)-width; x_values(n)-Wbar];
     yMean = [curve; curve];
-    plot(xMean,yMean,'LineWidth',1.8,'Color',color2);
+    plot(xMean,yMean,'LineWidth',1.8,'Color',color1);
     hold on
     
-
+      % -- 3rd dataset
+    
+    % number of subjects
+    nsub = length(Data3Matrix(~isnan(Data3Matrix)));
+    
+    curve = nanmean(Data3Matrix);
+    sem   = nanstd(Data3Matrix')'/sqrt(nsub);
+    mystd = nanstd(Data3Matrix);
+    conf  = tinv(1 - 0.5*(1-ConfInter),nsub);
+     
+    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
+        [curve-sem*conf curve-sem*conf curve+sem*conf curve+sem*conf],...
+        set_alpha(color3, .23),...
+        'EdgeColor', 'black', 'linewidth', .4);
+    hold on
+    
+    fill([x_values(n)+width x_values(n)+Wbar x_values(n)+Wbar x_values(n)+width],...
+        [curve-sem curve-sem curve+sem curve+sem],...
+        set_alpha(color3, .6), 'linewidth', .4);
+ 
+    hold on
+       
+    if scat
+        scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), Data3Matrix, 10,...
+            colors(n,:),'filled',...
+            'marker','o',...    
+            'MarkerFaceAlpha',0.4);
+        hold on
+    end
+    
+    
+    xMean = [x_values(n); x_values(n)+Wbar];
+    yMean = [curve; curve];
+    plot(xMean,yMean,'LineWidth',1.8,'Color',color3);
+    hold on
+    
 end
 
 % axes and stuff

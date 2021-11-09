@@ -2,7 +2,7 @@
 % This script is ran by other scripts at init 
 % --------------------------------------------------------------------
 tic
-close all
+%close all
 
 if exist('de')
     clearvars -except de
@@ -25,33 +25,36 @@ format long g
 %------------------------------------------------------------------------
 % filenames and folders
 filenames = {
-   'interleaved_incomplete', 'block_incomplete', 'block_complete', 'block_complete_simple',...
+   'interleaved_incomplete', 'block_incomplete', 'block_complete',...
+   'block_complete_simple',...
    'block_complete_mixed',  'block_complete_mixed_2s',...
    'block_complete_mixed_2s_amb_final',...
-   'block_complete_mixed_2s_amb_heuristic', 'test2'};
+   'block_complete_mixed_2s_amb_heuristic'};
 %filenames = {'test2'};
 
 folder = 'data';
 
 % exclusion criteria
-rtime_threshold = 100000;
-catch_threshold = 1;
+%rtime_threshold = 100000;
+rtime_threshold = 90000;
+
+ES_catch_threshold = 1; PM_catch_threshold = 0; PM_corr_threshold = .25;
 % if different from 0 then select the number of best sub
 n_best_sub = 0;
 
 allowed_nb_of_rows = [...
-    258, 288,... %exp 1, 2, 8
-    255, 285,... %exp 3
-    376, 470,... %exp 4 
+    258, 288,... %exp 2, 3
+    255, 285,... %exp 1
+    376, 470,... %exp 5
     572,... %exp9
-    648, 658,... %exp 5
-    742, 752 ... %exp 6, 7
-    216,... %exp 8
+    648, 658,... %exp 6, 7, 8
+    742, 752,746 ... %exp 6, 7, 8
+    216,... %exp 4
     ];
 
 % display figures
 displayfig = 'off';
-
+set(gca,'fontname','arial')  % Set it to times
 
 %-----------------------------------------------------------------------
 % colors
@@ -145,18 +148,18 @@ if ~exist('de')
 %-------------------------------------------------------------------------
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
-de = load_data(filenames, folder, rtime_threshold, catch_threshold, ...
+de = load_data(filenames, folder, rtime_threshold,  ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, ...
     n_best_sub, allowed_nb_of_rows);
 end
 %end
 show_loaded_data(de.d);
-show_parameter_values(rtime_threshold, catch_threshold, allowed_nb_of_rows);
+show_parameter_values(rtime_threshold, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, allowed_nb_of_rows);
 toc
 %-------------------------------------------------------------------------
 % Define functions
 %-------------------------------------------------------------------------
 function de = load_data(filenames, folder,  rtime_threshold,...
-    catch_threshold, n_best_sub, allowed_nb_of_rows)
+     ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, n_best_sub, allowed_nb_of_rows)
 
     d = struct();
     i = 1;
@@ -170,10 +173,10 @@ function de = load_data(filenames, folder,  rtime_threshold,...
     for f = filenames
         d = setfield(d, char(f), struct());
         new_d = getfield(d, char(f));
-        
+        disp(sprintf('Treating %s', char(f)));
         % exclude subject based on exclusion criteria
         before_sub_ids = DataExtraction.exclude_subjects(...
-            dd{i}, sub_ids{i}, idx, catch_threshold, rtime_threshold,...
+            dd{i}, sub_ids{i}, idx, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, rtime_threshold,...
             n_best_sub, allowed_nb_of_rows);
         
         % try to retrieve data and see if there is any error (missing
@@ -218,12 +221,12 @@ function show_loaded_data(d)
 end
 
 
-function show_parameter_values(rtime_threshold, catch_threshold,...
+function show_parameter_values(rtime_threshold, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold,...
     allowed_number_of_rows)
 
     fprintf('\nParameter values:\n');
     fprintf('Response time threshold=%d seconds\n', rtime_threshold/1000);
-    fprintf('Correct catch trials threshold=%d  \n', catch_threshold.*100);
+    fprintf('Correct catch trials (ES, PM, PM_corr) threshold=%d,%d,%d  \n', [ES_catch_threshold, PM_catch_threshold, PM_corr_threshold].*100);
     fprintf(['Number of trials allowed and retrieved per subject=' ...
         repmat('%d ', 1, length(allowed_number_of_rows))], allowed_number_of_rows);
     fprintf('\n');   

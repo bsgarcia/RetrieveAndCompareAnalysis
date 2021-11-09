@@ -7,7 +7,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [5, 6];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
-colors = [orange; orange];
+colors = blue;
 zscored = 0;
 
 stats_data = table();
@@ -42,75 +42,58 @@ for exp_num = selected_exp
     data_ee = de.extract_EE(exp_num);
     
     nsub = size(data_ed.cho, 1);
-
-    for sub = 1:nsub
-        
-        for p = 1:length(lotp)
-            mask_lot = (data_ed.p2(sub,:)==lotp(p));
-                d(sub+sub_count,p) = median(...
-                data_ed.rtime(sub, logical(mask_lot)));   
-            T1 = table(...
-                    sub+sub_count, exp_num, d(sub+sub_count,p), lotp(p),...
-                    {'ED_d'}, 'variablenames',...
-                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
-                    );
-            stats_data = [stats_data; T1];
- 
-        end
-        
-        for p = 1:length(symp)
-             mask_lot = (data_ed.p1(sub,:)==symp(p));
-             mask_cho1 = data_ee.cho(sub,:) == 1;
-             mask_cho2 = data_ee.cho(sub,:) == 2;
-             mask_p1 = data_ee.p1(sub,:) == symp(p);
-             mask_p2 = data_ee.p2(sub,:) == symp(p);
-             e(sub+sub_count,p) = median(...
-                data_ed.rtime(sub, logical(mask_lot)));  
-            ee(sub+sub_count,p) = median(data_ee.rtime(...
-                sub, logical((mask_p1.*mask_cho1) + (mask_p2.*mask_cho2))));
-            
-            T1 = table(...
-                    sub+sub_count, exp_num, e(sub+sub_count,p), symp(p),...
-                    {'ED_e'}, 'variablenames',...
-                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
-                    );
-            stats_data = [stats_data; T1];
-            T1 = table(...
-                    sub+sub_count, exp_num, ee(sub+sub_count,p), symp(p),...
-                    {'EE'}, 'variablenames',...
-                    {'subject', 'exp_num', 'RT', 'p', 'modality'}...
-                    );
-            stats_data = [stats_data; T1];
- 
-        end
-        
-        
-        for t = 1:length(data_ed.p2(sub,:))
-            
-            T1 = table(...
-                    sub+sub_count, exp_num, data_ed.rtime(sub, t), data_ed.p1(sub, t),data_ed.p2(sub, t),...
-                    {'ED'}, 'variablenames',...
-                    {'subject', 'exp_num', 'RT', 'p_symbol', 'p_lottery', 'modality'}...
-                    );
-            full_rt = [full_rt; T1];
- 
+    mat_ed = nan(length(lotp), length(symp));
+    mat_ee = nan(length(symp), length(symp));
+%     data_ed.rtime = normalize(data_ed.rtime);
+%     data_ee.rtime = normalize(data_ee.rtime);
+%     for sub = 1:nsub
+%         [throw, a] = sort(data_ed.rtime(sub,:));
+%         [throw, b] = sort(data_ee.rtime(sub,:));
+% 
+%         data_ed.rtime(sub, :) = a./max(a);
+%         data_ee.rtime(sub, :) = b./max(b);
+%     end
+    
+    for p2 = 1:length(lotp)
+        for p1 = 1:length(symp)
+            mask = (data_ed.p1==symp(p1)) .* (data_ed.p2==lotp(p2));
+            mat_ed(p2,p1) = mean(...
+                data_ed.rtime(logical(mask)));
         end
     end
-%         for mod_num = 1:3
-%             T1 = table(...
-%                 sub+sub_count, exp_num, dd{mod_num},...
-%                 {modalities{mod_num}}, 'variablenames',...
-%                 {'subject', 'exp_num', 'RT', 'modality'}...
-%                 );
-%             stats_data = [stats_data; T1];
-%         end
-    %end
     
-    sub_count = sub_count + sub;
+    for p2 = 1:length(symp)
+        for p1 = 1:length(symp)
+            
+            mask = (data_ee.p1==symp(p1)) .* (data_ee.p2==symp(p2));
+            mat_ee(p2,p1) = mean(...
+                data_ee.rtime(logical(mask)));
+            
+        end
+    end
+    figure('Position', [0, 0, 1800, 600]);
+    subplot(1, 2, 1);   
+    
+    title('ES');
+    h = heatmap(mat_ed);
+    ylabel('lottery')
+    xlabel('blocked sym')
+
+    h.Colormap = redblue(5);
+    subplot(1, 2, 2);   
+    
+    title('EE');
+
+    h = heatmap(mat_ee);
+     ylabel('sym against')
+    xlabel('blocked sym')
+    h.Colormap = redblue(5);
+
+    sgtitle(sprintf('Exp. %.0f', exp_num));
+    saveas(gcf, sprintf('RT_heatmap_exp_%d.png', exp_num))
 
 end
-figure('Units', 'centimeters',...
-    'Position', [0,0,5.3*3.65, 5.3/1.25*2], 'visible', displayfig)
+return
 
 labely = 'Median reaction time per subject (ms)';
 labelx = 'P(lottery) (%)';
@@ -137,7 +120,7 @@ box off;
 xtickangle(0)
 xlabel(labelx)
 
-% - ------------------------------ 
+% - ------------------------------ ---------------------------------------%
 
 x_lim = [0,100];
 x_values = 5:100/8:100;
@@ -165,7 +148,7 @@ xtickangle(0)
 xlabel(labelx)
 
 
-% - ------------------------------ 
+% - ----------------------------------------------------------------------%
 subplot(1, 3, 3)
 labelx = 'P(chosen symbol) (%)';
 
@@ -213,4 +196,8 @@ function plot_linear(x_values, d, color)
     b = glmfit(x, d);
     y = glmval(b, x, 'identity');  
     plot(x_values, y, 'color', color, 'linewidth', 1.5);
+end
+
+function norm_data = normalize(bla)
+    norm_data = (bla - min(bla, [], 'all')) ./ ( max(bla, [], 'all') - min(bla, [], 'all') );
 end

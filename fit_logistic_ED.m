@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [9.2];
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1 ,7.2];
 
 displayfig = 'on';
 force = true;
@@ -18,17 +18,18 @@ for exp_num = selected_exp
     % ---------------------------------------------------------------------
 
     p_sym = unique(data.p1)';
+    p_lot = unique(data.p2)';
     nsub = size(data.cho,1);
     
-    chose_symbol = zeros(nsub, length(p_sym), length(p_sym)-1);
+    chose_symbol = zeros(nsub, length(p_sym), length(p_lot));
     for i = 1:nsub
         for j = 1:length(p_sym)
-            for k = 1:length(p_sym)
+            for k = 1:length(p_lot)
                 if j ~= k
                     temp = ...
                         data.cho(...
-                            i, logical((data.p2(i, :) == p_sym(j))...
-                        .* (data.p1(i, :) == p_sym(k))));
+                            i, logical((data.p2(i, :) == p_lot(k))...
+                        .* (data.p1(i, :) == p_sym(j))));
                         chose_symbol(i, j, k) = temp == 1;
                 end
             end
@@ -42,12 +43,12 @@ for exp_num = selected_exp
     
     for sub = 1:nsub
                              
-        X = zeros(length(p_sym), length(p_sym));
-        Y = zeros(length(p_sym), length(p_sym));
+        X = zeros(length(p_sym), length(p_lot));
+        Y = zeros(length(p_sym), length(p_lot));
         
         for i = 1:length(p_sym)
-            Y(i, :) = reshape(chose_symbol(sub, :, i), [], 1);
-            X(i, :) = p_sym;
+            Y(i, :) = reshape(chose_symbol(sub, i, :), [], 1);
+            X(i, :) = p_lot;
         end
         
         try 

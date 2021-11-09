@@ -5,11 +5,11 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [9.2];
+selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
 colors = [orange];
 % filenames
-filename = 'Fig4A';
+filename = 'Fig2B';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -30,39 +30,21 @@ for exp_num = selected_exp
     p2 = data.p2;
     cho = data.cho;
    
-    % ----------------------------------------------------------------------
+    % ---------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
-    % ------------------------------------------------------------------------
-   
-    pcue = unique(p2)';
+    % ---------------------------------------------------------------------
+    p_lot = unique(p2)';
     psym = unique(p1)';
    
-    chose_symbol = zeros(nsub, length(pcue), length(psym));
-    for i = 1:nsub
-        for j = 1:length(pcue)
-            for k = 1:length(psym)
-                temp = ...
-                    cho(i, logical((p2(i, :) == pcue(j)) .* (p1(i, :) == psym(k))));
-            
-            end
-        end
-    end
-   
-    nsub = size(cho, 1);
-    k = 1:nsub;
-   
-    prop = zeros(length(psym), length(pcue));
-    temp1 = cho(k, :);
-    for j = 1:length(pcue)
-        for l = 1:length(psym)
-            temp = temp1(...
-                logical((p2(k, :) == pcue(j)) .* (p1(k, :) == psym(l))));
+    prop = zeros(length(psym), length(p_lot));
+    for l = 1:length(psym)
+        for j = 1:length(p_lot)
+            temp = cho(...
+                logical((p2 == p_lot(j)) .* (p1== psym(l))));
             prop(l, j) = mean(temp == 1);
-            err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
-           
+            
         end
     end
-   
    
     subplot(1, length(selected_exp), num);
    
@@ -78,7 +60,7 @@ for exp_num = selected_exp
        
        
         lin3 = plot(...
-            pcue.*100,  prop(i, :).*100,...
+            p_lot.*100,  prop(i, :).*100,...
             'Color', colors(1,:), 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
             );
        
@@ -94,23 +76,22 @@ for exp_num = selected_exp
         sc2.MarkerFaceAlpha = alpha(i);
        
         if num == 1
-            ylabel('P(choose symbol) (%)');
+            ylabel('P(choose E-option) (%)');
         end
-        xlabel('Lottery p(win) (%)');
+        xlabel('S-option p(win) (%)');
        
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);
        
         box off
     end
-   
-    
+      
     set(gca,'TickDir','out')
     set(gca, 'FontSize', fontsize);
     xticks([0:20:100])
     %axis equal
 
-    clear pp pcue psym temp err_prop prop i
+    clear pp p_lot psym temp err_prop prop i
    
 end
 saveas(gcf, figname);

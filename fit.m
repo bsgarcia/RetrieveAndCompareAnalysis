@@ -60,6 +60,7 @@ for exp_num = selected_exp
         fit_params.params = data.data('parameters');  %% Optimization parameters
         ll = data.data('ll');
         %hessian = data.data('hessian');
+        
         if force
             error('Force = True');
         end

@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1.2];
+selected_exp = [1, 2, 3, 4];
 modality = 'LE';
 color = blue;
 
@@ -56,13 +56,13 @@ for exp_num = selected_exp
         end
     end
     
-    disp('exp_num')
-    disp(exp_num);
-    disp(mean(dd, 'all'));
-    dd1 = mean(dd, 1);
-    disp(size(dd1));
-    disp(std(dd1)/sqrt(numel(dd1)));
-    
+%     disp('exp_num')
+%     disp(exp_num);
+%     disp(mean(dd, 'all'));
+%     dd1 = mean(dd, 1);
+%     disp(size(dd1));
+%     disp(std(dd1)/sqrt(numel(dd1)));
+%     
     for sub = 1:data.nsub
         s1 = mean(data.corr(sub, :));
         s2 = mean(data_ed.corr(sub, :));
@@ -92,6 +92,13 @@ for exp_num = selected_exp
     
     plot([10, 85], [50, 50], 'color', 'k', 'linestyle', ':')
     
+    if exp_num == 4
+        xvalues = [10, 85];
+        varargin = {'60/40', '90/10'};
+    else
+        xvalues = [10, 35, 60, 85];
+        varargin = {'60/40','70/30', '80/20', '90/10'};
+    end
     brickplot(...
         dd.*100,...                             %data
         color.*ones(4, 3),...                   %color
@@ -99,16 +106,16 @@ for exp_num = selected_exp
         '',...                                  %title
         '',...                                  %xlabel
         '',...                                  %ylabel
-        {'60/40','70/30', '80/20', '90/10'},... %varargin
+        varargin,... %varargin
         0,...                                   %noscatter
         [-10, 105],...                          %xlim
-        [10, 35, 60, 85],...                    %xvalues
+        xvalues,...                    %xvalues
         5, ...                                  %barwidth
         0 ...                                   %median
         );
     
     plot([10, 85], [50, 50], 'color', 'k', 'linestyle', ':')
-    xlabel('Symbol pair');
+    xlabel('E-options pairs');
     ylabel(labely);
     
     box off
@@ -119,6 +126,7 @@ for exp_num = selected_exp
     set(gca, 'fontsize', fontsize);
     
 end
+saveas(gcf, figname);
 
 writetable(stats_data, stats_filename);
 

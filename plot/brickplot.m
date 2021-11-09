@@ -21,7 +21,6 @@ if ~exist('median')
 end
 
 
-
 % number of factors/groups/conditions
 nbar = size(data,1);
 % bar size
@@ -66,7 +65,7 @@ for n = 1:nbar
     
     hold on
     
-    xMean = [x_values(n)-Wbar+.4; x_values(n)+Wbar-.4];
+    xMean = [x_values(n)-Wbar; x_values(n)+Wbar];
     yMean = [curve; curve];
     ppp = plot(xMean,yMean,'LineWidth',1.8,'Color',colors(n,:));
     hold on
@@ -76,7 +75,7 @@ for n = 1:nbar
 
         a = ones(size(DataMatrix)).*x_values(n)+shuffle(linspace(-Wbar, Wbar, nsub));
         
-        scatter(ones(size(DataMatrix)).*x_values(n)+shuffle(linspace(-Wbar/2, Wbar/2, nsub))', DataMatrix, 8,...
+        scatter(ones(size(DataMatrix)).*x_values(n)+shuffle(linspace(-Wbar/2, Wbar/2, nsub))', DataMatrix, Wbar*1.5,...
             colors(n,:),'filled',...
             'marker','o', ...
             'MarkerFaceAlpha',0.3);

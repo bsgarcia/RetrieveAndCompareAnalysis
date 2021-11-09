@@ -17,7 +17,7 @@ function [Q, params] = get_qvalues(sim_params)
             params.out = data.out==1;
             params.cfout = data.cfout==1;
             params.ntrials = size(data.cho, 2);
-            params.fit_cf = (exp_num>2);
+            params.fit_cf = (sim_params.exp_num>2);
             params.model = sim_params.model;
             params.ncond = length(unique(data.con));
             params.noptions = 2;

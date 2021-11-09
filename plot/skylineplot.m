@@ -16,6 +16,7 @@ end
 
 % number of factors/groups/conditions
 Nbar = size(DataCell,1);
+disp(Nbar);
 % bar size
 Wbar = 0.75;
 
@@ -66,14 +67,14 @@ for n = 1:Nbar
     if length(density) > 1
         d = interp1(value, density*width, [curve-sem*conf sort(inter) curve+sem*conf]);
     else % all data is identical
-        d = repmat(density*width,1,2);
+        d = repmat(density*width,1,1);
     end 
+    
     fill([n n+d n],...
         [curve-sem*conf curve-sem*conf sort(inter) curve+sem*conf curve+sem*conf],...
         set_alpha(Colors(n,:), 0.7),...
         'EdgeColor', 'none');
-    hold on
-    
+        
         % CONFIDENCE INTERVAL
     rectangle('Position',[n, curve - sem*conf, Wbar/2, sem*conf*2],...
         'EdgeColor',Colors(n,:),...
