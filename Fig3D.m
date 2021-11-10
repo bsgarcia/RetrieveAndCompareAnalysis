@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [9.2];
+selected_exp = [5, 6.1, 6.2];
 modalities = {'ED', 'EE'};
 displayfig = 'on';
 colors = [orange;green];
@@ -67,7 +67,7 @@ for exp_num = selected_exp
             case {'EE', 'ED'}
                 
                 param = load(...
-                    sprintf('data/midpoints_%s_exp_%d_%d_mle',...
+                    sprintf('data/midpoints_%s_exp_%d_%d_mle4',...
                     modalities{mod_num}, round(exp_num), sess));
                 
                 midpoints(mod_num, :, :) = param.midpoints;
@@ -134,14 +134,14 @@ writetable(stats_data, stats_filename);
 T = stats_data;
 cond_ED = strcmp(T.modality, 'ED');
 cond_EE = strcmp(T.modality, 'EE');
-cond_exp = ismember(T.exp_num, [6.1, 6.2]);
+cond_exp = ismember(T.exp_num, [5, 6.1, 6.2]);
 cond_exp1 = ismember(T.exp_num, [6.1]);
 cond_exp2 = ismember(T.exp_num, [6.2]);
 
 disp('********************************************');
 disp('FULL');
 disp('********************************************');
-fitlm(T(cond_exp,:), 'slope ~ modality*exp_num')
+fitlm(T(cond_exp,:), 'slope ~ modality+exp_num')
 disp('********************************************');
 disp('EE - 6.1/6.2');
 disp('********************************************');

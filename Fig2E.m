@@ -6,10 +6,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
-modalities = {'LE', 'ED'};
+selected_exp = [5, 6.1, 6.2];
+modalities = {'LE', 'ED', 'EE'};
 displayfig = 'on';
-colors = [blue;orange;magenta];
+colors = [blue;orange;green;magenta];
 % filenames
 filename = 'Fig2E';
 figfolder = 'fig';
