@@ -2,8 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5,6.1,6.2,7.1,7.2];
-
+selected_exp = [5];
 displayfig = 'on';
 force = true;
 
@@ -86,8 +85,7 @@ for exp_num = selected_exp
                 options...
             );
             
-            midpoints = params(:, 2:length(p_sym)+1);
-            beta1 = params(:, 1);
+            
       
         end
 
@@ -95,13 +93,16 @@ for exp_num = selected_exp
         
     end
     
+    midpoints = params(:, 2:length(p_sym)+1);
+    beta1 = params(:, 1);
+    
 
     if tosave
         param.midpoints = midpoints;
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/midpoints_EE_exp_%d_%d_mle.mat',...
+        save(sprintf('data/midpoints_EE_exp_%d_%d_mle2.mat',...
             round(exp_num), sess),...
             '-struct', 'param');
     end

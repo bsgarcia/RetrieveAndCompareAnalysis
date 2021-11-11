@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5];
+selected_exp = [5, 6.1 ,6.2];
 displayfig = 'on';
 % filenames
 filename = 'Fig3C';
@@ -45,6 +45,7 @@ for exp_num = selected_exp
     slope2 = add_linear_reg(midpoints2.*100, ev, green);
     hold on
     
+    
     brick_comparison_plot(...
         midpoints1'.*100,midpoints2'.*100,...
         orange, green, ...
@@ -57,7 +58,7 @@ for exp_num = selected_exp
         ylabel('Estimated p(win) (%)')
     end
     
-    xlabel('Symbol p(win) (%)');
+    xlabel('E-option p(win) (%)');
     box off
     hold on
 

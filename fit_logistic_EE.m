@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5];
+selected_exp = [5, 6.1, 6.2, 7.1, 7.2];
 
 displayfig = 'on';
 force = true;
@@ -100,61 +100,61 @@ for exp_num = selected_exp
             round(exp_num), sess),...
             '-struct', 'param');
     end
-    
-    figure
-    subplot(1, length(selected_exp), num);
-    
-    pwin = p_sym;
-    alpha = linspace(.15, .95, length(pwin));
-    lin1 = plot(...
-        linspace(pwin(1)*100, pwin(end)*100, 12), ones(12,1)*50,...
-        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
-    
-    for i = 1:length(pwin)
-
-        prop(i, :) = mean(logfun(pwin, midpoints(:,i), beta1));
-        
-        hold on
-        
-        
-        lin3 = plot(...
-            pwin(isfinite(prop(i, :))).*100,  prop(i,isfinite(prop(i, :))).*100,...
-            'Color', green, 'LineWidth',1.5...% 'LineStyle', '--' ...
-            );
-        
-        
-        %lin3.Color(4) = alpha(i);
-        
-        hold on      
-        
-        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
-        try
-            xx(i) = xout;
-            yy(i) = yout;
-        catch
-            fprintf('Intersection p(%d): No indifferent point \n', pwin(i));
-            
-        end
-        sc2 = scatter(xout, yout, 15, 'MarkerFaceColor', lin3.Color,...
-            'MarkerEdgeColor', 'w');
-        sc2.MarkerFaceAlpha = alpha(i);
-        
-        if num == 1
-            ylabel('P(choose E-option) (%)');
-        end
-        xlabel('E-option p(win) (%)');
-        
-        ylim([-0.08*100, 1.08*100]);
-        xlim([-0.08*100, 1.08*100]);
-        xticks(0:20:100)
-
-        box off
-    end
-    
-
-    set(gca,'TickDir','out')
-    set(gca, 'FontSize', fontsize);
-
+%     return
+%     figure
+%     subplot(1, length(selected_exp), num);
+%     
+%     pwin = p_sym;
+%     alpha = linspace(.15, .95, length(pwin));
+%     lin1 = plot(...
+%         linspace(pwin(1)*100, pwin(end)*100, 12), ones(12,1)*50,...
+%         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
+%     
+%     for i = 1:length(pwin)
+% 
+%         prop(i, :) = mean(logfun(pwin, midpoints(:,i), beta1));
+%         
+%         hold on
+%         
+%         
+%         lin3 = plot(...
+%             pwin(isfinite(prop(i, :))).*100,  prop(i,isfinite(prop(i, :))).*100,...
+%             'Color', green, 'LineWidth',1.5...% 'LineStyle', '--' ...
+%             );
+%         
+%         
+%         %lin3.Color(4) = alpha(i);
+%         
+%         hold on      
+%         
+%         [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
+%         try
+%             xx(i) = xout;
+%             yy(i) = yout;
+%         catch
+%             fprintf('Intersection p(%d): No indifferent point \n', pwin(i));
+%             
+%         end
+%         sc2 = scatter(xout, yout, 15, 'MarkerFaceColor', lin3.Color,...
+%             'MarkerEdgeColor', 'w');
+%         sc2.MarkerFaceAlpha = alpha(i);
+%         
+%         if num == 1
+%             ylabel('P(choose E-option) (%)');
+%         end
+%         xlabel('E-option p(win) (%)');
+%         
+%         ylim([-0.08*100, 1.08*100]);
+%         xlim([-0.08*100, 1.08*100]);
+%         xticks(0:20:100)
+% 
+%         box off
+%     end
+%     
+% 
+%     set(gca,'TickDir','out')
+%     set(gca, 'FontSize', fontsize);
+% 
 
 end
 

@@ -50,7 +50,7 @@ for exp_num = selected_exp
             T3 = table(...
             sub+sub_count, exp_num, dd(i, sub), i, ...
             'variablenames',...
-            {'subject', 'exp_num', 'score', 'con'}...
+            {'subject', 'exp_num', 'score', 'cond'}...
             );
             
             T_con = [T_con; T3]; 
@@ -122,21 +122,32 @@ for exp_num = selected_exp
 end
 saveas(gcf, figname);
 
-writetable(stats_data, stats_filename);
+writetable(T_con, stats_filename);
 
 
-T = stats_data;
-cond_ED = strcmp(T.modality, 'ED');
-cond_LE = strcmp(T.modality, 'LE');
-cond_exp = T.exp_num == 1;
+T = T_con;
+%cond_ED = strcmp(T.modality, 'ED');
+%cond_LE = strcmp(T.modality, 'LE');
+for i = 1:4
+    exp(i,:) = T.exp_num == i;
+    cond(i,:) = T.cond == i;
+end
 
-
+for i = 1:4
+    x = T(logical(exp(i,:).*cond(i,:)), :).score;
+    y = ones(size(x)).*.5;
+    [p,h] = ttest(x, y);
+    disp(p)
+    disp(h)
+    disp('******************************');
+end
 
 disp('FULL');
-fitlme(T, 'score ~ exp_num*modality + (1|subject)')
+fitlm(T(exp(1,:),:), 'score ~ cond')
 disp('********************************************');
 disp('LE');
 disp('********************************************');
+return
 
 fitlm(T(cond_LE,:), 'score ~ exp_num ')
 % % figure

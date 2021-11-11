@@ -15,6 +15,23 @@ def main():
     pairwise_ttests([infos[0]])
 
 
+def ttest_con(infos):
+    info = infos[0]
+    name = info['name']
+    print('*' * 5, name, '*' * 5)
+    df = pd.DataFrame(pd.read_csv(f'../data/stats/{name}.csv'))
+    pd.set_option('display.max_columns', None)
+    pd.set_option('max_columns', None)
+
+    for exp in (1,):#, 2, 3, 4):
+        for con in (1, 2, 3, 4):
+            print('cond', con)
+            x = df[(df['exp_num']==exp) & (df['cond']==con)]['score']
+            print(len(x))
+            res = pg.ttest(x, y=.5, correction='bonf')
+            print(res)
+
+
 def polyfit_full(infos):
     for info in infos:
         # ------------------------------------------------------ #
