@@ -17,27 +17,20 @@ for i = 1:length(p_sym)
         Y(i, j) = p_sym(i) > p_lot(j);
     end
 end
-
-for i = 1:length(p_sym)
-    for j = 1:length(p_lot)
-        if p_lot(j) > .5
-            
-            Z(i, j) = 0;
-        else
-            Z(i, j) = 1;
-        end
-    end
-end
-for i = 1:length(p_sym)
-    for j = 1:length(p_lot)            
-            X( i, j) = p_lot(j) <= .5;
-        end
-    end
+% 
+% for i = 1:length(p_sym)
+%     count = 0;
+%     for j = 1:length(p_sym)
+%         if i ~= j
+%             count = count + 1;
+% 
+%             Y(i, count) = p_sym(i) > p_sym(j);
+%         end
+%     end
+% end
 
 
-return
-
-X = p_lot.*ones(size(Y));
+X = p_lot;
 % considering one symbol p = .1
 
 
@@ -49,7 +42,7 @@ options = optimset(...
     'MaxIter', 10000,...
     'MaxFunEval', 10000);
 [params, nll] = fmincon(...
-    @(x) tofit(x, X, Y),...
+    @(x) tofit_mle2(x, X, Y),...
     [1, ones(1, length(p_sym)) .* .5],...
     [], [], [], [],...
     [0.01, zeros(1, length(p_sym))],...
@@ -67,7 +60,7 @@ title('Behavior');
 % plot fitted curves
 figure
 for i = 1:length(p_sym)
-    plot(X(i,:), logfun(X(i,:), params(i+1), params(1)), 'linewidth', 2);
+    plot(X, logfun(X, params(i+1), params(1)), 'linewidth', 2);
     hold on
 end
 title('Fit');
@@ -83,17 +76,33 @@ xlim([0 1])
 ylim([0 1])
 
 
-% disp temperature and midpoint
-disp(params);
         
+function nll = tofit_mle2(params, X, Y)
+
+    options = optimset('Display','off');
+    temp = params(1);
+    midpoints = params(2:end);
+    ll = 0;
+    for i = 1:size(Y, 1)
+        yhat = logfun(X, midpoints(i), temp);
+        ll = ll + (1/numel(yhat)) * nansum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
+    end
+    if isnan(ll)
+        error('is nan')
+    end
+    nll = -ll;
+end
+
+
+
 function nll = tofit(params, X, Y)
     options = optimset('Display','off');
     temp = params(1);
     midpoints = params(2:end);
     ll = 0;
     for i = 1:size(Y, 1)
-        yhat = logfun(X(i,:), midpoints(i), temp);
-        ll = ll + (1/sum(log(yhat)) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
+        yhat = logfun(X(i,:)', midpoints(i), temp);
+        ll = ll + nansum(log(yhat) .* Y(i,:)' + log(1-yhat).*(1-Y(i,:)')); 
     end
     nll = -ll;
 end

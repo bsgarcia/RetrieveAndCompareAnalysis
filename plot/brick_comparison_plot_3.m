@@ -149,7 +149,7 @@ for n = 1:nbar
     end
     
     
-    xMean = [x_values(n)+Wbar; x_values(n)+Wbar+width2];
+    xMean = [x_values(n)+Wbar*1.1; x_values(n)+Wbar+width2];
     yMean = [curve; curve];
     plot(xMean,yMean,'LineWidth',1.8,'Color',color3);
     hold on

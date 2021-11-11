@@ -2,13 +2,13 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5];
+selected_exp = [5,6.1,6.2,7.1,7.2];
 
 displayfig = 'on';
 force = true;
-num = 0;
+
 for exp_num = selected_exp
-    num = num+ 1;
+    
     disp(exp_num);
     sess =  de.get_sess_from_exp_num(exp_num);
     
@@ -20,7 +20,7 @@ for exp_num = selected_exp
     p_sym = unique(data.p1)';
     nsub = size(data.cho,1);
     
-    chose_symbol = nan(nsub, length(p_sym), length(p_sym));
+    chose_symbol = zeros(nsub, length(p_sym), length(p_sym));
     for i = 1:nsub
         for j = 1:length(p_sym)
             count = 0;
@@ -38,9 +38,9 @@ for exp_num = selected_exp
         end
     end
 
-%    midpoints = nan(nsub, length(p_sym));
+    midpoints = nan(nsub, length(p_sym));
     params = nan(nsub, length(p_sym)+1);
- %   beta1 = nan(nsub, 1);
+    beta1 = nan(nsub, 1);
     nll = nan(nsub, 1);
     
     for sub = 1:nsub
@@ -85,11 +85,16 @@ for exp_num = selected_exp
                 [],...
                 options...
             );
-              
+            
+            midpoints = params(:, 2:length(p_sym)+1);
+            beta1 = params(:, 1);
+      
         end
+
+        
+        
     end
-    midpoints = params(:, 2:length(p_sym)+1);
-    beta1 = params(:, 1);
+    
 
     if tosave
         param.midpoints = midpoints;
@@ -101,61 +106,6 @@ for exp_num = selected_exp
             '-struct', 'param');
     end
     
-    figure
-    subplot(1, length(selected_exp), num);
-    
-    pwin = p_sym;
-    alpha = linspace(.15, .95, length(pwin));
-    lin1 = plot(...
-        linspace(pwin(1)*100, pwin(end)*100, 12), ones(12,1)*50,...
-        'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
-    
-    for i = 1:length(pwin)
-
-        prop(i, :) = mean(logfun(pwin, midpoints(:,i), beta1));
-        
-        hold on
-        
-        
-        lin3 = plot(...
-            pwin(isfinite(prop(i, :))).*100,  prop(i,isfinite(prop(i, :))).*100,...
-            'Color', green, 'LineWidth',1.5...% 'LineStyle', '--' ...
-            );
-        
-        
-        %lin3.Color(4) = alpha(i);
-        
-        hold on      
-        
-        [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
-        try
-            xx(i) = xout;
-            yy(i) = yout;
-        catch
-            fprintf('Intersection p(%d): No indifferent point \n', pwin(i));
-            
-        end
-        sc2 = scatter(xout, yout, 15, 'MarkerFaceColor', lin3.Color,...
-            'MarkerEdgeColor', 'w');
-        sc2.MarkerFaceAlpha = alpha(i);
-        
-        if num == 1
-            ylabel('P(choose E-option) (%)');
-        end
-        xlabel('E-option p(win) (%)');
-        
-        ylim([-0.08*100, 1.08*100]);
-        xlim([-0.08*100, 1.08*100]);
-        xticks(0:20:100)
-
-        box off
-    end
-    
-
-    set(gca,'TickDir','out')
-    set(gca, 'FontSize', fontsize);
-
-
 end
 
 
@@ -173,17 +123,13 @@ end
 
 
 function nll = tofit_mle2(params, X, Y)
-
     options = optimset('Display','off');
     temp = params(1);
     midpoints = params(2:end);
     ll = 0;
     for i = 1:size(Y, 1)
         yhat = logfun(X(i,:), midpoints(i), temp);
-        ll = ll + (1/numel(yhat)) * nansum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
-    end
-    if isnan(ll)
-        error('is nan')
+        ll = ll + (1/numel(yhat)) * sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
     end
     nll = -ll;
 end

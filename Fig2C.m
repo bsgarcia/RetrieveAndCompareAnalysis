@@ -8,7 +8,7 @@ figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 num = 0;
 
-filename = 'Fig2B';
+filename = 'Fig2C';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -76,7 +76,7 @@ for exp_num = selected_exp
         '',...
         '',...
         '', varargin, x_values, 0);
-     
+    xtickangle(0)
     if num == 1
         ylabel('Estimated p(win) (%)')
     end

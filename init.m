@@ -52,9 +52,6 @@ allowed_nb_of_rows = [...
     216,... %exp 4
     ];
 
-% display figures
-displayfig = 'off';
-set(gca,'fontname','arial')  % Set it to times
 
 %-----------------------------------------------------------------------
 % colors
@@ -138,10 +135,14 @@ grey = [202 207 214]./255;
 % yellow = colors(6,:);
 % taupe = colors(7,:);
 % gray = colors(8,:);
+
 %-------------------------------------------------------------------------
 % Plot parameters
 %------------------------------------------------------------------------
 fontsize = 6;
+% display figures
+displayfig = 'off';
+
 
 
 if ~exist('de')

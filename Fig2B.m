@@ -6,7 +6,7 @@ init;
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
 selected_exp = [1, 2, 3, 4];
-displayfig = 'on';
+displayfig = 'off';
 colors = [orange];
 % filenames
 filename = 'Fig2B';
@@ -58,13 +58,11 @@ for exp_num = selected_exp
        
         hold on
        
-       
         lin3 = plot(...
             p_lot.*100,  prop(i, :).*100,...
             'Color', colors(1,:), 'LineWidth', 1.5 ...% 'LineStyle', '--' ...
             );
-       
-       
+        
         lin3.Color(4) = alpha(i);
        
         hold on      
@@ -89,6 +87,9 @@ for exp_num = selected_exp
     set(gca,'TickDir','out')
     set(gca, 'FontSize', fontsize);
     xticks([0:20:100])
+    xtickangle(0)
+    %set(gca,'fontname','monospaced')  % Set it to times
+
     %axis equal
 
     clear pp p_lot psym temp err_prop prop i

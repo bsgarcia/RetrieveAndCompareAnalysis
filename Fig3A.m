@@ -79,9 +79,9 @@ for exp_num = selected_exp
         sc2.MarkerFaceAlpha = alpha(i);
        
         if num == 1
-            ylabel('P(choose symbol) (%)');
+            ylabel('P(choose E-option) (%)');
         end
-        xlabel('Lottery p(win) (%)');
+        xlabel('S-option p(win) (%)');
        
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);

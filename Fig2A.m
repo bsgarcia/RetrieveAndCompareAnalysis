@@ -6,7 +6,7 @@ selected_exp = [1, 2, 3, 4];
 modality = 'LE';
 color = blue;
 
-displayfig = 'on';
+displayfig = 'off';
 
 stats_data = table();
 T_con = table();
@@ -20,7 +20,8 @@ stats_filename = sprintf('data/stats/%s.csv', filename);
 
 
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], ...
+    'visible', displayfig)
 
 
 sub_count = 0;
@@ -56,13 +57,6 @@ for exp_num = selected_exp
         end
     end
     
-%     disp('exp_num')
-%     disp(exp_num);
-%     disp(mean(dd, 'all'));
-%     dd1 = mean(dd, 1);
-%     disp(size(dd1));
-%     disp(std(dd1)/sqrt(numel(dd1)));
-%     
     for sub = 1:data.nsub
         s1 = mean(data.corr(sub, :));
         s2 = mean(data_ed.corr(sub, :));
@@ -85,7 +79,7 @@ for exp_num = selected_exp
     subplot(1, length(selected_exp), num)
     
     if num == 1
-        labely = 'Correct choice rate';
+        labely = 'Correct choice rate (%)';
     else
         labely = '';
     end
@@ -106,7 +100,7 @@ for exp_num = selected_exp
         '',...                                  %title
         '',...                                  %xlabel
         '',...                                  %ylabel
-        varargin,... %varargin
+        varargin,...                            %varargin
         0,...                                   %noscatter
         [-10, 105],...                          %xlim
         xvalues,...                    %xvalues

@@ -9,7 +9,7 @@ selected_exp = [5, 6.1, 6.2];
 displayfig = 'on';
 colors = [green];
 % filenames
-filename = 'Fig4B';
+filename = 'Fig3B';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -100,9 +100,9 @@ for exp_num = selected_exp
         sc2.MarkerFaceAlpha = alpha(i);
         
         if num == 1
-            ylabel('P(choose symbol) (%)');
+            ylabel('P(choose E-option) (%)');
         end
-        xlabel('Symbol p(win) (%)');
+        xlabel('E-option p(win) (%)');
         
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);
