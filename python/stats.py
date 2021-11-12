@@ -3,16 +3,23 @@ import pingouin as pg
 # import pymc3 as pm
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 import seaborn as sns
 from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
 import scipy.stats as stats
 
 
+
+
+
 def main():
-    infos = [dict(dv='slope', name='Fig2E')]
+    infos = [dict(dv='score', name='Fig2A')]
     # polyfit([infos[0]])
     pairwise_ttests([infos[0]])
+    # df = pd.DataFrame(pd.read_csv(f'../data/stats/Fig2A.csv'))
+    # model = smf.ols('score ~ exp1+exp2+exp3+exp4', data=df).fit()
+    # print(model.summary())
 
 
 def ttest_con(infos):
@@ -274,8 +281,10 @@ def pairwise_ttests(infos):
         df = pd.read_csv(f'../data/stats/{name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
+        print(df.head())
+        import pdb; pdb.set_trace()
         res = pg.pairwise_ttests(
-            dv=dv, within='modality', between='exp_num', subject='subject',
+            dv=dv, within='cond', between='exp_num', subject='subject',
             data=df, padjust='bonf', within_first=False, parametric=True)
 
         pg.print_table(res, floatfmt='.6f')

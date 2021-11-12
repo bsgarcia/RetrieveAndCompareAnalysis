@@ -51,9 +51,8 @@ for exp_num = selected_exp
         for i = 1:length(p_sym)
             rm = 1:length(p_sym);
             y = reshape(chose_symbol(sub, i, :), [], 1);
-            y = y(rm~=i);
+            y = y(rm)
             x = p_sym;
-            x = x(rm~=i);
             Y(i, :) = y;
             X(i, :) = x;
         end

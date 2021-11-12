@@ -46,32 +46,36 @@ for exp_num = selected_exp
             
             dd(i, sub) = mean(...
                 data.corr(sub, data.con(sub,:)==cons(i)));
-            
+            if ismember(cons(i), [1, 4])
             T3 = table(...
-            sub+sub_count, exp_num, dd(i, sub), i, ...
+            sub+sub_count, exp_num, dd(i, sub), cons(i), ...
             'variablenames',...
             {'subject', 'exp_num', 'score', 'cond'}...
             );
             
             T_con = [T_con; T3]; 
+            end
         end
     end
+
+    disp(mean(dd, 'all'));
+
     
     for sub = 1:data.nsub
         s1 = mean(data.corr(sub, :));
         s2 = mean(data_ed.corr(sub, :));
         
         T1 = table(...
-            sub+sub_count, exp_num, s1, {'LE'}, ...
+            sub+sub_count, int8(exp_num==1), int8(exp_num==2), int8(exp_num==3), int8(exp_num==4), s1, {'LE'}, ...
             'variablenames',...
-            {'subject', 'exp_num', 'score', 'modality'}...
+            {'subject', 'exp1', 'exp2', 'exp3', 'exp4', 'score', 'modality'}...
             );
-        T2 = table(sub+sub_count, exp_num, s2, {'ED'}, ...
-            'variablenames',...
-            {'subject', 'exp_num', 'score', 'modality'}...
-            );
-        
-        stats_data = [stats_data; T1; T2];
+%         T2 = table(sub+sub_count, exp_num, s2, {'ED'}, ...
+%             'variablenames',...
+%             {'subject', 'exp_num', 'score', 'modality'}...
+%             );
+%         
+        stats_data = [stats_data; T1];
     end
     
     sub_count = sub_count + sub;
@@ -125,25 +129,25 @@ saveas(gcf, figname);
 writetable(T_con, stats_filename);
 
 
-T = T_con;
+T = stats_data;
 %cond_ED = strcmp(T.modality, 'ED');
 %cond_LE = strcmp(T.modality, 'LE');
-for i = 1:4
-    exp(i,:) = T.exp_num == i;
-    cond(i,:) = T.cond == i;
-end
-
-for i = 1:4
-    x = T(logical(exp(i,:).*cond(i,:)), :).score;
-    y = ones(size(x)).*.5;
-    [p,h] = ttest(x, y);
-    disp(p)
-    disp(h)
-    disp('******************************');
-end
+% for i = 1:4
+%     exp(i,:) = T.exp_num == i;
+%     cond(i,:) = T.cond == i;
+% end
+% 
+% for i = 1:4
+%     x = T(logical(exp(i,:).*cond(i,:)), :).score;
+%     y = ones(size(x)).*.5;
+%     [p,h] = ttest(x, y);
+%     disp(p)
+%     disp(h)
+%     disp('******************************');
+% end
 
 disp('FULL');
-fitlm(T(exp(1,:),:), 'score ~ cond')
+fitlm(T, 'score ~ exp3+exp4')
 disp('********************************************');
 disp('LE');
 disp('********************************************');

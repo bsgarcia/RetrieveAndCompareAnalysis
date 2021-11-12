@@ -11,7 +11,7 @@ modalities = {'ED', 'EE'};
 displayfig = 'on';
 colors = [orange;green];
 % filenames
-filename = 'Fig4D';
+filename = 'Fig3D';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
