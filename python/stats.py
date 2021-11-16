@@ -14,7 +14,7 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='score', name='Fig2A')]
+    infos = [dict(dv='slope', name='Fig2E')]
     # polyfit([infos[0]])
     pairwise_ttests([infos[0]])
     # df = pd.DataFrame(pd.read_csv(f'../data/stats/Fig2A.csv'))
@@ -284,7 +284,7 @@ def pairwise_ttests(infos):
         print(df.head())
         import pdb; pdb.set_trace()
         res = pg.pairwise_ttests(
-            dv=dv, within='cond', between='exp_num', subject='subject',
+            dv=dv, within='modality', between='exp_num', subject='subject',
             data=df, padjust='bonf', within_first=False, parametric=True)
 
         pg.print_table(res, floatfmt='.6f')
