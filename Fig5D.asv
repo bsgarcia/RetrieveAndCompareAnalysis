@@ -7,10 +7,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [5, 6];
 displayfig = 'on';
-colors = [red; dark_blue; pink; black];
+colors = [orange; orange; green];
 
 %filenames
-filename = 'Fig6D';
+filename = 'Fig5C';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -38,30 +38,30 @@ for exp_num = selected_exp
     nsub = de.get_nsub_from_exp_num(exp_num);
     
     data = de.extract_ED(exp_num);
- 
-    heur = heuristic(data);
-    le = [];
-    
-    % get le q values estimates
-    for i = 1:length(sess)
-        sim_params.de = de;
-        sim_params.sess = sess(i);
-        sim_params.exp_name = name;
-        sim_params.exp_num = exp_num;
-        sim_params.nsub = nsub;
-        sim_params.model = 1;
-        
-        if length(sess) == 2
-            d = de.extract_ED(str2num(sprintf('%d.%d', exp_num, sess(i)+1)));
-        else
-            d = data;
-        end
-        
-        [Q, tt] = get_qvalues(sim_params);
-
-        le = [le argmax_estimate(d, symp, Q)];
-        
-    end
+%  
+%     heur = heuristic(data);
+%     le = [];
+%     
+%     % get le q values estimates
+%     for i = 1:length(sess)
+%         sim_params.de = de;
+%         sim_params.sess = sess(i);
+%         sim_params.exp_name = name;
+%         sim_params.exp_num = exp_num;
+%         sim_params.nsub = nsub;
+%         sim_params.model = 1;
+%         
+%         if length(sess) == 2
+%             d = de.extract_ED(str2num(sprintf('%d.%d', exp_num, sess(i)+1)));
+%         else
+%             d = data;
+%         end
+%         
+%         [Q, tt] = get_qvalues(sim_params);
+% 
+%         le = [le argmax_estimate(d, symp, Q)];
+%         
+%     end
     
     for sub = 1:nsub
         s = sub + sub_count;
@@ -110,7 +110,7 @@ end
 
 
 y1 = 0;
-y2 = 6500;
+y2 = 5000;
 x1 = o_heur;
 x2 = o_le;
 x3 = both;
@@ -153,9 +153,9 @@ skylineplot({x1'; x2'; x3'; x4'},  5*2, ...
     4000,...
     fontsize,...
     '',...
-    'Choices exclusively explained by',...
+    'Choices from',...
     labely,...
-    {'Heuristic', 'LE estimates', 'Both', 'None'});
+    {'ES_s', 'ES_e', 'EE'});
 set(gca, 'tickdir', 'out');
 set(gca, 'fontsize', fontsize)
 box off;

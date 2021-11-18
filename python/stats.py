@@ -10,9 +10,6 @@ import numpy as np
 import scipy.stats as stats
 
 
-
-
-
 def main():
     infos = [dict(dv='slope', name='Fig2E')]
     # polyfit([infos[0]])

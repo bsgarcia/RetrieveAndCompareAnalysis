@@ -1,4 +1,4 @@
-function new_data = get_heuristic_sub(dd, de)
+function [heuristic, learning] = get_profiled_sub(dd, de)
     
     to_keep = [];
     exp_num = dd.exp_num;
@@ -11,7 +11,7 @@ function new_data = get_heuristic_sub(dd, de)
     data = de.extract_ED(exp_num);
     
  
-    heur = heuristic(data);
+    heur = heuristic_choice(data);
     le = [];
         
     % get le q values estimates
@@ -50,25 +50,52 @@ function new_data = get_heuristic_sub(dd, de)
         end
         
     end
-    new_data = struct();
+    heuristic = struct();
     fn = fieldnames(dd);
     for k=1:numel(fn)
         if (ismatrix(dd.(fn{k}))) && (numel(dd.(fn{k})) > 2) && ~ischar(dd.(fn{k}))
             try
-            new_data.(fn{k}) = dd.(fn{k})(to_keep, :);
+            heuristic.(fn{k}) = dd.(fn{k})(to_keep, :);
             catch
                 disp()
             end
         else
-            new_data.(fn{k}) = dd.(fn{k});
+            heuristic.(fn{k}) = dd.(fn{k});
         end
     end
-    new_data.nsub = length(to_keep);
+    heuristic.nsub = length(to_keep);
+    
+    to_keep = [];
+    for sub = 1:nsub
+        o_heur(sub,1) = mean(...
+            logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
+        o_le(sub,1) = mean(...
+            logical((data.cho(sub,:)~=heur(sub,:)) .* (data.cho(sub,:)==le(sub,:))));
+        if o_heur(sub,1) < o_le(sub,1)
+            to_keep(length(to_keep)+1) = sub;
+        end
+        
+    end
+
+    learning = struct();
+    fn = fieldnames(dd);
+    for k=1:numel(fn)
+        if (ismatrix(dd.(fn{k}))) && (numel(dd.(fn{k})) > 2) && ~ischar(dd.(fn{k}))
+            try
+            learning.(fn{k}) = dd.(fn{k})(to_keep, :);
+            catch
+                disp()
+            end
+        else
+            learning.(fn{k}) = dd.(fn{k});
+        end
+    end
+    learning.nsub = length(to_keep);
 end
 
 
 
-function score = heuristic(data)
+function score = heuristic_choice(data)
 
     for sub = 1:size(data.cho,1)
 

@@ -10,11 +10,12 @@ if iscell(DataCell)==0
     DataCell = num2cell(DataCell,2);
 end
 if iscell(Model_DataCell1)==0
-    Model_DataCell1 = num2cell(Model_DataCell1', 1)';
+    Model_DataCell1 = num2cell(Model_DataCell1, 2);
 end
 
 % number of factors/groups/conditions
 Nbar = size(DataCell,1);
+
 % bar size
 Wbar = 0.75;
 % middle space
@@ -36,6 +37,7 @@ for n = 1:Nbar
     
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
+    disp(Nsub)
     
     curve = nanmean(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(Nsub);
@@ -66,6 +68,7 @@ for n = 1:Nbar
     
     % CONFIDENCE INTERVAL
     inter = unique(DataMatrix(DataMatrix<curve+sem*conf & DataMatrix>curve-sem*conf),'stable')';
+
     if length(density) > 1
         
         d = interp1(value, density*width, [curve-sem*conf sort(inter) curve+sem*conf]);
@@ -129,6 +132,7 @@ for n = 1:Nbar
     
     % CONFIDENCE INTERVAL
     inter = unique(DataModel(DataModel<curve+sem*conf & DataModel>curve-sem*conf),'stable')';
+
     if length(density) > 1
         d = interp1(value, density*width, [curve-sem*conf sort(inter) curve+sem*conf]);
     else % all data is identical

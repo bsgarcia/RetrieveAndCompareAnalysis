@@ -131,24 +131,24 @@ writetable(stats_data, stats_filename);
 
 
 T = stats_data;
-cond_ED = strcmp(T.modality, 'ED');
+cond_ED = strcmp(T.modality, 'ES');
 cond_LE = strcmp(T.modality, 'LE');
 cond_PM = strcmp(T.modality, 'PM');
 
 disp('********************************************');
 disp('FULL');
 disp('********************************************');
-fitlme(T, 'slope ~ exp_num*modality + (1|subject)')
+fitlm(T, 'slope ~ exp_num*modality', 'CategoricalVar', {'exp_num', 'modality'})
 disp('********************************************');
 disp('********************************************');
 disp('LE');
 disp('********************************************');
-fitlm(T(cond_LE,:), 'slope ~ exp_num')
+fitlm(T(cond_LE,:), 'slope ~ exp_num', 'CategoricalVar', {'exp_num', 'modality'})
 disp('********************************************');
 disp('********************************************');
 disp('ES');
 disp('********************************************');
-fitlm(T(cond_ED,:), 'slope ~ exp_num')
+fitlm(T(cond_ED,:), 'slope ~ exp_num', )
 disp('********************************************');
 disp('PM');
 disp('********************************************');

@@ -66,7 +66,10 @@ for exp_num = selected_exp
                     mask = (le_ee.p1(sub,:)==symp(p1)) .* (le_ee.p2(sub,:)==lotp(p2));
                     
                     dED = [dED; le_ed.rtime(sub, logical(mask))];
-                    dEE = [dEE; le_ed.rtime(sub, logical(mask))];    
+                    dEE = [dEE; le_ed.rtime(sub, logical(mask))];
+
+                   
+    
                 end
             end
         end
@@ -103,8 +106,8 @@ for exp_num = selected_exp
                 end
             end
         end
-         ED2 = [ED2; mean(dED)];
-         EE2 = [EE2; mean(dEE)];
+         ED2 = [ED; mean(dED)];
+         EE2 = [EE; mean(dEE)];
     end
 
     for sub = 1:nsub
@@ -129,7 +132,7 @@ dd2(2, :) = ED2;
 dd2(3, :) = EE2;
 
 skyline_comparison_plot(dd, dd2,...
-    [dark_blue; red],...
+    [blue; orange],...
     0,...
     5000,...
     fontsize,...
@@ -137,10 +140,9 @@ skyline_comparison_plot(dd, dd2,...
     '',...
     '',...
     {'LE', 'ED', 'EE'}, 1);
-legend({'subjects better explained by LE', 'subjects better explained by heuristic'})
 %DataCell, Model_DataCell1, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin, noscatter)
 
-ylabel('Average RT by subject')
+
 %title(sprintf('Exp. %s', num2str(exp_num)));w
 set(gca, 'tickdir', 'out');
 box off
@@ -148,23 +150,22 @@ box off
 % ------------------------------------------------------------------------%
 
 function plot_poly(x_values, d, color, npoly)
-    hold on
-    x = x_values.*ones(size(d));
-    p = polyfit(x, d, npoly);
-    y = polyval(p, x);
-    plot(x_values, mean(y,1), 'color', color, 'linewidth', 1.5);
+hold on
+x = x_values.*ones(size(d));
+p = polyfit(x, d, npoly);
+y = polyval(p, x);
+plot(x_values, mean(y,1), 'color', color, 'linewidth', 1.5);
 end
 
 function plot_linear(x_values, d, color)
-    hold on
-    d = nanmean(d);
-    x = x_values;
-    b = glmfit(x, d);
-    y = glmval(b, x, 'identity');
-    plot(x_values, y, 'color', color, 'linewidth', 1.5);
+hold on
+d = nanmean(d);
+x = x_values;
+b = glmfit(x, d);
+y = glmval(b, x, 'identity');
+plot(x_values, y, 'color', color, 'linewidth', 1.5);
 end
 
 function norm_data = normalize(bla)
-    norm_data = (bla - min(bla, [], 'all')) ...
-        ./ ( max(bla, [], 'all') - min(bla, [], 'all') );
+norm_data = (bla - min(bla, [], 'all')) ./ ( max(bla, [], 'all') - min(bla, [], 'all') );
 end

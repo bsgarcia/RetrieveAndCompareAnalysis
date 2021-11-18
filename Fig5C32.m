@@ -32,9 +32,7 @@ sub_count = 0;
 EE = [];
 ED = [];
 LE = [];
-EE2 = [];
-ED2 = [];
-LE2 = [];
+
 for exp_num = selected_exp
 
     num = num + 1;
@@ -49,11 +47,7 @@ for exp_num = selected_exp
     data_ee = de.extract_EE(exp_num);
     data_le = de.extract_LE(exp_num);
 
-    [heur_ed, le_ed] = get_profiled_sub(data_ed, de);
-    [heur_ee, le_ee] = get_profiled_sub(data_ee, de);
-    [heur_le, le_le] = get_profiled_sub(data_le, de);
-
-    nsub = size(le_ed.cho, 1);
+    nsub = size(data_ed.cho, 1);
     disp(nsub);
     
     for sub = 1:nsub
@@ -62,11 +56,11 @@ for exp_num = selected_exp
         for p2 = 1:length(lotp)
             for p1 = 1:length(symp)
                 if p1 ~= p2
-                    mask = (le_ed.p1(sub,:)==symp(p1)) .* (le_ed.p2(sub,:)==lotp(p2));
-                    mask = (le_ee.p1(sub,:)==symp(p1)) .* (le_ee.p2(sub,:)==lotp(p2));
+                    mask = (data_ed.p1(sub,:)==symp(p1)) .* (data_ed.p2(sub,:)==lotp(p2));
+                    mask = (data_ee.p1(sub,:)==symp(p1)) .* (data_ee.p2(sub,:)==lotp(p2));
                     
-                    dED = [dED; le_ed.rtime(sub, logical(mask))];
-                    dEE = [dEE; le_ed.rtime(sub, logical(mask))];    
+                    dED = [dED; data_ed.rtime(sub, logical(mask))];
+                    dEE = [dEE; data_ed.rtime(sub, logical(mask))];    
                 end
             end
         end
@@ -77,45 +71,13 @@ for exp_num = selected_exp
     for sub = 1:nsub
         dl = [];
         for con = 1:4
-            d = le_le.rtime(sub, le_le.con(sub, :)==con);
+            d = data_le.rtime(sub, data_le.con(sub, :)==con);
             dl = [dl; d(end-13:end)'];
         end
         LE = [LE; mean(dl)];
 
     end
 
-    %---------------------------------------------------------------
-    nsub = size(heur_ed.cho, 1);
-    disp(nsub);
-
-    for sub = 1:nsub
-        dED = [];
-        dEE = [];
-        for p2 = 1:length(lotp)
-            for p1 = 1:length(symp)
-                if p1 ~= p2
-                    mask = (heur_ed.p1(sub,:)==symp(p1)) .* (heur_ed.p2(sub,:)==lotp(p2));
-                    mask = (heur_ee.p1(sub,:)==symp(p1)) .* (heur_ee.p2(sub,:)==lotp(p2));
-                    
-                    dED = [dED; heur_ed.rtime(sub, logical(mask))];
-                    dEE = [dEE; heur_ed.rtime(sub, logical(mask))];               
-    
-                end
-            end
-        end
-         ED2 = [ED2; mean(dED)];
-         EE2 = [EE2; mean(dEE)];
-    end
-
-    for sub = 1:nsub
-        dl = [];
-        for con = 1:4
-            d = heur_le.rtime(sub, heur_le.con(sub, :)==con);
-            dl = [dl; d(end-13:end)'];
-        end
-        LE2 = [LE2; mean(dl)];
-
-    end
 
 end
 
@@ -124,23 +86,22 @@ figure
 dd(1, :) = LE;
 dd(2, :) = ED;
 dd(3, :) = EE;
-dd2(1, :) = LE2;
-dd2(2, :) = ED2;
-dd2(3, :) = EE2;
 
-skyline_comparison_plot(dd, dd2,...
-    [dark_blue; red],...
+
+skylineplot(dd,8,...
+    [blue; orange; green],...
     0,...
     5000,...
     fontsize,...
     '',...
     '',...
     '',...
-    {'LE', 'ED', 'EE'}, 1);
-legend({'subjects better explained by LE', 'subjects better explained by heuristic'})
-%DataCell, Model_DataCell1, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin, noscatter)
+    {'LE', 'Es', 'EE'}, 0);
 
 ylabel('Average RT by subject')
+%DataCell, Model_DataCell1, Colors,Yinf,Ysup,Font,Title,LabelX,LabelY,varargin, noscatter)
+
+
 %title(sprintf('Exp. %s', num2str(exp_num)));w
 set(gca, 'tickdir', 'out');
 box off

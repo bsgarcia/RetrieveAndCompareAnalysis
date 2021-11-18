@@ -105,7 +105,6 @@ for exp_num = selected_exp
 end
 
 disp(dd);
-return
 
 b = bar(dd, 'stacked', 'facecolor','flat', 'edgecolor', 'w');
 
@@ -117,7 +116,7 @@ set(gca, 'fontsize', fontsize)
 box off;
 
 mkdir('fig', 'barplot');
-saveas(gcf, 'fig/barplot/explained.pdf');
+saveas(gcf, 'fig/explained.svg');
 
 % save stats file
 mkdir('data', 'stats');

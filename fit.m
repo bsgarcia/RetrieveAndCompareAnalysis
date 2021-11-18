@@ -5,7 +5,7 @@
 init;
 % -------------------------------------------------------------------%
 
-selected_exp = [9.2];
+selected_exp = [8.1 ,8.2];
 %selected_exp = selected_exp(1);
 sessions = [0, 1];
 
