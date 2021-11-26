@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [1,2,3,4,5,6.1,6.2, 7.1, 7.2];
+selected_exp = [8.1, 8.2];
 
 displayfig = 'on';
 force = true;
@@ -92,7 +92,7 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/midpoints_ED_exp_%d_%d_mle2.mat',...
+        save(sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
             round(exp_num), sess),...
             '-struct', 'param');
     end

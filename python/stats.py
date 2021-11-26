@@ -11,9 +11,10 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='slope', name='Fig2E')]
+    infos = [dict(dv='score', name='Fig2A')]
+    lm(infos)
     # polyfit([infos[0]])
-    pairwise_ttests([infos[0]])
+    # pairwise_ttests([infos[0]])
     # df = pd.DataFrame(pd.read_csv(f'../data/stats/Fig2A.csv'))
     # model = smf.ols('score ~ exp1+exp2+exp3+exp4', data=df).fit()
     # print(model.summary())
@@ -232,11 +233,11 @@ def lm(infos):
         df = pd.read_csv(f'../data/stats/{name}.csv')
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
-        df = df.drop(columns=['subject'])
+        # df = df.drop(columns=['subject'])
         # df['score'][df['modality']=='ED'] = df['score'][df['modality']=='LE']
 
         # model = sm.MixedLM.from_formula('CRT~ exp_num*modality', data=df[df['modality']==0], groups=df['exp_num'][df['modality']==0]).fit()
-        model = sm.OLS.from_formula('score ~ exp_num*modality', data=df).fit()
+        model = sm.OLS.from_formula('score ~ block*complete + complete*less_cues + block*less_cues', data=df).fit()
         print(model.summary())
 
 

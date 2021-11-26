@@ -6,12 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
-modalities = {ES', 'SP'};
+selected_exp = [8.1, 8.2];
+modalities = {'ED', 'EE'};
 displayfig = 'on';
-colors = [blue;orange;magenta];
+colors = [orange;green];
 % filenames
-filename = 'Fig2E';
+filename = 'Fig3D';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -26,7 +26,7 @@ stats_data = table();
 
 
 figure('Units', 'centimeters',...
-    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
+    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
 
 num = 0;
 sub_count = 0;
@@ -62,30 +62,30 @@ for exp_num = selected_exp
             
             case 'LE'
                 sim_params.model = 1;
-                [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
+                [midpoints(mod_num, sub_count:sub_count+nsub, :), throw] = get_qvalues(sim_params);
                 
-            case {'EE', 'ES'}
-                
+            case {'EE', 'ED'}
                 param = load(...
-                    sprintf('data/midpoints_ED_exp_%d_%d_mle',...
-                    round(exp_num), sess));
-
-                midpoints(mod_num, :, :) = param.midpoints;
+                    sprintf('data/midpoints_%s_exp_%d_%d_mle',...
+                    modalities{mod_num}, round(exp_num), sess));
                 
-            case 'SP'
+                midpoints(mod_num, sub_count:sub_count+nsub, :) = param.midpoints;
+                
+            case 'PM'
                 sim_params.model = 2;
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
         end
-                  
+        
         % fill data
         reshape_midpoints(:, :) = midpoints(mod_num, :, :);
         slope(mod_num,:,:) = add_linear_reg(...
             reshape_midpoints.*100, p1, colors(mod_num, :));
+       
         
         % fill data for stats
         for sub = 1:nsub
             T1 = table(...
-                sub+sub_count, num, slope(mod_num, sub, 2),...
+                sub+sub_count, exp_num, slope(mod_num, sub, 2),...
                 {modalities{mod_num}}, 'variablenames',...
                 {'subject', 'exp_num', 'slope', 'modality'}...
                 );
@@ -94,11 +94,13 @@ for exp_num = selected_exp
     end
     sub_count = sub_count+sub;
     
-    %---------------------------------------------------------------------%
+end
+
+%---------------------------------------------------------------------%
     % Plot                                                                %
     % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
-    
+    modalities2 = {'ES', 'EE'};
     skylineplot(slope(:, :, 2), 8,...
         colors,...
         -1.2,...
@@ -107,8 +109,9 @@ for exp_num = selected_exp
         '',...
         '',...
         '',...
-        modalities);
+        modalities2);
         
+    
     
     if num == 1; ylabel('Slope'); end
     
@@ -116,7 +119,6 @@ for exp_num = selected_exp
     set(gca, 'tickdir', 'out');
     box off
     
-end
 
 %-------------------------------------------------------------------------%
 % Save fig and stats                                                      %
@@ -132,25 +134,38 @@ writetable(stats_data, stats_filename);
 
 T = stats_data;
 cond_ED = strcmp(T.modality, 'ED');
-cond_LE = strcmp(T.modality, 'LE');
-cond_PM = strcmp(T.modality, 'PM');
+cond_EE = strcmp(T.modality, 'EE');
+cond_exp = ismember(T.exp_num, [6.1, 6.2]);
+cond_exp1 = ismember(T.exp_num, [6.1]);
+cond_exp2 = ismember(T.exp_num, [6.2]);
 
 disp('********************************************');
 disp('FULL');
 disp('********************************************');
-fitlm(T, 'slope ~ exp_num*modality', 'CategoricalVar', {'exp_num', 'modality'})
+fitlm(T(cond_exp, :), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
+
 disp('********************************************');
+disp('EE');
 disp('********************************************');
-disp('LE');
-disp('********************************************');
-fitlm(T(cond_LE,:), 'slope ~ exp_num')
-disp('********************************************');
+fitlm(T(logical(cond_exp.*cond_EE), :), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
 disp('********************************************');
 disp('ES');
 disp('********************************************');
-fitlm(T(cond_ED,:), 'slope ~ exp_num')
+fitlm(T(logical(cond_exp.*cond_ED),:), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
+return
 disp('********************************************');
-disp('PM');
+disp('EE - 6.1/6.2');
 disp('********************************************');
-fitlm(T(cond_PM,:), 'slope ~ exp_num')
+fitlm(T(logical(cond_exp.*cond_EE),:), 'slope ~  exp_num')
 disp('********************************************');
+disp('ED - 6.1/6.2');
+disp('********************************************');
+fitlm(T(logical(cond_ED.*cond_exp),:), 'slope ~ exp_num')
+disp('********************************************');
+disp('ED vs EE - 6.1');
+disp('********************************************');
+fitlm(T(logical(cond_exp1),:), 'slope ~ modality')
+disp('********************************************');
+disp('ED vs EE - 6.2');
+disp('********************************************');
+fitlm(T(logical(cond_exp2),:), 'slope ~ modality')
