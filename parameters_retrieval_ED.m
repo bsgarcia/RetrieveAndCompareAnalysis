@@ -3,12 +3,16 @@ init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4];%, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
+selected_exp = [1, 2, 3, 5, 6.1, 6.2];%, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
 
 displayfig = 'off';
 force = false;
 num = 0;
 
+mids_1 = [];
+mids_2 = [];
+beta_1 = [];
+beta_2 = [];
 for exp_num = selected_exp
     num = num + 1;
     disp(exp_num);
@@ -23,7 +27,7 @@ for exp_num = selected_exp
     p_lot = unique(data.p2)';
     p_sym = unique(data.p1)';
     nsub = size(data.cho, 1);
-    param = load(sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
+    param = load(sprintf('data/midpoints_ES_exp_%d_%d_mle.mat',...
                  round(exp_num), sess));
              
     init_midpoints = param.midpoints;         
@@ -65,7 +69,7 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/midpoints_PR_ED_exp_%d_%d_mle.mat',...
+                 sprintf('data/midpoints_PR_ES_exp_%d_%d_mle.mat',...
                  round(exp_num), sess ...
              ));
              beta1 = param.beta1;
@@ -104,44 +108,94 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/midpoints_PR_ED_exp_%d_%d_mle.mat',...
+        save(sprintf('data/midpoints_PR_ES_exp_%d_%d_mle.mat',...
             round(exp_num), sess), '-struct', 'param');
     end
-   
-        %saveas(gcf, sprintf('temperature_Exp_%d.png', exp_num));
+    if exp_num == 4
+        new(:, [1, 4, 5, 8]) = init_midpoints(:, :);
+        new(:, [2, 3, 6, 7]) = NaN;
+        init_midpoints = new;
+        new2(:, [1, 4, 5, 8]) = midpoints(:, :);
+        new2(:, [2, 3, 6, 7]) = NaN;
+        midpoints = new2;
+    end
+    mids_1 = [mids_1; init_midpoints];
+    mids_2 = [mids_2; midpoints];
+    beta_1 = [beta_1; init_beta];
+    beta_2 = [beta_2; beta1];
+%     for i = 1:size(midpoints, 2)
+%         x = init_midpoints(:, i);
+%         y = midpoints(:, i);
+%         color = orange;
+%         xlimits = [0 1];
+%         ylimits = xlimits;
+%         xlabel1 = 'Fitted indifference point';
+%         if i == 1
+%             ylabel1 = 'Retrieved indifference point';
+%         else
+%             ylabel1 = '';
+%         end
+%         title1 = sprintf('p=%.1f', round(p_sym(i), 1));
+%         subplot(2, 4, i)
+%         set(gca, 'tickdir', 'out');
+%         scatterplot(x, y, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+%         %saveas(gcf, sprintf('midpoints_Exp_%d.png', exp_num));
+%     end
+%         x = init_beta;
+%         y = beta1;
+%         color = blue;
+%         xlimits = [0, 100];
+%         ylimits = xlimits;
+%         xlabel1 = 'Fitted temperature';
+%         ylabel1 = 'Retrieved temperature';
+%         title1 = sprintf('Exp.%d', exp_num);
+%         figure('Renderer', 'painters')
+%         set(gca, 'tickdir', 'out');
+%         scatterplot(x, y, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+%         %saveas(gcf, sprintf('temperature_Exp_%d.png', exp_num));
 
 end
+% 
+% figure('Units', 'centimeters',...
+%     'Position', [0,0,19.8, 9.5], 'visible', 'on')
+% 
+% for i = 1:size(mids_1, 2)
+%         x = mids_1(:, i);
+%         y = mids_2(:, i);
+%         color = orange;
+%     
+%         xlimits = [0 1];
+%         ylimits = xlimits;
+%         xlabel1 = 'First fitted indifference point';
+%         if (i == 1) ||(i == 5)
+%             ylabel1 = 'Retrieved indifference point';
+%         else
+%             ylabel1 = '';
+%         end
+%         title1 = sprintf('p = %.1f', round(p_sym(i), 1));
+%         subplot(2, 4, i)
+%         set(gca, 'tickdir', 'out');
+%         scatterplot(x, y, 15, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+%         set(gca, 'fontsize', fontsize);
+%         xticks([0:2:10]./10);
+%         saveas(gcf, 'midpoints_Exp.svg');
+%     end
 
- figure('Renderer', 'painters', 'Position', [10 10 1600 750])
-    for i = 1:size(midpoints, 2)
-        x = init_midpoints(:, i);
-        y = midpoints(:, i);
-        color = orange;
-        xlimits = [0 1];
-        ylimits = xlimits;
-        xlabel1 = 'Fitted indifference point';
-        if i == 1
-            ylabel1 = 'Retrieved indifference point';
-        else
-            ylabel1 = '';
-        end
-        title1 = sprintf('p=%.1f', round(p_sym(i), 1));
-        subplot(2, 4, i)
-        set(gca, 'tickdir', 'out');
-        scatterplot(x, y, color, xlimits, ylimits, xlabel1, ylabel1, title1)
-        %saveas(gcf, sprintf('midpoints_Exp_%d.png', exp_num));
-    end
-        x = init_beta;
-        y = beta1;
-        color = blue;
-        xlimits = [0, 100];
-        ylimits = xlimits;
-        xlabel1 = 'Fitted temperature';
-        ylabel1 = 'Retrieved temperature';
-        title1 = sprintf('Exp.%d', exp_num);
-        figure('Renderer', 'painters')
-        set(gca, 'tickdir', 'out');
-        scatterplot(x, y, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+figure('Units', 'centimeters',...
+    'Position', [0,0,8, 7], 'visible', 'on')
+x = normalize(beta_1);
+y = normalize(beta_2);
+color = orange;
+xlimits = [0, 1];
+ylimits = xlimits;
+xlabel1 = 'First fitted temperature (\beta)';
+ylabel1 = 'Retrieved temperature (\beta)';
+title1 = 'Exp. 1:6';
+set(gca, 'tickdir', 'out');
+ scatterplot(x, y, 20, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+ %xticks(0:10:100);
+        %saveas(gcf, sprintf('temperature_Exp_%d.png', exp_num));
+set(gca, 'fontsize', fontsize)
 % figure
 % skylineplot(cho_matching', 8,...
 %         ones(4, 3).*blue,...
@@ -158,19 +212,6 @@ end
 % saveas(gcf, sprintf('cho_matching.png', exp_num));
 
 
-
-function nll = tofit_mle(params, X, Y)
-    options = optimset('Display','off');
-    temp = params(1);
-    midpoints = params(2:end);
-    ll = 0;
-    for i = 1:size(Y, 1)
-        yhat = logfun(X(i,:), midpoints(i), temp);
-        ll = ll + sum(log(yhat) .* Y(i,:) + log(1-yhat).*(1-Y(i,:))); 
-    end
-    nll = -ll;
-end
-
 function nll = tofit_mle2(params, X, Y)
     options = optimset('Display','off');
     temp = params(1);
@@ -183,18 +224,6 @@ function nll = tofit_mle2(params, X, Y)
     nll = -ll;
 end
 
-
-function mse = tofit_ols(params, X, Y)
-    options = optimset('Display','off');
-    temp = params(1);
-    midpoints = params(2:end);
-    mse = 0;
-    
-    for i = 1:size(Y, 1)
-        yhat = logfun(X(i,:), midpoints(i), temp);
-        mse =  mse + (1/numel(yhat))*sum((yhat-Y(i,:)).^2);
-    end
-end
 
 
 function p = logfun(x, midpoint, temp)
@@ -231,3 +260,6 @@ function p = smax(x, beta1)
     p = exp(beta1 .* x)./sum(exp(beta1 .* x));
 end
 
+function x = normalize(arr)
+    x = (arr - min(arr)) / ( max(arr) - min(arr) );
+end

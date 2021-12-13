@@ -11,12 +11,14 @@ import scipy.stats as stats
 
 
 def main():
-    infos = [dict(dv='score', name='Fig2A')]
-    lm(infos)
+    infos = [dict(dv='slope', name='Fig1S')]
+    
+
+    # lm(infos)
     # polyfit([infos[0]])
-    # pairwise_ttests([infos[0]])
-    # df = pd.DataFrame(pd.read_csv(f'../data/stats/Fig2A.csv'))
-    # model = smf.ols('score ~ exp1+exp2+exp3+exp4', data=df).fit()
+    pairwise_ttests([infos[0]])
+    # df = pd.DataFrame(pd.read_csv(f'../data/stats/Fig2E.csv'))
+    # model = sm.OLS.from_formula('slope ~ C(exp_num)*C(modality, Treatment(reference="ES"))', data=df).fit()
     # print(model.summary())
 
 
@@ -280,7 +282,6 @@ def pairwise_ttests(infos):
         pd.set_option('display.max_columns', None)
         pd.set_option('max_columns', None)
         print(df.head())
-        import pdb; pdb.set_trace()
         res = pg.pairwise_ttests(
             dv=dv, within='modality', between='exp_num', subject='subject',
             data=df, padjust='bonf', within_first=False, parametric=True)

@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [8.1, 8.2];
+selected_exp = [1, 2, 3, 4, 6.1, 8.1];
 
 displayfig = 'on';
 force = true;
@@ -55,7 +55,7 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
+                 sprintf('data/midpoints_ES_exp_%d_%d_mle.mat',...
                  round(exp_num), sess ...
              ));
              beta1 = param.beta1;
@@ -92,7 +92,7 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/midpoints_ED_exp_%d_%d_mle.mat',...
+        save(sprintf('data/midpoints_ES_exp_%d_%d_mle.mat',...
             round(exp_num), sess),...
             '-struct', 'param');
     end

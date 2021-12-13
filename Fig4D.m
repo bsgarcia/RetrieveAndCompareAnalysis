@@ -64,16 +64,7 @@ for exp_num = selected_exp
     o_le = nan(nsub, 1);
     none = nan(nsub, 1);
     both = nan(nsub, 1);
-    
-%     o_heur = mean(...
-%             logical((data.cho==heur) .* (data.cho~=le)), 'all');
-%     o_le = mean(...
-%             logical((data.cho~=heur) .* (data.cho==le)), 'all');       
-%     none = mean(...
-%             logical((data.cho~=heur).*(data.cho~=le)), 'all');
-%     both = mean(...
-%             logical((data.cho==heur).*(data.cho==le)), 'all');
-% %     
+      
     for sub = 1:nsub
         o_heur(sub,1) = mean(...
             logical((data.cho(sub,:)==heur(sub,:)) .* (data.cho(sub,:)~=le(sub,:))));
@@ -120,7 +111,7 @@ saveas(gcf, 'fig/explained.svg');
 
 % save stats file
 mkdir('data', 'stats');
-stats_filename = 'data/stats/score_explained.csv';
+stats_filename = 'data/stats/Fig5B.csv';
 writetable(stats_data, stats_filename);
 
 

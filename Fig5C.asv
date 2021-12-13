@@ -12,19 +12,16 @@ zscored = 0;
 
 stats_data = table();
 
-filename1 = 'Fig5B';
-filename2 = 'Fig5C';
-
+filename = 'Fig6C';
 figfolder = 'fig';
 
-figname1 = sprintf('%s/%s.svg', figfolder, filename1);
-figname2 = sprintf('%s/%s.svg', figfolder, filename2);
-stats_filename = sprintf('data/stats/%s.csv', filename1);
+figname = sprintf('%s/%s.svg', figfolder, filename);
+stats_filename = sprintf('data/stats/%s.csv', filename);
 
 num = 0;
 
 lotp = [.1, .2, .3, .4, .6, .7, .8, .9];
-%lotp = [0, .1, .2, .3, .4, .5,  .6, .7, .8, .9, 1];
+lotp = [0, .1, .2, .3, .4, .5,  .6, .7, .8, .9, .1];
 
 sub_count = 0;
 for exp_num = selected_exp
@@ -86,6 +83,7 @@ labely = 'Median reaction time per subject';
 figure('Units', 'centimeters',...
     'Position', [0,0,5.3*1.5, 5.3/1.25*1.2], 'visible', displayfig)
 
+
 skylineplot({x1; x2; x3}, 8, [orange; orange; green],...
     0, 5000,...
     fontsize,...
@@ -93,13 +91,9 @@ skylineplot({x1; x2; x3}, 8, [orange; orange; green],...
     '',...
     '',...
     {'ES_{s}', 'ES_{e}', 'EE'});
-
 hold on
 set(gca, 'tickdir', 'out');
-set(gca,'fontname','arial')  % Set it to times
 box off;
-saveas(gcf, figname1);
-
 figure('Units', 'centimeters',...
     'Position', [0,0,5.3, 5.3/1.25*1.2], 'visible', displayfig)
 brickplot({x2-x1; x3-x1}, ...
@@ -110,15 +104,13 @@ brickplot({x2-x1; x3-x1}, ...
     '',...
     '',...
     {'ES_{e}', 'EE'}, 1, [0, 20], [5, 15], 1, 0);
-set(gca,'fontname','arial')  % Set it to times
-
 % data,colors,y_lim,fontsize,mytitle, ... 
 %     x_label,y_label,varargin, noscatter, x_lim, x_values, Wbar, median)
 set(gca, 'tickdir', 'out');
 box off;
 
 
-saveas(gcf, figname2);
+saveas(gcf, figname);
 
 % save stats file
 writetable(stats_data, stats_filename);

@@ -6,12 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
-modalities = {'LE', 'ES', 'SP'};
+selected_exp = [5, 6.2, 8.2];
+modalities = {'LE', 'ES', 'EE', 'SP'};
 displayfig = 'on';
-colors = [blue;orange;magenta];
+colors = [blue;orange;green;magenta];
 % filenames
-filename = 'Fig2E';
+filename = 'Fig1S';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -65,10 +65,10 @@ for exp_num = selected_exp
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
                 
             case {'EE', 'ES'}
-                
+               
                 param = load(...
-                    sprintf('data/midpoints_ED_exp_%d_%d_mle',...
-                    round(exp_num), sess));
+                    sprintf('data/midpoints_%s_exp_%d_%d_mle',...
+                    modalities{mod_num}, round(exp_num), sess));
 
                 midpoints(mod_num, :, :) = param.midpoints;
                 
@@ -98,6 +98,7 @@ for exp_num = selected_exp
     % Plot                                                                %
     % --------------------------------------------------------------------%
     subplot(1, length(selected_exp), num)
+        
     
     skylineplot(slope(:, :, 2), 8,...
         colors,...
@@ -108,13 +109,17 @@ for exp_num = selected_exp
         '',...
         '',...
         modalities);
-        
-    
+    title(sprintf('Exp. %s', num2str(exp_num)));
+    hold on 
+    plot([1,4], [0, 0], 'color', 'k', 'linestyle', ':')
+    hold on 
+
     if num == 1; ylabel('Slope'); end
     
     %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
     box off
+    set(gca, 'fontname', 'arial');
     
 end
 
@@ -129,28 +134,29 @@ saveas(gcf, figname);
 mkdir('data', 'stats');
 writetable(stats_data, stats_filename);
 
-
-T = stats_data;
-cond_ED = strcmp(T.modality, 'ES');
-cond_LE = strcmp(T.modality, 'LE');
-cond_PM = strcmp(T.modality, 'PM');
-
-disp('********************************************');
-disp('FULL');
-disp('********************************************');
-fitlm(T, 'slope ~ exp_num*modality', 'CategoricalVar', {'exp_num', 'modality'})
-disp('********************************************');
-disp('********************************************');
-disp('LE');
-disp('********************************************');
-fitlm(T(cond_LE,:), 'slope ~ exp_num', 'CategoricalVar', {'exp_num', 'modality'})
-disp('********************************************');
-disp('********************************************');
-disp('ES');
-disp('********************************************');
-fitlm(T(cond_ED,:), 'slope ~ exp_num', )
-disp('********************************************');
-disp('PM');
-disp('********************************************');
-fitlm(T(cond_PM,:), 'slope ~ exp_num')
-disp('********************************************');
+% 
+% T = stats_data;
+% cond_ED = strcmp(T.modality, 'ES');
+% cond_LE = strcmp(T.modality, 'LE');
+% cond_PM = strcmp(T.modality, 'PM');
+% 
+% disp('********************************************');
+% disp('FULL');
+% disp('********************************************');
+% fitlme(T, 'slope ~ exp_num*modality + (1|subject)')% 'CategoricalVar', {'exp_num', 'modality'})
+% disp('********************************************');
+% return
+% disp('********************************************');
+% disp('LE');
+% disp('********************************************');
+% fitlm(T(cond_LE,:), 'slope ~ exp_num', 'CategoricalVar', {'exp_num', 'modality'})
+% disp('********************************************');
+% disp('********************************************');
+% disp('ES');
+% disp('********************************************');
+% M%fitlm(T(cond_ED,:), 'slope ~ exp_num', )
+% disp('********************************************');
+% disp('PM');
+% disp('********************************************');
+% fitlm(T(cond_PM,:), 'slope ~ exp_num')
+% disp('********************************************');
