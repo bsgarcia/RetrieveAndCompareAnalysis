@@ -192,3 +192,33 @@ Number of observations: 132, Error degrees of freedom: 130
 Root Mean Squared Error: 0.325
 R-squared: 0.00543,  Adjusted R-Squared: -0.00222
 F-statistic vs. constant model: 0.71, p-value = 0.401
+
+
+
+Supplementary
+----------------------------------------------------
+
+exp_num * modality  1          EE   ES   True      True            4.482254   70.000000  two-sided      0.000028  0.000675  bonf                                                                       667.492000   0.531090
+exp_num * modality  1          EE   LE   True      True           -7.700645   70.000000  two-sided      0.000000  0.000000  bonf                                                                 147400000.000000  -1.195714
+exp_num * modality  1          EE   SP   True      True            1.759292   70.000000  two-sided      0.082898  1.000000  bonf                                                                         0.562000   0.189924
+exp_num * modality  1          ES   LE   True      True          -12.941851   70.000000  two-sided      0.000000  0.000000  bonf                                                        163100000000000000.000000  -2.089781
+exp_num * modality  1          ES   SP   True      True           -4.050954   70.000000  two-sided      0.000130  0.003123  bonf                                                                       162.097000  -0.318629
+exp_num * modality  1          LE   SP   True      True            8.987533   70.000000  two-sided      0.000000  0.000000  bonf                                                               28150000000.000000   1.412766
+exp_num * modality  2          EE   ES   True      True            4.843402   65.000000  two-sided      0.000008  0.000198  bonf                                                                      2136.461000   0.571139
+exp_num * modality  2          EE   LE   True      True           -5.724102   65.000000  two-sided      0.000000  0.000007  bonf                                                                     50020.000000  -0.934509
+exp_num * modality  2          EE   SP   True      True            1.120936   65.000000  two-sided      0.266439  1.000000  bonf                                                                         0.246000   0.119287
+exp_num * modality  2          ES   LE   True      True          -10.593310   65.000000  two-sided      0.000000  0.000000  bonf                                                             7636000000000.000000  -1.751746
+exp_num * modality  2          ES   SP   True      True           -5.349220   65.000000  two-sided      0.000001  0.000029  bonf                                                                     12730.000000  -0.413990
+exp_num * modality  2          LE   SP   True      True            6.181442   65.000000  two-sided      0.000000  0.000001  bonf                                                                    276800.000000   1.007340
+exp_num * modality  3          EE   ES   True      True            4.613285   72.000000  two-sided      0.000017  0.000404  bonf                                                                      1068.425000   0.447219
+exp_num * modality  3          EE   LE   True      True           -6.385092   72.000000  two-sided      0.000000  0.000000  bonf                                                                    819300.000000  -1.064264
+exp_num * modality  3          EE   SP   True      True            1.128586   72.000000  two-sided      0.262819  1.000000  bonf                                                                         0.237000   0.107660
+exp_num * modality  3          ES   LE   True      True          -10.417929   72.000000  two-sided      0.000000  0.000000  bonf                                                            12630000000000.000000  -1.795924
+exp_num * modality  3          ES   SP   True      True           -4.625416   72.000000  two-sided      0.000016  0.000386  bonf                                                                      1114.215000  -0.358359
+exp_num * modality  3          LE   SP   True      True            7.716771   72.000000  two-sided      0.000000  0.000000  bonf                                                                 182800000.000000   1.306771
+exp_num * modality  4          EE   ES   True      True            7.777771   70.000000  two-sided      0.000000  0.000000  bonf                                                                 201800000.000000   0.778963
+exp_num * modality  4          EE   LE   True      True           -8.181919   70.000000  two-sided      0.000000  0.000000  bonf                                                                1049000000.000000  -1.437951
+exp_num * modality  4          EE   SP   True      True            3.309372   70.000000  two-sided      0.001480  0.035513  bonf                                                                        17.756000   0.343749
+exp_num * modality  4          ES   LE   True      True          -14.478509   70.000000  two-sided      0.000000  0.000000  bonf                                                      44500000000000000000.000000  -2.383254
+exp_num * modality  4          ES   SP   True      True           -4.802283   70.000000  two-sided      0.000009  0.000207  bonf                                                                      2009.177000  -0.404535
+exp_num * modality  4          LE   SP   True      True           10.881119   70.000000  two-sided      0.000000  0.000000  bonf                                                            57880000000000.000000   1.755643

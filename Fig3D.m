@@ -7,7 +7,7 @@ show_current_script_name(mfilename('fullpath'));
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
 selected_exp = [5, 6.1, 6.2];
-modalities = {'ED', 'EE'};
+modalities = {'ES', 'EE'};
 displayfig = 'on';
 colors = [orange;green];
 % filenames
@@ -64,7 +64,7 @@ for exp_num = selected_exp
                 sim_params.model = 1;
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
                 
-            case {'EE', 'ED'}
+            case {'EE', 'ES'}
                 param = load(...
                     sprintf('data/midpoints_%s_exp_%d_%d_mle',...
                     modalities{mod_num}, round(exp_num), sess));

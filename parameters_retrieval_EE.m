@@ -31,10 +31,10 @@ for exp_num = selected_exp
              
     init_midpoints = param.midpoints;         
     init_beta = param.beta1;
-    decision_rule = 'softmax';
+    decision_rule = 'argmax';
     cho = compute_cho(data.p1, data.p2, init_midpoints, init_beta, decision_rule);
     
-    cho_matching{num} = mean(cho==data.cho, 1)';
+    cho_matching{num} = mean(cho==data.cho, 'all');
     
     chose_symbol = nan(nsub, length(p_sym), length(p_sym)-1);
 
@@ -167,27 +167,31 @@ end
 % figure('Units', 'centimeters',...
 %     'Position', [0,0,19.8, 9.5], 'visible', 'on')
 % 
-% for i = 1:size(mids_1, 2)
-%         x = mids_1(:, i);
-%         y = mids_2(:, i);
-%         color = green;
-%     
-%         xlimits = [0 1];
-%         ylimits = xlimits;
-%         xlabel1 = 'First fitted indifference point';
-%         if (i == 1) ||(i == 5)
-%             ylabel1 = 'Retrieved indifference point';
-%         else
-%             ylabel1 = '';
-%         end
-%         title1 = sprintf('p = %.1f', round(p_sym(i), 1));
-%         subplot(2, 4, i)
-%         set(gca, 'tickdir', 'out');
-%         scatterplot(x, y, 15, color, xlimits, ylimits, xlabel1, ylabel1, title1)
-%         set(gca, 'fontsize', fontsize);
-%         xticks([0:2:10]./10);
-%         saveas(gcf, 'midpoints_Exp.svg');
-% end
+figure('Units', 'centimeters',...
+    'Position', [0,0,19.8, 9.5], 'visible', 'on')
+for i = 1:size(mids_1, 2)
+        x = mids_1(:, i).*100;
+        y = mids_2(:, i).*100;
+        color = green;
+    
+        xlimits = [0 100];
+        ylimits = xlimits;
+        xlabel1 = 'E-option estimated p(win) (%)';
+        if (i == 1) ||(i == 5)
+            ylabel1 =  'Recovered p(win) (%)';
+        else
+            ylabel1 = '';
+        end
+        title1 = sprintf('E-option p(win) = %d%%', round(p_sym(i).*100, 1));
+        subplot(2, 4, i)
+        set(gca, 'tickdir', 'out');
+        scatterplot(x, y, 15, color, xlimits, ylimits, xlabel1, ylabel1, title1)
+        set(gca, 'fontsize', fontsize);
+        xticks([0:20:100]);
+        saveas(gcf, 'midpoints_ExpEE.svg');
+end
+    return
+
     
 figure('Units', 'centimeters',...
     'Position', [0,0,8, 7], 'visible', 'on')

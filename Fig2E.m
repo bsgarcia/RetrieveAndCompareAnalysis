@@ -6,12 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.2, 8.2];
+selected_exp = [5, 6.2, 7.2, 8.2];
 modalities = {'LE', 'ES', 'EE', 'SP'};
 displayfig = 'on';
 colors = [blue;orange;green;magenta];
 % filenames
-filename = 'Fig1S';
+filename = 'FigViolinS';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -109,9 +109,10 @@ for exp_num = selected_exp
         '',...
         '',...
         modalities);
+    
     title(sprintf('Exp. %s', num2str(exp_num)));
     hold on 
-    plot([1,4], [0, 0], 'color', 'k', 'linestyle', ':')
+    plot([1,length(modalities)], [0, 0], 'color', 'k', 'linestyle', ':')
     hold on 
 
     if num == 1; ylabel('Slope'); end

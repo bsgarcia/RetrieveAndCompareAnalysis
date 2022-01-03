@@ -5,7 +5,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4,5,6,8];%, 6.2, 7.1, 7.2];
+selected_exp = [1, 2, 3, 4, 5, 6, 7, 8];%, 6.2, 7.1, 7.2];
 displayfig = 'on';
 colors = [red; dark_blue; pink; black];
 alphas = [.5, .5, .4, .8];
@@ -98,15 +98,14 @@ end
 disp(dd);
 
 b = bar(dd, 'stacked', 'facecolor','flat', 'edgecolor', 'w');
-
-for i = 1:4
-    b(i).CData = colors(i,:);
-end
+% 
+% for i = 1:4
+%     b(i).CData = colors(i,:);
+% end
 set(gca, 'tickdir', 'out');
 set(gca, 'fontsize', fontsize)
 box off;
 
-mkdir('fig', 'barplot');
 saveas(gcf, 'fig/explained.svg');
 
 % save stats file
