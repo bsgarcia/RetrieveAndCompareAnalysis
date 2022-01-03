@@ -28,11 +28,7 @@ for exp_num = selected_exp
     nsub = de.get_nsub_from_exp_num(exp_num);
     
     data = de.extract_ED(exp_num);
-    psym = unique(data.p1);
-    for i = 1:length(psym)
-            a2(i) = 
-            
-     end
+
     for sub = 1:nsub
         sub_count = sub_count + 1;
         a = mean(data.cho(sub, :)==1, 'all');
@@ -77,6 +73,6 @@ set(gca, 'tickdir', 'out');
 % save stats file
 mkdir('data', 'stats');
 writetable(T, stats_filename);
-ylabel('Correct choice rate (%)');
+ylabel('P(choose E-option) (%)');
 xlabel('Exp.');
 
