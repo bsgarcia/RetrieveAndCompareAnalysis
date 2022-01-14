@@ -80,7 +80,7 @@ for exp_num = selected_exp
     
     [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
     
-    errorbar(symp.*100, EA.*100, EA_e.*100, 'Color', set_alpha(colors, .8), 'marker', '.');
+    errorbar(symp.*100, EA.*100, EA_e.*100, 'Color', set_alpha(colors, .8), 'marker', '.', 'linestyle', 'none');
     hold on
     
     sc2 = scatter(xout, yout, 22, 'MarkerFaceColor', set_alpha(colors, .8),...
@@ -134,7 +134,7 @@ for exp_num = selected_exp
     
     [xout, yout] = intersections(lin3.XData, lin3.YData, lin1.XData, lin1.YData);
     
-    errorbar(symp.*100, SA.*100, SA_e.*100, 'Color', set_alpha(colors, .8), 'marker', '.');
+    errorbar(symp.*100, SA.*100, SA_e.*100, 'Color', set_alpha(colors, .8), 'marker', '.', 'linestyle', 'none');
     hold on
     
     sc2 = scatter(xout, yout, 22, 'MarkerFaceColor', set_alpha(colors, .8),...

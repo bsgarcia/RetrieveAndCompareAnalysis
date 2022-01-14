@@ -40,7 +40,7 @@ for exp_num = selected_exp
                                 
     param = load(...
                     sprintf('data/midpoints_%s_exp_%d_%d_mle',...
-                    'ED', round(exp_num), sess));
+                    'ES', round(exp_num), sess));
                 
     midpoints2 = param.midpoints;
     

@@ -8,6 +8,7 @@ displayfig = 'on';
 %    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 num = 0;
 m = {};
+s = {};
 % filenames
 filename = 'corr';
 figfolder = 'fig';
@@ -33,6 +34,8 @@ for exp_num = selected_exp
         sub_count = sub_count + 1;
         exclude = data.p2(sub, ismember(data.p2(sub,:), [0, .5, 1]));
         a = mean(data.corr(sub, :)==1, 'all');
+        b = mean(data.cho(sub, :)==1, 'all');
+        s{num}(sub) = b;
         m{num}(sub) = a;
         T1 = table(...
                 sub_count, exp_num, a, 'variablenames',...

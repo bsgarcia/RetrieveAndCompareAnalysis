@@ -38,7 +38,8 @@ for exp_num = selected_exp
         end
     end
     dED = [dED; a];
-
+    
+    disp(length(dED));
     
     data = de.extract_EE(exp_num);
     psym = unique(data.p1);
@@ -49,6 +50,8 @@ for exp_num = selected_exp
         end
     end
     dEE = [dEE; a];
+    
+    disp(length(dEE));
 
     %     for sub = 1:nsub
 %         sub_count = sub_count + 1;
@@ -68,56 +71,35 @@ end
 a = dED;
 x = [10, 20, 30, 40, 60, 70, 80, 90];
 err = std(a)./sqrt(size(a, 1));
-
-er = errorbar(x,mean(a)*100,err.*100,err.*100,  'capsize', 0, 'linewidth', 1.5);    
+figure
+er = errorbar(x,mean(a)*100,err.*100,err.*100,  'capsize', 7, 'linewidth', 2);    
 er.Color = orange; 
 er.LineStyle = 'none';
 hold on
-plot(x, mean(a).*100, 'color', set_alpha(orange, .8), 'markerfacecolor', set_alpha(orange, .4),'markeredgecolor', set_alpha(orange, .8), 'marker', 'o');
+plot(x, mean(a).*100, 'color', set_alpha(orange, .8), 'markerfacecolor',...
+    set_alpha(orange, .4),'markeredgecolor', set_alpha(orange, .8), 'marker', 'o', 'linewidth', 2);
 plot(x, x, 'color', 'k', 'LineStyle','--');
 
-a = dEE;
-er = errorbar(x,mean(a)*100,err.*100,err.*100,  'capsize', 0, 'linewidth', 1.5);    
-er.Color = green; 
-er.LineStyle = 'none';
-hold on
-plot(x, mean(a).*100, 'color', set_alpha(green, .8), 'markerfacecolor', set_alpha(green, .4),'markeredgecolor', set_alpha(green, .8), 'marker', 'o');
+plot(x, mean(a).*100-x, 'color', set_alpha(orange, .8), 'markerfacecolor',...
+    set_alpha(orange, .4),'markeredgecolor', set_alpha(orange, .8), 'linewidth', 2, 'linestyle', '--');
 
+% a = dEE;
+% err = std(a)./sqrt(size(a, 1));
+% 
+% er = errorbar(x,mean(a)*100,err.*100,err.*100,  'capsize', 7, 'linewidth', 2);    
+% er.Color = green; 
+% er.LineStyle = 'none';
+% hold on
+% plot(x, mean(a).*100, 'color', set_alpha(green, .8), 'markerfacecolor', set_alpha(green, .4),...
+%     'markeredgecolor', set_alpha(green, .8), 'marker', 'o', 'linewidth', 2);
+% plot(x, mean(a).*100-x, 'color', set_alpha(green, .8), 'markerfacecolor',...
+%     set_alpha(green, .4),'markeredgecolor', set_alpha(green, .8), 'linewidth', 2, 'linestyle', '--');
 box off
-ylim([0, 100])
+ylim([-40, 100])
 xlim([0, 100])
 set(gca, 'tickdir', 'out')
 xticks(0:10:100)
-
-% x = 1:8;
-% for i = x
-%     avg(i) = mean(m{i}, 'all');
-%     err(i) = std(m{i})%./sqrt(length(m{i}));
-% end
-% 
-% bar(x,avg.*100, 'facecolor', set_alpha(orange, .4), 'edgecolor', 'w');    
-% 
-% hold on 
-% x_scat=horzcat(x_scatter{:});
-% 
-% deviation = (randi([-2, 2], numel(x_scat),1))./10;
-% x_scat=x_scat'+deviation;
-% y_scat=horzcat(m{:});
-% 
-% scatter(x_scat', y_scat.*100, 'markerfacecolor', orange, 'markerfacealpha', .6, 'markeredgecolor', 'w');
-% 
-% hold on
-% 
-% er = errorbar(x,avg*100,err./2.*100,err./2.*100, 'capsize', 0, 'linewidth', 1.5);    
-% er.Color = [0, 0, 0]; 
-% er.LineStyle = 'none';
-% box off
-% hold off
-% ylim([0, 102]);
-% set(gca, 'tickdir', 'out');
-% % save stats file
-% mkdir('data', 'stats');
-% writetable(T, stats_filename);
-% ylabel('Correct choice rate (%)');
-% xlabel('Exp.');
+xlabel('Probability of winning (experience) (%)');
+ylabel({'Percent choice of experienced',  'vs all described (%)'});
+set(gca, 'fontsize', 15)
 

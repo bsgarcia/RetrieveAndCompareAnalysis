@@ -154,7 +154,6 @@
       /><line x1="142.1035" x2="142.1035" y1="105.3871" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="101.5034"
       /><line x1="153.6552" x2="153.6552" y1="111.3389" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="107.7586"
       /><line x1="165.2069" x2="165.2069" y1="109.479" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="106.0657"
-      /><path d="M72.7931 50.3328 L84.3448 51.0768 L95.8966 58.8885 L107.4483 65.2123 L130.5517 94.5994 L142.1035 105.3871 L153.6552 111.3389 L165.2069 109.479" style="fill:none; stroke-width:0.6667; fill-rule:evenodd; stroke:rgb(109,109,115);"
       /><circle transform="translate(72.7931,50.3328)" style="fill:rgb(109,109,115); stroke:none; stroke-width:0.6667;" r="1.3333" cx="0" cy="0"
     /></g
     ><g transform="translate(84.3448,51.0768)" style="stroke-linecap:butt; fill:rgb(109,109,115); text-rendering:geometricPrecision; image-rendering:optimizeQuality; color-rendering:optimizeQuality; stroke-linejoin:round; stroke:rgb(109,109,115); color-interpolation:linearRGB; stroke-width:0.6667;"
@@ -432,7 +431,6 @@
       /><line x1="319.1035" x2="319.1035" y1="126.2185" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="124.6586"
       /><line x1="330.6552" x2="330.6552" y1="128.4504" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="127.4839"
       /><line x1="342.2069" x2="342.2069" y1="129.9384" style="fill:none; stroke:rgb(109,109,115); stroke-width:0.6667;" y2="129.5664"
-      /><path d="M249.7931 22.0616 L261.3448 22.4336 L272.8965 27.2695 L284.4483 38.8011 L307.5517 120.2666 L319.1035 126.2185 L330.6552 128.4504 L342.2069 129.9384" style="fill:none; stroke-width:0.6667; fill-rule:evenodd; stroke:rgb(109,109,115);"
       /><circle transform="translate(249.7931,22.0616)" style="fill:rgb(109,109,115); stroke:none; stroke-width:0.6667;" r="1.3333" cx="0" cy="0"
     /></g
     ><g transform="translate(261.3448,22.4336)" style="stroke-linecap:butt; fill:rgb(109,109,115); text-rendering:geometricPrecision; image-rendering:optimizeQuality; color-rendering:optimizeQuality; stroke-linejoin:round; stroke:rgb(109,109,115); color-interpolation:linearRGB; stroke-width:0.6667;"
