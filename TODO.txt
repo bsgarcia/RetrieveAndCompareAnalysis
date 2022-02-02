@@ -1,1 +1,0 @@
-- Change the fig 5G (the slope displayed is 8.1, it should be 8.1+8.2)

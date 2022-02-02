@@ -19,7 +19,7 @@ stats_filename = sprintf('data/stats/%s.csv', filename);
 symp = [.1, .2, .3, .4, .6, .7, .8, .9];
 %
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,5.3*2, 5.3/1.22], 'visible', displayfig)
+    'Position', [0,0,5.3, 5.3*2], 'visible', displayfig)
 
 sub_count = 0;
 stats_data = table();
@@ -57,7 +57,7 @@ for exp_num = selected_exp
     end
     EA_e(i)
     
-    subplot(1, 2, 1);
+    subplot(2, 1, 1);
     
     psym = symp;
     pwin = symp;
@@ -109,7 +109,7 @@ for exp_num = selected_exp
     title('Exp. 8')
     %set(gca,'fontname','monospa
     
-    subplot(1, 2, 2);
+    subplot(2, 1, 2);
     
     psym = symp;
     pwin = symp;

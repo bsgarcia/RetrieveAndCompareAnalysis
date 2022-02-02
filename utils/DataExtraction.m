@@ -129,11 +129,13 @@ classdef DataExtraction < handle
             to_keep = [];
             sums = [];
             i = 1;
+            n_complete = 0;
             possible_eli = [0, 2, -1];
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 sums(id) = sum(data(:, idx.sub) == sub);
                 if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows)
+                    n_complete = n_complete + 1;
                     for eli = 1:length(possible_eli)
 
                         % if EE, ED, PM
@@ -159,16 +161,19 @@ classdef DataExtraction < handle
 
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
                             rtime{i, eli} = data(mask, idx.rtime);
-                            % if LE
+                        
+                        % if LE
                         else
+                            mask_sub = data(:, idx.sub) == sub;
+                            mask_sess = ismember(data(:, idx.sess), [0, 1]);
                             mask_eli = data(:, idx.elic) == eli;
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
                             rtime{i, eli} = data(mask, idx.rtime);
 
                         end
                     end
-
-
+                    
+                    
                     if (mean(corr_catch{i, 1}) >= ES_catch_threshold) &&...
                             (mean(corr_catch{i, 2}) >= PM_catch_threshold)...
                             && (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
@@ -176,10 +181,12 @@ classdef DataExtraction < handle
 
                     end
                     i = i + 1;
-
+                    
                 end
 
             end
+            fprintf('N = %d \n', length(sub_ids)); 
+            fprintf('N complete = %d \n', n_complete); 
 
         end
 

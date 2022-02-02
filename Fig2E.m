@@ -6,12 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.2, 7.2, 8.2];
-modalities = {'LE', 'ES', 'EE', 'SP'};
+selected_exp = [8.1, 8.2];
+modalities = {'LE', 'ES', 'EE'};
 displayfig = 'on';
-colors = [blue;orange;green;magenta];
+colors = [blue;orange;green];
 % filenames
-filename = 'FigViolinS';
+filename = 'FigAmbViolin';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
