@@ -496,11 +496,11 @@ classdef DataExtraction < handle
                         % before exp. 5 op2 has value -1 in ED while after it
                         % takes value 0 (because there were no EE before)
                         mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
-
+                        mask_sa = ismember(data(:, obj.idx.op1), [1]);
 
                         mask_sess = data(:, obj.idx.sess) ==  session(isess);
-                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_catch);
-                        mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_ycatch);
+                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot.* mask_sa);
+                        mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_ycatch.* mask_vs_lot);
 
                         trialorder = data(mask, obj.idx.trial);
 
@@ -509,6 +509,7 @@ classdef DataExtraction < handle
                         else
                             trialorder = 1:length(trialorder);
                         end
+% 
 
                         temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);
@@ -521,7 +522,8 @@ classdef DataExtraction < handle
                         temp_out = data(mask, obj.idx.out);
                         new_data.out(i, :) = temp_out(trialorder);
 
-                        temp_ev1 = data(mask, obj.idx.ev1);
+                        temp_ev1 = data(mask, obj.idx.ev1);                       
+
                         new_data.ev1(i, :) = temp_ev1(trialorder);
 
                         temp_catch = data(mask, obj.idx.catch);
@@ -558,7 +560,7 @@ classdef DataExtraction < handle
                         new_data.real_trial(i, :) = temp_trial(trialorder);
 
                         new_data.catch(i, :) = data(mask2, obj.idx.catch);
-
+                        
 
                         i = i + 1;
 
@@ -602,10 +604,7 @@ classdef DataExtraction < handle
                         mask_sub = data(:, obj.idx.sub) == sub;
                         mask_catch = data(:, obj.idx.catch) == 0;
                         mask_vs_lot = data(:, obj.idx.op2) == 1;
-                        mask_sess = ismember(data(:, obj.idx.sess), session);
-                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
-
-
+                      
                         mask_sess = data(:, obj.idx.sess) ==  session(isess);
                         mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot);
 
@@ -616,7 +615,9 @@ classdef DataExtraction < handle
                         else
                             trialorder = 1:length(trialorder);
                         end
+                        %data = obj.randomize(data, mask, trialorder);
 
+                        
                         temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);
 
@@ -712,6 +713,8 @@ classdef DataExtraction < handle
                         else
                             trialorder = 1:length(trialorder);
                         end
+                        
+                        %data = obj.randomize(data, mask, trialorder);
 
                         temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);
@@ -807,6 +810,9 @@ classdef DataExtraction < handle
                             trialorder = 1:length(trialorder);
                         end
 
+                        %data = obj.randomize(data, mask, trialorder);
+
+
                         temp_corr = data(mask, obj.idx.corr);
                         new_data.corr(i, :) = temp_corr(trialorder);
 
@@ -866,121 +872,6 @@ classdef DataExtraction < handle
                 new_data = obj.merge2sess(structlist);
             end
 
-        end
-
-
-        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-                extract_sym_vs_amb_post_test(data, sub_ids, idx, session)
-            i = 1;
-            for id = 1:length(sub_ids)
-                sub = sub_ids(id);
-
-                mask_eli = data(:, obj.idx.elic) == 0;
-                mask_sub = data(:, obj.idx.sub) == sub;
-                mask_catch = data(:, obj.idx.catch) == 0;
-                mask_vs_amb = data(:, obj.idx.op2) == 2;
-                mask_vs_sym = data(:, obj.idx.op1) == 1;
-
-                mask_sess = ismember(data(:, obj.idx.sess), session);
-                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_sym .* mask_vs_amb);
-
-                [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-
-                temp_corr = data(mask, obj.idx.corr);
-                corr(i, :) = temp_corr(trialorder);
-
-                temp_cho = data(mask, obj.idx.cho);
-                cho(i, :) = temp_cho(trialorder);
-
-                temp_out = data(mask, obj.idx.out);
-                out(i, :) = temp_out(trialorder);
-
-                temp_ev1 = data(mask, obj.idx.ev1);
-                ev1(i, :) = temp_ev1(trialorder);
-
-                temp_catch = data(mask, obj.idx.catch);
-                ctch(i, :) = temp_catch(trialorder);
-
-                temp_cont1 = data(mask, obj.idx.cont1);
-                cont1(i, :) = temp_cont1(trialorder);
-
-                temp_ev2 = data(mask, obj.idx.ev2);
-                ev2(i, :) = temp_ev2(trialorder);
-
-                temp_cont2 = data(mask, obj.idx.cont2);
-                cont2(i, :) = temp_cont2(trialorder);
-
-                temp_p1 = data(mask, obj.idx.p1);
-                p1(i, :) = temp_p1(trialorder);
-
-                temp_p2 = data(mask, obj.idx.p2);
-                p2(i, :) = temp_p2(trialorder);
-
-                temp_dist = data(mask, obj.idx.dist);
-                dist(i, :) = temp_dist(trialorder)./100;
-
-                temp_rtime = data(mask, obj.idx.rtime);
-                rtime(i, :) = temp_rtime(trialorder);
-
-                i = i + 1;
-            end
-        end
-
-        function [corr, cho, out, p1, p2, ev1, ev2, ctch, cont1, cont2, dist, rtime] = ...
-                extract_lot_vs_amb_post_test(data, sub_ids, idx, session)
-            i = 1;
-            for id = 1:length(sub_ids)
-                sub = sub_ids(id);
-
-                mask_eli = data(:, obj.idx.elic) == 0;
-                mask_sub = data(:, obj.idx.sub) == sub;
-                mask_catch = data(:, obj.idx.catch) == 0;
-                mask_vs_amb = data(:, obj.idx.op2) == 2;
-                mask_vs_sym = data(:, obj.idx.op1) == 0;
-
-                mask_sess = ismember(data(:, obj.idx.sess), session);
-                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_sym .* mask_vs_amb);
-
-                [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-
-                temp_corr = data(mask, obj.idx.corr);
-                corr(i, :) = temp_corr(trialorder);
-
-                temp_cho = data(mask, obj.idx.cho);
-                cho(i, :) = temp_cho(trialorder);
-
-                temp_out = data(mask, obj.idx.out);
-                out(i, :) = temp_out(trialorder);
-
-                temp_ev1 = data(mask, obj.idx.ev1);
-                ev1(i, :) = temp_ev1(trialorder);
-
-                temp_catch = data(mask, obj.idx.catch);
-                ctch(i, :) = temp_catch(trialorder);
-
-                temp_cont1 = data(mask, obj.idx.cont1);
-                cont1(i, :) = temp_cont1(trialorder);
-
-                temp_ev2 = data(mask, obj.idx.ev2);
-                ev2(i, :) = temp_ev2(trialorder);
-
-                temp_cont2 = data(mask, obj.idx.cont2);
-                cont2(i, :) = temp_cont2(trialorder);
-
-                temp_p1 = data(mask, obj.idx.p1);
-                p1(i, :) = temp_p1(trialorder);
-
-                temp_p2 = data(mask, obj.idx.p2);
-                p2(i, :) = temp_p2(trialorder);
-
-                temp_dist = data(mask, obj.idx.dist);
-                dist(i, :) = temp_dist(trialorder)./100;
-
-                temp_rtime = data(mask, obj.idx.rtime);
-                rtime(i, :) = temp_rtime(trialorder);
-
-                i = i + 1;
-            end
         end
 
         function new_data = extract_PM(obj, exp_num)

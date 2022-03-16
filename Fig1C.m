@@ -80,7 +80,7 @@ for num = [1, 2, 3]
         catch
         end
         
-        xlabel('Lottery p(win) (%)');
+        xlabel('S-option p(win) (%)');
         
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);
@@ -90,12 +90,13 @@ for num = [1, 2, 3]
         box off
     end
     if num == 1
-        ylabel('P(choose symbol) (%)');
+        ylabel('P(choose E-option) (%)');
     end
     set(gca, 'fontsize', fontsize);
     xticks(0:20:100);
 
     
+    % For inserts (indifference points)
     % ------------------------------------------------------------------- %
     
 %     subplot(2, 3, num+3)
@@ -133,7 +134,7 @@ for num = [1, 2, 3]
 %     
 end
 
-saveas(gcf, 'fig/exp/brickplot/hypotheses.svg');
+saveas(gcf, 'fig/hypotheses.svg');
 
 
 function p = softmax1(v1, v2, beta1, degradors)
