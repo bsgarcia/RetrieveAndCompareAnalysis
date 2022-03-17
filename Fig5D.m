@@ -10,15 +10,15 @@ displayfig = 'on';
 colors = [red; dark_blue; pink; black];
 
 %filenames
-filename = 'Fig6D';
+filename = 'Fig5D';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
 stats_filename = sprintf('data/stats/%s.csv', filename);
 
-%  
-figure('Renderer', 'Painter', 'Units', 'centimeters',...
-    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+% %  
+% figure('Renderer', 'Painter', 'Units', 'centimeters',...
+%     'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
 
 sub_count = 0;
 stats_data = table();

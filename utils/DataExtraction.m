@@ -471,7 +471,7 @@ classdef DataExtraction < handle
 
         end
 
-        function new_data = extract_ED(obj, exp_num)
+        function new_data = extract_ES(obj, exp_num)
             [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
             new_data = struct();
 
@@ -496,7 +496,7 @@ classdef DataExtraction < handle
                         % before exp. 5 op2 has value -1 in ED while after it
                         % takes value 0 (because there were no EE before)
                         mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
-                        mask_sa = ismember(data(:, obj.idx.op1), [1]);
+                        mask_sa = ismember(data(:, obj.idx.op1), [1,-1]);
 
                         mask_sess = data(:, obj.idx.sess) ==  session(isess);
                         mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch .* mask_vs_lot.* mask_sa);

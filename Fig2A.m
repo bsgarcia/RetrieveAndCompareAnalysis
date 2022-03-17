@@ -6,7 +6,7 @@ selected_exp = [1, 2, 3, 4];
 modality = 'LE';
 color = blue;
 
-displayfig = 'off';
+displayfig = 'on';
 
 stats_data = table();
 T_con = table();

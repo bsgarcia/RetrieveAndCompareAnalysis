@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2];
+selected_exp = [1,2,3,4];
 displayfig = 'on';
 colors = [orange];
 % filenames
@@ -23,7 +23,7 @@ num = 0;
 for exp_num = selected_exp
     num = num + 1;
     
-    data = de.extract_ED(exp_num);
+    data = de.extract_ES(exp_num);
     
     nsub = data.nsub;
     p1 = data.p1;
@@ -34,27 +34,26 @@ for exp_num = selected_exp
     % Compute for each symbol p of chosing depending on described cue value
     % ---------------------------------------------------------------------
     p_lot = unique(p2)';
-    psym = unique(p1)';
+    p_sym = unique(p1)';
    
-    prop = zeros(length(psym), length(p_lot));
-    for l = 1:length(psym)
+    prop = zeros(length(p_sym), length(p_lot));
+    for i = 1:length(p_sym)
         for j = 1:length(p_lot)
             temp = cho(...
-                logical((p2 == p_lot(j)) .* (p1== psym(l))));
-            prop(l, j) = mean(temp == 1);
+                logical((p2 == p_lot(j)) .* (p1== p_sym(i))));
+            prop(i, j) = mean(temp == 1);
             
         end
     end
    
     subplot(1, length(selected_exp), num);
    
-    pwin = psym;
-    alpha = linspace(.15, .95, length(psym));
+    alpha = linspace(.15, .95, length(p_sym));
     lin1 = plot(...
-        linspace(psym(1)*100, psym(end)*100, 12), ones(12,1)*50,...
+        linspace(p_sym(1)*100, p_sym(end)*100, 12), ones(12,1)*50,...
         'LineStyle', ':', 'Color', [0, 0, 0], 'HandleVisibility', 'off');
    
-    for i = 1:length(pwin)
+    for i = 1:length(p_sym)
        
         hold on
        
@@ -92,7 +91,7 @@ for exp_num = selected_exp
 
     %axis equal
 
-    clear pp p_lot psym temp err_prop prop i
+    clear pp p_lot p_sym temp err_prop prop i
    
 end
 saveas(gcf, figname);
