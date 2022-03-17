@@ -38,7 +38,7 @@ for exp_num = selected_exp
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
 
-    data_ed = de.extract_ED(exp_num);
+    data_ed = de.extract_ES(exp_num);
     data_ee = de.extract_EE(exp_num);
 
     for sub = 1:nsub

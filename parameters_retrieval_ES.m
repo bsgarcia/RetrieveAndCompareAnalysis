@@ -18,7 +18,7 @@ for exp_num = selected_exp
     disp(exp_num);
     sess = de.get_sess_from_exp_num(exp_num);
     
-    data = de.extract_ED(exp_num);
+    data = de.extract_ES(exp_num);
     
     % ---------------------------------------------------------------------
     % Compute for each symbol p of chosing depending on described cue value
