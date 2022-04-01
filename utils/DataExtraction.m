@@ -479,6 +479,7 @@ classdef DataExtraction < handle
             new_data.name = name;
             new_data.nsub = nsub;
             new_data.exp_num = exp_num;
+            new_data.id = sub_ids;
 
 
             for isess = 1:length(session)
@@ -559,8 +560,7 @@ classdef DataExtraction < handle
                         temp_trial = data(mask, obj.idx.trial);
                         new_data.real_trial(i, :) = temp_trial(trialorder);
 
-                        new_data.catch(i, :) = data(mask2, obj.idx.catch);
-                        
+                        new_data.catch(i, :) = data(mask2, obj.idx.catch);                        
 
                         i = i + 1;
 
@@ -591,8 +591,9 @@ classdef DataExtraction < handle
             new_data.name = name;
             new_data.nsub = nsub;
             new_data.exp_num = exp_num;
+            new_data.id = sub_ids;
 
-
+            
             for isess = 1:length(session)
                 i = 1;
 

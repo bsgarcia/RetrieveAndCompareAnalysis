@@ -16,7 +16,6 @@ end
 
 % number of factors/groups/conditions
 Nbar = size(DataCell,1);
-disp(Nbar);
 % bar size
 Wbar = 0.75;
 
@@ -87,6 +86,10 @@ for n = 1:Nbar
     else % all data is identical
         jitterstrength = density*width;
     end
+
+
+    jitter=abs(zscore(1:length(DataMatrix))'/max(zscore(1:length(DataMatrix))'));
+
 %     for i=1:length(jitterstrength)
 %         jitter(i,1)=nansum(jitterstrength(1:i)==jitterstrength(i))-1;
 %     end
@@ -94,7 +97,6 @@ for n = 1:Nbar
 %         jitter = jitter./max(jitter);
 %     end
 
-    jitter=abs(zscore(1:length(DataMatrix))'/max(zscore(1:length(DataMatrix))'));
     
     if ~noscatter
         scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, markersize,...

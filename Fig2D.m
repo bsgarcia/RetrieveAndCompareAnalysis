@@ -6,12 +6,12 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
-modalities = {'LE', 'ES', 'SP'};
-displayfig = 'on';
-colors = [blue;orange;magenta];
+selected_exp = [5, 6.2];
+modalities = {'LE', 'ES', 'EE', 'SP'};
+displayfig = 'off';
+colors = [blue;orange;green;magenta];
 % filenames
-filename = 'Fig2D';
+filename = 'corr_tables';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -32,6 +32,7 @@ num = 0;
 sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
+    disp(num)
     
     %---------------------------------------------------------------------%
     % get data parameters                                                           %
@@ -40,7 +41,7 @@ for exp_num = selected_exp
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
     
-    throw = de.extract_ED(exp_num);
+    throw = de.extract_ES(exp_num);
     nsym = length(unique(throw.p1));
     p1 = unique(throw.p1)'.*100;
     
@@ -123,6 +124,7 @@ for exp_num = selected_exp
     set(gca, 'fontname', 'arial');
     
 end
+
 
 %-------------------------------------------------------------------------%
 % Save fig and stats                                                      %
