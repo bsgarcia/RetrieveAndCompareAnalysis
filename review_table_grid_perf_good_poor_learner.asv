@@ -30,8 +30,9 @@ figure('Units', 'centimeters',...
 
 num = 1;
 sub_count = 0;
-CRT_LE = [];
+slopes_LE = [];
 slopes_ES = [];
+T = table();
 
 for exp_num = selected_exp
 
@@ -87,7 +88,7 @@ for exp_num = selected_exp
             reshape_midpoints.*100, p1, colors(mod_num, :));
 %         hold on
         if mod_num == 1
-            CRT_LE =mean(LE.corr, 2);
+            slopes_LE =mean(LE.corr, 2);
         else
             CRT_ES =mean(ES.corr, 2);
             slopes_ES = squeeze(slopes(2,:,2));
@@ -107,14 +108,19 @@ for exp_num = selected_exp
     end
 %    sub_count = sub_count+sub;
 
-    [throw, idx_sorted] = sort(CRT_LE);
+    [throw, idx_sorted] = sort(slopes_LE);
     A1 = idx_sorted(1:end/2);
     A2 = idx_sorted(end/2+1:end);
-    poor_LE = shuffle(CRT_LE(A1));
-    good_LE = shuffle(CRT_LE(A2));
+    poor_LE = shuffle(slopes_LE(A1));
+    good_LE = shuffle(slopes_LE(A2));
 
     poor_ES = CRT_ES(A1);
     good_ES = CRT_ES(A2);
+
+    T1 = table(num, mean(poor_LE).*100, mean(good_LE).*100, mean(good_LE).*100 -  mean(poor_LE).*100 , ...
+         mean(poor_ES).*100, mean(good_ES).*100, mean(good_ES).*100 -  mean(poor_LE).*100 , ...
+        {'Exp.', 'Low LE', 'High LE', '% difference', 'Low ES', 'High ES', '% difference'});
+    T = [T; T1];
 %     
 %     subplot(7, 2, num)
 %     ind(ES.p1(A1,:), ES.p2(A1, :), ES.cho(A1,:), orange);
@@ -126,66 +132,94 @@ for exp_num = selected_exp
     %---------------------------------------------------------------------%
     % Plot                                                                %
     %--------------------------------------------------------------------%
-    subplot(7, 3, num)
-
-    skylineplot([poor_LE'; good_LE'], 8,...
-        [blue;blue],...
-        0,...
-        1,...
-        fontsize,...
-        '',...
-        'Learners',...
-        'Accuracy',...
-        {'Poor', 'Good'});
-
-    %title('Learning phase');
-    hold on
-    plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
-    hold on
-        yticks(0:.2:1);
-
-    %if num == 1; ylabel('Slope'); end
-    set(gca, 'tickdir', 'out');
-    box off
-    set(gca, 'fontname', 'arial');
+%     subplot(7, 3, num)
+% 
+%     skylineplot([poor_LE'; good_LE'], 8,...
+%         [blue;blue],...
+%         0,...
+%         1,...
+%         fontsize,...
+%         '',...
+%         'Learners',...
+%         'Correct choice rate',...
+%         {'Poor', 'Good'});
+% 
+%     %title('Learning phase');
+%     hold on
+%     plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
+%     hold on
+%         yticks(0:.2:1);
+% 
+%     %if num == 1; ylabel('Slope'); end
+%     set(gca, 'tickdir', 'out');
+%     box off
+%     set(gca, 'fontname', 'arial');
 
 
     %---------------------------------------------------------------------%
     % Plot                                                                %
 %     %--------------------------------------------------------------------%
-    subplot(7, 3, num+1)
-
-    skylineplot([poor_ES'; good_ES'], 8,...
-        [orange; orange],...
-        0,...
-        1,...
-        fontsize,...
-        '',...
-        'Learners',...
-        'Accuracy',...
-        {'Poor', 'Good'});
-
-    %title('Exp. 5, 6');
-    hold on
-    plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
-    hold on
-
-    %if num == 1; ylabel('Slope'); end
-    %title('Stated Probability phase');
-    set(gca, 'tickdir', 'out');
-    box off
-    yticks(0:.2:1);
-    set(gca, 'fontname', 'arial');
-    %
+%     subplot(7, 3, num+1)
+% 
+%     skylineplot([poor_ES'; good_ES'], 8,...
+%         [orange; orange],...
+%         0,...
+%         1,...
+%         fontsize,...
+%         '',...
+%         'Learners',...
+%         '',...
+%         {'Poor', 'Good'});
+% 
+%     %title('Exp. 5, 6');
+%     hold on
+%     plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
+%     hold on
+% 
+%     %if num == 1; ylabel('Slope'); end
+%     %title('Stated Probability phase');
+%     set(gca, 'tickdir', 'out');
+%     box off
+%     yticks(0:.2:1);
+%     set(gca, 'fontname', 'arial');
+%     %
 
     %---------------------------------------------------------------------%
     % Plot                                                                %
     %--------------------------------------------------------------------%
-    subplot(7, 3, num+2)
+% 
+%     poor_ES = slopes_ES(A1);
+%     good_ES = slopes_ES(A2);
+%     subplot(7, 3, num+2)
+% 
+%     skylineplot([poor_ES; good_ES], 8,...
+%         [orange; orange],...
+%         -.5,...
+%         1.5,...
+%         fontsize,...
+%         '',...
+%         'Learners',...
+%         'Slope',...
+%         {'Poor', 'Good'});
+% 
+%     %title('Exp. 5, 6');
+%     hold on
+%     plot([1,length(modalities)], [0, 0], 'color', 'k', 'linestyle', ':')
+%     hold on
+% 
+%     %if num == 1; ylabel('Slope'); end
+%     %title('Stated Probability phase');
+%     set(gca, 'tickdir', 'out');
+%     box off
+%     yticks(-.5:.4:1.5);
+%     set(gca, 'fontname', 'arial');
+    %
+    %num = num + 2;
 
-    scatterplot(CRT_LE, CRT_ES, 10, grey, [0, 1], [0, 1], 'Accuracy LE', 'Accuracy ES','')
-    num = num + 3;
-
+    [h, p] = ttest(good_ES, poor_ES);
+    
+    disp(h)
+    disp(p);
 
 end
 

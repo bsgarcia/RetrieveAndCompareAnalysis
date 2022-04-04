@@ -875,7 +875,7 @@ classdef DataExtraction < handle
 
         end
 
-        function new_data = extract_PM(obj, exp_num)
+        function new_data = extract_SP(obj, exp_num)
             new_data = struct();
             [data, sub_ids, session] = prepare(obj, exp_num);
             i = 1;

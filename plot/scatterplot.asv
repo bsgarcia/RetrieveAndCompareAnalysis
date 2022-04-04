@@ -1,4 +1,4 @@
-function scatterplot(x, y, markersize, color, xlimits, ylimits, xlabel1, ylabel1, title1)  
+function scatterplot(x, y, markersize, color, xlimits, ylimits, xlabel1, ylabel1, title1, fontsize)  
     xlim(xlimits);
     ylim(ylimits);
     xlabel(xlabel1);
@@ -8,8 +8,8 @@ function scatterplot(x, y, markersize, color, xlimits, ylimits, xlabel1, ylabel1
          linspace(ylimits(1), ylimits(2), 10), 'linestyle', ':', 'color', 'k', 'linewidth', .8);
      scatter(x, y, markersize,'MarkerEdgeColor', 'w', ...
         'MarkerFaceColor', color, 'MarkerFaceAlpha', 0.6);
-    annotatewithcorr(x, y, xlim, ylim);
-    title(title1);
+    annotatewithcorr(x, y, xlim, ylim, fontsize);
+    title(title1, 'fontsize', fontsize);
 end
 
 
