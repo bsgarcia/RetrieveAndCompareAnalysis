@@ -115,7 +115,8 @@ X = out;
 %step = 0.01). Here we assume that the prior over value is flat:
 prop = 0.1:0.01:.99;
 logpx = sum(X.*log(prop) + (1-X) .* log(1-prop),1);
-px = exp(logpx)./(sum(exp(logpx)));
+
+px = betapdf(prop, sum(X), sum(X==0))./100;%exp(logpx)./(sum(exp(logpx)));%%
 
 end
 

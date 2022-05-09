@@ -35,7 +35,7 @@ for n = 1:Nbar
     % number of subjects
     Nsub = length(DataMatrix(~isnan(DataMatrix)));
     
-    curve = nanmedian(DataMatrix);
+    curve = nanmean(DataMatrix);
     sem   = nanstd(DataMatrix')'/sqrt(Nsub);
     conf  = tinv(1 - 0.5*(1-ConfInter),Nsub);
     
@@ -102,7 +102,7 @@ for n = 1:Nbar
         scatter(n - Wbar/10 - jitter.*(Wbar/2- Wbar/10), DataMatrix, markersize,...
             Colors(n,:),'filled',...
             'marker','o', 'linewidth', .4,...
-            'MarkerEdgeColor', 'w',...
+            'MarkerEdgeColor', 'none',...
             'MarkerFaceAlpha',0.4);
         hold on
     end

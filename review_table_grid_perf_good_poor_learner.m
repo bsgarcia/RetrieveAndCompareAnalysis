@@ -30,7 +30,7 @@ figure('Units', 'centimeters',...
 
 num = 1;
 sub_count = 0;
-slopes_LE = [];
+CRT_LE = [];
 slopes_ES = [];
 T = table();
 mat = [];
@@ -89,7 +89,8 @@ for exp_num = selected_exp
             reshape_midpoints.*100, p1, colors(mod_num, :));
 %         hold on
         if mod_num == 1
-            slopes_LE =mean(LE.corr, 2);
+            CRT_LE =mean(LE.corr, 2);
+            slopes_LE = squeeze(slopes(1,:,2));
         else
             CRT_ES =mean(ES.corr, 2);
             slopes_ES = squeeze(slopes(2,:,2));
@@ -115,15 +116,25 @@ for exp_num = selected_exp
     poor_LE = shuffle(slopes_LE(A1));
     good_LE = shuffle(slopes_LE(A2));
 
-    poor_ES = CRT_ES(A1);
-    good_ES = CRT_ES(A2);
+    poor_ES = slopes_ES(A1);
+    good_ES = slopes_ES(A2);
 
-    mat = [mat poor_ES good_ES];
+    %mat = [mat poor_ES good_ES];
 
-    T1 = table(num, mean(poor_LE).*100, mean(good_LE).*100, mean(good_LE).*100 -  mean(poor_LE).*100 , ...
-         mean(poor_ES).*100, mean(good_ES).*100, mean(good_ES).*100 -  mean(poor_ES).*100 , ...
-         'variablenames', {'Exp.', 'Low LE', 'High LE', '% difference 1', 'Low ES', 'High ES', '% difference 2'});
+    T1 = table(num, mean(poor_LE), mean(good_LE), mean(good_LE) -  mean(poor_LE) , ...
+         mean(poor_ES), mean(good_ES), mean(good_ES) -  mean(poor_ES) , ...
+         'variablenames', {'Exp.', 'Low LE', 'High LE', 'difference LE', 'Low ES', 'High ES', 'difference ES'});
     T = [T; T1];
-end
 
-ttest_bonf(mat, [1, 2; 3, 4; 5, 6; 7, 8])
+end
+% T1 = table('all', mean(T.LowLE), mean(T.good_LE), mean(T.good_LE) -  mean(T.poor_LE) , ...
+%          mean(T.poor_ES), mean(T.good_ES), mean(T.good_ES) -  mean(T.poor_ES) , ...
+%          'variablenames', {'Exp.', 'Low LE', 'High LE', 'difference LE', 'Low ES', 'High ES', 'difference ES'});
+% T = [T; T1];
+
+T.Variables =  round(T.Variables,2);
+writetable(T, 'data/stats/review_slope.csv');
+
+mean(T, 'all');
+%
+%ttest_bonf(mat, [1, 2; 3, 4; 5, 6; 7, 8])

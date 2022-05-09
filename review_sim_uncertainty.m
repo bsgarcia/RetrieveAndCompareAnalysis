@@ -4,7 +4,7 @@ figure('Units', 'centimeters',...
     'Position', [0,0,5.3*5, 5.3/1.25*2.3], 'visible', 'on')
 
 
-nsample = 1:1:10;
+nsample = 20:10:110;
 num = 0;
 nsub = 100;
 
@@ -21,7 +21,7 @@ for ns = nsample
         %sample = getsample(LE.out(i, :), LE.cfout(i,:), p_sym(k), LE.cho(i, :), LE.p1(i,:), LE.p2(i,:), x(i,1));
         sample = rand(ns,1) < p_sym(j);
         px = postp(sample);
-
+            
         npx = length(px);
         for k = 1:length(p_lot)
             p2 = sum(px(1:round(p_lot(k)*npx))); % probability that the symbolic object value is larger than the experential object value.
@@ -102,11 +102,11 @@ X = out;
 %Compute the discretized posterior probability distribution (discretization
 %step = 0.01). Here we assume that the prior over value is flat:
 
-prop = 0.1:0.01:.99;
+prop = 0.01:.01:0.99;
 
 logpx = sum(X.*log(prop) + (1-X) .* log(1-prop),1);
 
-px = exp(logpx)./(sum(exp(logpx)));
+px = betapdf(prop, sum(X), sum(X==0))./100;%exp(logpx)./(sum(exp(logpx)));
 end
 
 

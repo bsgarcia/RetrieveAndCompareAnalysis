@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1, 2, 3, 4, 5, 6.1];
+selected_exp = [1,2,3,4,5,6.1,7.1];
 modalities = {'LE', 'ES'};
 displayfig = 'on';
 colors = [blue;orange;green;magenta];
@@ -32,6 +32,7 @@ CRT_LE = [];
 CRT_ES = [];
 slopes_LE = [];
 slopes_ES = [];
+nums = [];
 
 for exp_num = selected_exp
     num = num + 1;
@@ -59,6 +60,9 @@ for exp_num = selected_exp
     sim_params.sess = sess;
     sim_params.exp_name = name;
     sim_params.nsub = nsub;
+
+    nums = [nums; repmat([num], nsub, 1)];
+
 
     for mod_num = 1:length(modalities)
 
@@ -99,7 +103,7 @@ for exp_num = selected_exp
 
   
 end
-var_LE = CRT_LE;
+var_LE = slopes_LE;
 var_ES = slopes_ES;
 
 [throw, idx_sorted] = sort(var_LE);
@@ -109,19 +113,23 @@ poor_LE = shuffle(var_LE(A1));
 good_LE = shuffle(var_LE(A2));
 poor_ES = var_ES(A1);
 good_ES = var_ES(A2);
+poor_ES_idx = nums(A1);
+good_ES_idx = nums(A2);
 
-T1 = table(poor_LE, repmat({'LE'}, 1, length(poor_LE))', repmat({'poor'}, 1, length(poor_LE))',...
-    'variablenames', {'value', 'modality', 'split'});
-T4 = table(good_LE, repmat({'LE'}, 1, length(good_LE))', repmat({'good'}, 1, length(good_LE))',...
-    'variablenames', {'value', 'modality', 'split'});
 
-T2 = table(poor_ES, repmat({'ES'}, 1, length(poor_ES))', repmat({'poor'}, 1, length(poor_ES))',...
-    'variablenames', {'value', 'modality', 'split'});
+% T1 = table(poor_LE, repmat({'LE'}, 1, length(poor_LE))', repmat({'poor'}, 1, length(poor_LE))',...
+%     'variablenames', {'value', 'modality', 'split'});
+% T4 = table(good_LE, repmat({'LE'}, 1, length(good_LE))', repmat({'good'}, 1, length(good_LE))',...
+%     'variablenames', {'value', 'modality', 'split'});
 
-T3 = table(good_ES, repmat({'ES'}, 1, length(good_ES))', repmat({'good'}, 1, length(good_ES))',...
-    'variablenames', {'value', 'modality', 'split'});
+T2 = table(poor_ES,  repmat({'poor'}, 1, length(poor_ES))', poor_ES_idx,...
+    'variablenames', {'value',  'split', 'exp_num'});
 
-T = [T1;T2;T3;T4];
+T3 = table(good_ES,  repmat({'good'}, 1, length(good_ES))', good_ES_idx,...
+    'variablenames', {'value', 'split', 'exp_num'});
+
+T = [T2;T3];
+
 
 %---------------------------------------------------------------------%
 % Plot                                                                %
@@ -130,17 +138,17 @@ subplot(1, 3, 1)
 
 skylineplot([poor_LE'; good_LE'], 8,...
     [blue;blue],...
-    0.2,...
-    1,...
+    -.5,...
+    1.5,...
     fontsize,...
     '',...
     'Learners',...
-    'Accuracy',...
+    'Slope',...
     {'Poor', 'Good'});
 
 %title('Learning phase');
 hold on
-plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
+plot([1,length(modalities)], [0, 0], 'color', 'k', 'linestyle', ':')
 hold on
 
 %if num == 1; ylabel('Slope'); end
@@ -168,7 +176,7 @@ skylineplot([poor_ES'; good_ES'], 8,...
 
 %title('Exp. 5, 6');
 hold on
-plot([1,length(modalities)], [0.5, 0.5], 'color', 'k', 'linestyle', ':')
+plot([1,length(modalities)], [0, 0], 'color', 'k', 'linestyle', ':')
 hold on
 
 %if num == 1; ylabel('Slope'); end
@@ -187,7 +195,7 @@ set(gca, 'fontname', 'arial');
 %--------------------------------------------------------------------%
 subplot(1, 3, 3)
 
-scatterplot(var_LE, var_ES, 10, black, [-.1, 1.1], [-.1, 1.1], 'Accuracy LE', 'Slope ES','', 'topleft')
+scatterplot(var_LE, var_ES, 10, black, [-.1, 1.1], [-.1, 1.1], 'Slope LE', 'Slope ES','', 'topleft')
 %if num == 1; ylabel('Slope'); end
 set(gca, 'tickdir', 'out');
 box off

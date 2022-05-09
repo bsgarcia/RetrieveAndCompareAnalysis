@@ -50,7 +50,7 @@ function [Q, params] = get_qvalues(sim_params)
             Q = sort_Q(simulation(params));
 
         case 2
-            data = sim_params.de.extract_PM(sim_params.exp_num);
+            data = sim_params.de.extract_SP(sim_params.exp_num);
             dd = load(sprintf('data/fit/%s_learning_%d', ...
                 sim_params.exp_name, sim_params.sess));
             parameters = dd.data('parameters');

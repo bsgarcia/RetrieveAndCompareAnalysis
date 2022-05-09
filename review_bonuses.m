@@ -1,6 +1,6 @@
 init;
 
-selected_exp = [1, 2, 3, 4, 5, 6, 7,  8];
+selected_exp = [6];
 
 count = 0;
 for exp_num = selected_exp
