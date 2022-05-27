@@ -69,6 +69,8 @@ classdef DataExtraction < handle
 
             for id = 1:length(sub_ids)
                 try
+
+                    
                     sub = sub_ids(id);
                     mask_sub = data(:, idx.sub) == sub;
                     mask_sess = ismember(data(:, idx.sess), session);
@@ -134,6 +136,7 @@ classdef DataExtraction < handle
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 sums(id) = sum(data(:, idx.sub) == sub);
+
                 if ismember(sum(data(:, idx.sub) == sub), allowed_nb_of_rows)
                     n_complete = n_complete + 1;
                     for eli = 1:length(possible_eli)
@@ -174,9 +177,9 @@ classdef DataExtraction < handle
                     end
                     
                     
-                    if (mean(corr_catch{i, 1}) >= ES_catch_threshold) &&...
-                            (mean(corr_catch{i, 2}) >= PM_catch_threshold)...
-                            && (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
+                    if (mean(corr_catch{i, 1}) >= ES_catch_threshold) &&...%(mean(corr_catch{i, 2}) >= PM_catch_threshold)...                     
+                            (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
+                        disp('hhhh')
                         to_keep(length(to_keep) + 1) = sub;
 
                     end
@@ -187,6 +190,8 @@ classdef DataExtraction < handle
             end
             fprintf('N = %d \n', length(sub_ids)); 
             fprintf('N complete = %d \n', n_complete); 
+            fprintf('N after exclusion = %d \n', length(to_keep)); 
+
 
         end
 
