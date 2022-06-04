@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
+selected_exp = [9.1];
 displayfig = 'on';
 colors = [orange];
 % filenames
@@ -28,6 +28,8 @@ for exp_num = selected_exp
     nsub = data.nsub;
     p1 = data.p1;
     p2 = data.p2;
+        disp(unique(p2))
+
     cho = data.cho;
    
     % ---------------------------------------------------------------------

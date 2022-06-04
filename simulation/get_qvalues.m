@@ -51,14 +51,7 @@ function [Q, params] = get_qvalues(sim_params)
 
         case 2
             data = sim_params.de.extract_SP(sim_params.exp_num);
-            dd = load(sprintf('data/fit/%s_learning_%d', ...
-                sim_params.exp_name, sim_params.sess));
-            parameters = dd.data('parameters');
-
-            params.alpha1 = parameters{1}(:, 2);
-            params.beta1 = parameters{1}(:, 1);
-            
-
+     
             for sub = 1:size(data.cho, 1)
                 i = 1;      
 

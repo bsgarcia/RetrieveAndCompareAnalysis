@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [5, 6];
+selected_exp = [9.1];
 displayfig = 'on';
 colors = [green];
 % filenames
@@ -17,7 +17,7 @@ stats_filename = sprintf('data/stats/%s.csv', filename);
 
 
 figure('Renderer', 'painters','Units', 'centimeters',...
-    'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
+    'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
 
 num = 0;
 for exp_num = selected_exp
@@ -52,19 +52,20 @@ for exp_num = selected_exp
     k = 1:nsub;
     
     temp1 = data.cho(k, :);
+    prop = nan(length(psym), length(pcue));
     for j = 1:length(pcue)
         for l = 1:length(psym)
             temp = temp1(...
                 logical((data.p2(k, :) == pcue(j)) .* (data.p1(k, :) == psym(l))));
-            prop(num, l, j) = mean(temp == 1);
+            prop(l, j) = mean(temp == 1);
             err_prop(l, j) = std(temp == 1)./sqrt(length(temp));
             
         end
     end
-end
 
-    
-    prop = squeeze(mean(prop, 1));
+    subplot(1, length(selected_exp), num)
+    %prop = nanmean(prop, 1);
+
     pwin = psym;
     alpha = linspace(.15, .95, length(psym));
     lin1 = plot(...
@@ -114,5 +115,5 @@ end
     set(gca, 'FontSize', fontsize);
 
     clear pp pcue psym temp err_prop prop i
-    
+end
 saveas(gcf, figname);

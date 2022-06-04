@@ -881,8 +881,17 @@ classdef DataExtraction < handle
         end
 
         function new_data = extract_SP(obj, exp_num)
+            
+            [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
+            
             new_data = struct();
-            [data, sub_ids, session] = prepare(obj, exp_num);
+
+            new_data.sess = session;
+            new_data.name = name;
+            new_data.nsub = nsub;
+            new_data.exp_num = exp_num;
+
+         
             i = 1;
             for id = 1:length(sub_ids)
                 try

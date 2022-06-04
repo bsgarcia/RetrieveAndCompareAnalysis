@@ -44,11 +44,11 @@ for exp_num = selected_exp
             case 2
                 alpha1 = params{model}([1, 3]);
                 beta1 = params{model}([2, 4]);
-                temp = params{model}(5)%5;
+                temp = params{model}(5);%5;
             case 1
                 alpha1 = params{model}(1);
                 beta1 = params{model}(2);
-                temp = params{model}(3)%5;
+                temp = params{model}(3);%5;
         end
 
 

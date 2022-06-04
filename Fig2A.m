@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4];
+selected_exp = [9.1];
 modality = 'LE';
 color = blue;
 
@@ -31,7 +31,7 @@ for exp_num = selected_exp
     num = num + 1;
 
     data = de.extract_LE(exp_num);
-    data_ed = de.extract_ED(exp_num);
+    data_ed = de.extract_ES(exp_num);
 
     if exp_num == 4
         data.con(data.con == 2) = 4;
