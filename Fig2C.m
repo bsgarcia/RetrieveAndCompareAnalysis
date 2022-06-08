@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [1, 2, 3, 4];
+selected_exp = [9.1];
 displayfig = 'on';
 
 figure('Renderer', 'painters','Units', 'centimeters',...
@@ -24,7 +24,7 @@ for exp_num = selected_exp
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
     
-    throw = de.extract_ED(exp_num);
+    throw = de.extract_ES(exp_num);
     nsym = length(unique(throw.p1));
     p1 = unique(throw.p1)'.*100;
  

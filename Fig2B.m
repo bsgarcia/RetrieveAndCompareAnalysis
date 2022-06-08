@@ -5,8 +5,8 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [9.1];
-displayfig = 'on';
+selected_exp = [10.2];
+displayfig = 'off';
 colors = [orange];
 % filenames
 filename = 'Fig2B';
@@ -28,7 +28,6 @@ for exp_num = selected_exp
     nsub = data.nsub;
     p1 = data.p1;
     p2 = data.p2;
-        disp(unique(p2))
 
     cho = data.cho;
    
@@ -88,6 +87,8 @@ for exp_num = selected_exp
     set(gca,'TickDir','out')
     set(gca, 'FontSize', fontsize);
     xticks([0:20:100])
+    yticks([0:20:100])
+
     xtickangle(0)
     %set(gca,'fontname','monospaced')  % Set it to times
 

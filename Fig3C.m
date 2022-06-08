@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1 ,6.2];
+selected_exp = [9.2];
 displayfig = 'on';
 % filenames
 filename = 'Fig3C';
@@ -67,6 +67,7 @@ for exp_num = selected_exp
     
    % set(gca,'XTick',0.2:0.2:1);
     set(gca,'YTick',0:20:100);
+    xtickangle(65)
    
     
 end

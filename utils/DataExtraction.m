@@ -179,7 +179,6 @@ classdef DataExtraction < handle
                     
                     if (mean(corr_catch{i, 1}) >= ES_catch_threshold) &&...%(mean(corr_catch{i, 2}) >= PM_catch_threshold)...                     
                             (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
-                        disp('hhhh')
                         to_keep(length(to_keep) + 1) = sub;
 
                     end
@@ -899,8 +898,8 @@ classdef DataExtraction < handle
 
                     mask_eli = data(:, obj.idx.elic) == 2;
                     mask_sub = data(:, obj.idx.sub) == sub;
-                    mask_catch = data(:, obj.idx.catch) == 0;
-                    mask_ycatch = data(:, obj.idx.catch) == 1;
+                    mask_catch = data(:, obj.idx.op1) == 1;
+                    mask_ycatch = data(:, obj.idx.op1) == 0;
 
                     %mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
                     mask_sess = ismember(data(:, obj.idx.sess), session);

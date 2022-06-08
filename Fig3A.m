@@ -5,6 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
+
 selected_exp = [6.1];
 displayfig = 'on';
 colors = [orange];
@@ -14,7 +15,6 @@ figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
 stats_filename = sprintf('data/stats/%s.csv', filename);
-
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)

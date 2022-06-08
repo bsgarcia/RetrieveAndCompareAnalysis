@@ -1,5 +1,5 @@
 init
-selected_exp = [1.1, 1.2];
+selected_exp = [1.1];
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.45*length(selected_exp), 5.3/1.25], 'visible', 'on')
@@ -11,7 +11,7 @@ for exp_num = selected_exp
 
     sim_params.exp_num = exp_num;
     sim_params.de = de;
-    sim_params.sess = num-1;
+    sim_params.sess = SP.sess;
     sim_params.exp_name = SP.name;
     sim_params.nsub = SP.nsub;
 
@@ -44,3 +44,5 @@ for exp_num = selected_exp
     set(gca,'tickdir','out')
     hold off
 end
+
+saveas(gcf, 'ind_SP.svg')

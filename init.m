@@ -28,16 +28,16 @@ filenames = {
    'interleaved_incomplete', 'block_incomplete', 'block_complete',...
    'block_complete_simple',...
    'block_complete_mixed',  'block_complete_mixed_2s','block_complete_mixed_2s_amb_heuristic',...
-   'block_complete_mixed_2s_amb_final', 'incentivize'...
+   'block_complete_mixed_2s_amb_final', 'incentivize', 'evoutcome'...
    };
-
+%filenames = {'evoutcome'};
 folder = 'data/raw/';
 
 % exclusion criteria
 %rtime_threshold = 1500000000000000;
 rtime_threshold = 90000;
 
-ES_catch_threshold = 0; PM_catch_threshold = 0; PM_corr_threshold = .25;
+ES_catch_threshold = 1; PM_catch_threshold = 0; PM_corr_threshold = 0;
 % if different from 0 then select the number of best sub
 n_best_sub = 0;
 
@@ -49,7 +49,8 @@ allowed_nb_of_rows = [...
     648, 658,... %exp 6, 7, 8
     742, 752,746 ... %exp 6, 7, 8
     216,... %exp 4
-    583, 611 ... % exp incentivizz
+    583, 611, ... % exp incentivie
+    610, 638, % exp ev outcome  
     ];
 
 
@@ -109,7 +110,7 @@ grey = [202 207 214]./255;
 %-------------------------------------------------------------------------
 % Plot parameters
 %------------------------------------------------------------------------
-fontsize = 6;
+fontsize = 7;
 % display figures
 displayfig = 'off';
 

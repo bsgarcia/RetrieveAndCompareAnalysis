@@ -51,7 +51,7 @@ function [Q, params] = get_qvalues(sim_params)
 
         case 2
             data = sim_params.de.extract_SP(sim_params.exp_num);
-     
+            
             for sub = 1:size(data.cho, 1)
                 i = 1;      
 
