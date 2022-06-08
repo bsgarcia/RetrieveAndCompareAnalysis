@@ -6,7 +6,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [10.1, 10.2];
+selected_exp = [6.2];
 modalities = {'LE', 'ES', 'EE'};
 displayfig = 'off';
 colors = [blue;orange;green];
@@ -121,7 +121,9 @@ for exp_num = selected_exp
     %title(sprintf('Exp. %s', num2str(exp_num)));w
     set(gca, 'tickdir', 'out');
     box off
-    set(gca, 'fontname', 'arial');
+    %set(gca, 'fontname', 'arial');
+    set(gca, 'fontsize', fontsize);
+
     
 end
 

@@ -2,11 +2,11 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1 ,7.2, 8.1, 8.2, 9.1, 9.2, 10.1, 10.2];
+selected_exp = [6.2];
 modality = 'LE';
 color = blue;
 
-displayfig = 'on';
+displayfig = 'off';
 
 stats_data = table();
 T_con = table();
