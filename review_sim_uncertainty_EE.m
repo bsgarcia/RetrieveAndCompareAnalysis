@@ -79,8 +79,9 @@ for ns = nsample
             ylabel('P(choose E-option) (%)');
         end
 
-        xlabel('E-option p(win) (%)');
-
+        if ismember(num, 6:10)
+            xlabel('E-option p(win) (%)');
+        end
         ylim([-0.08*100, 1.08*100]);
         xlim([-0.08*100, 1.08*100]);
 
@@ -98,6 +99,7 @@ for ns = nsample
     clear pchoicesym;
     %    title(['N=',num2str(Nsample)])
 end
+saveas(gcf, 'sim_uncertainty_EE.svg')
 
 
 
@@ -116,7 +118,7 @@ X = out;
 prop = 0.1:0.01:.99;
 logpx = sum(X.*log(prop) + (1-X) .* log(1-prop),1);
 
-px = betapdf(prop, sum(X), sum(X==0))./100;%exp(logpx)./(sum(exp(logpx)));%%
+px = exp(logpx)./(sum(exp(logpx)));%betapdf(prop, sum(X), sum(X==0))./100
 
 end
 

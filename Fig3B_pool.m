@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [2.1];
+selected_exp = [5,6];
 displayfig = 'on';
 colors = [green];
 % filenames
@@ -102,9 +102,7 @@ end
             'MarkerEdgeColor', 'w');
         sc2.MarkerFaceAlpha = alpha(i);
         
-        if num == 1
             ylabel('P(choose E-option) (%)');
-        end
         xlabel('E-option p(win) (%)');
         
         ylim([-0.08*100, 1.08*100]);
