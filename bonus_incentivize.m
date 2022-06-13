@@ -1,6 +1,6 @@
 clear all
 T = readtable('incentivize_bonus.csv');
-T = T(strcmp(T.exp, 'incentivize') , :);
+%T = T(strcmp(T.exp, 'incentivize') , :);
 subs = unique(T.id);
 
 for i = 1:numel(subs)
@@ -13,3 +13,4 @@ for i = 1:numel(subs)
 end
 
 disp(mean(tot)*.62+2.5)
+disp(std(tot.*.62+2.5))

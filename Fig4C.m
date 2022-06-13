@@ -2,7 +2,7 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [6, 8];
+selected_exp = [9.1, 9.2];
 
 stats_data = table();
 
@@ -15,7 +15,7 @@ sub_count = 0;
 for exp_num = selected_exp
     num = num + 1;
     
-    dED = de.extract_ED(exp_num);
+    dED = de.extract_ES(exp_num);
     dEE = de.extract_EE(exp_num);
     
     corrED = mean(dED.corr,2)';
@@ -79,7 +79,7 @@ skylineplot({x1;x2},8,...
     '',...
     '',...
     'Correct choice rate',...
-    {'Exp. 6', 'Exp. 7'},...
+    {'Exp. 9.1', 'Exp. 9.2'},...
     0);
 
 
@@ -90,6 +90,7 @@ hold on
 scatter([2], [m(2)], 'markerfacecolor', 'black', 'markeredgecolor', 'w');
 box off
 hold on
+plot([1, 2], [.5, .5], 'color', 'k', 'LineStyle',':')
 set(gca, 'tickdir', 'out');
 
 saveas(gcf, figname)
@@ -113,8 +114,9 @@ skylineplot({x1;x2},8,...
     '',...
     '',...
     'Correct choice rate',...
-    {'Exp. 6', 'Exp. 7'},...
+    {'Exp. 9.1', 'Exp. 9.2'},...
     0);
+plot([1, 2], [.5, .5], 'color', 'k', 'LineStyle',':')
 
 
 box off

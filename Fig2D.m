@@ -6,10 +6,10 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [6.2];
-modalities = {'LE', 'ES', 'EE'};
+selected_exp = [9.2];
+modalities = {'ES', 'EE'};
 displayfig = 'off';
-colors = [blue;orange;green];
+colors = [orange;green];
 % filenames
 filename = 'corr_tables';
 figfolder = 'fig';
