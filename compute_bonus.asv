@@ -1,0 +1,15 @@
+T = read
+
+for exp_num = selected_exp
+    ES = de.extract_ES(exp_num);
+    EE = de.extract_EE(exp_num);
+    LE = de.extract_LE(exp_num);
+    disp('Nsub')
+    disp(ES.nsub)
+    for i = 1:ES.nsub
+
+        s = sum([ES.out(i, :); EE.out(i, :) LE.out(i, :)], 'all');
+        b(i) = s * 0.0109 + 2.5;
+    end
+
+end
