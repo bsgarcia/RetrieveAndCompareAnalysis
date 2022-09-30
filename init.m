@@ -34,10 +34,10 @@ filenames = {
 folder = 'data/raw/';
 
 % exclusion criteria
-rtime_threshold = 1500000000000000;
-%rtime_threshold = 90000;
+%rtime_threshold = 1500000000000000;
+rtime_threshold = 90000;
 
-ES_catch_threshold = 0; PM_catch_threshold = 0; PM_corr_threshold = 0;
+ES_catch_threshold = 1; PM_catch_threshold = 0; PM_corr_threshold = 0;
 % if different from 0 then select the number of best sub
 n_best_sub = 0;
 

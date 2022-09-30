@@ -2,17 +2,23 @@
 init;
 %-------------------------------------------------------------------------
 
-selected_exp = [6.2];
+% ------------------------------------------------------------------------
+% customizable parameters
+% ------------------------------------------------------------------------
+selected_exp = [1, 2, 3, 4];
 modality = 'LE';
 color = blue;
+displayfig = 'on';
+filename = 'Fig2A';
 
-displayfig = 'off';
-
+% ------------------------------------------------------------------------
+% fixed parameters
+% ------------------------------------------------------------------------
 stats_data = table();
 T_con = table();
 
 % filenames
-filename = 'Fig2A';
+
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
@@ -130,3 +136,5 @@ end
 saveas(gcf, figname);
 
 writetable(T_con, stats_filename);
+
+fitlm(stats_data, )
