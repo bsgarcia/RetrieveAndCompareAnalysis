@@ -597,7 +597,6 @@ classdef DataExtraction < handle
             new_data.nsub = nsub;
             new_data.exp_num = exp_num;
             new_data.id = sub_ids;
-
             
             for isess = 1:length(session)
                 i = 1;

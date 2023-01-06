@@ -2,19 +2,21 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [10.1, 10.2];
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2, 9.1, 9.2];
+save_name = ['data/fit/', 'midpoints_ES_%s_session_%d'];
 
 displayfig = 'on';
 force = true;
 
 for exp_num = selected_exp
     
-    disp(exp_num);
+    fprintf('Fitting exp. %s \n', num2str(exp_num));
     sess =  de.get_sess_from_exp_num(exp_num);
     
     data = de.extract_ES(exp_num);
+
     % ---------------------------------------------------------------------
-    % Compute for each symbol p of chosing depending on described cue value
+    % Compute for each experiential symbol of chosing depending on described cue value
     % ---------------------------------------------------------------------
 
     p_sym = unique(data.p1)';
@@ -55,8 +57,8 @@ for exp_num = selected_exp
                 error('fitting');
             end
              param = load(...
-                 sprintf('data/fit/midpoints_ES_exp_%d_%d_mle.mat',...
-                 round(exp_num), sess ...
+                 sprintf(save_name,...
+                 data.name, sess ...
              ));
              beta1 = param.beta1;
              midpoints = param.midpoints;
@@ -92,8 +94,7 @@ for exp_num = selected_exp
         param.beta1 = beta1;
         param.nll = nll;
         
-        save(sprintf('data/fit/midpoints_ES_exp_%d_%d_mle.mat',...
-            round(exp_num), sess),...
+        save(sprintf(save_name, data.name, sess),...
             '-struct', 'param');
     end
     
