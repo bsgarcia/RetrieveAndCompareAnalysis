@@ -1,4 +1,3 @@
 # RetrieveAndCompareAnalysis
 
-## TODOS 
-* Clean this code asap
+The repo is still a bit messy.It will be cleaned soon, sorry for that.  
