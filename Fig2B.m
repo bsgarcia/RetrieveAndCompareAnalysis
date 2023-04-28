@@ -6,7 +6,7 @@ init;
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
 selected_exp = [1,2,3,4];
-displayfig = 'off';
+displayfig = 'on';
 colors = [orange];
 % filenames
 filename = 'Fig2B';

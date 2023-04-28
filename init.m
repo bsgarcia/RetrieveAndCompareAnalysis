@@ -173,6 +173,7 @@ function de = load_data(filenames, folder,  rtime_threshold,...
 
         i = i + 1;
     end
+    
     de = DataExtraction(d, filenames, idx);
     
 end

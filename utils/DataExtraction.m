@@ -233,27 +233,6 @@ classdef DataExtraction < handle
 
         end
 
-        function zscore_RT(obj, exp_num)
-            [data, sub_ids, session] = prepare(obj, exp_num);
-            name = obj.get_name_from_exp_num(exp_num);
-            session = [0,1];
-            i = 1;
-            for id = 1:length(sub_ids)
-                sub = sub_ids(id);
-
-                mask_eli = ismember(data(:, obj.idx.elic), [-1, 0, 2]);
-                mask_sub = data(:, obj.idx.sub) == sub;
-                mask_catch = ismember(data(:, obj.idx.catch), [-1, 0]);
-                mask_sess = ismember(data(:, obj.idx.sess), session);
-                mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch);
-
-
-                obj.d.(name).data(mask, obj.idx.rtime) = zscore(data(mask, obj.idx.rtime));
-
-                i = i + 1;
-            end
-
-        end
 
         function finalstruct = merge2sess(obj, structlist)
             f = fieldnames(structlist(1));
