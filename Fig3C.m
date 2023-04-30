@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [9.2];
+selected_exp = [5, 6.1, 6.2];
 displayfig = 'on';
 % filenames
 filename = 'Fig3C';
@@ -20,7 +20,7 @@ for exp_num = selected_exp
     num = num + 1;
     
     data = de.extract_EE(exp_num);
-    sess = de.get_sess_from_exp_num(exp_num);
+    sess = data.sess;
        
     param = load(...
         sprintf('data/fit/midpoints_ES_exp_%d_%d_mle',...

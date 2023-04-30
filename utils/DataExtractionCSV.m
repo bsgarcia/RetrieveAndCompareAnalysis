@@ -357,6 +357,116 @@ classdef DataExtractionCSV < handle
 
         function new_data = extract_EE(obj, exp_num)
             [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
+            new_data = struct();
+
+            new_data.sess = session;
+            new_data.name = name;
+            new_data.nsub = nsub;
+            new_data.exp_num = exp_num;
+            new_data.id = sub_ids;
+
+
+            for isess = 1:length(session)
+                i = 1;
+
+                for id = 1:length(sub_ids)
+                    try
+                        sub = sub_ids(id);
+                        
+                        mask_eli = strcmp(data.phase, 'EE');
+                        mask_sub = data.sub_id == sub;
+                        mask_catch_trial = data.catch_trial == 0;
+%                         mask_ycatch_trial = data(:, obj.idx.catch_trial) == 1;
+
+                        % before exp. 5 op2 has value -1 in ED while after it
+                        % takes value 0 (because there were no EE befor                   
+
+                        mask_sess = data.sess ==  session(isess);
+                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch_trial);
+
+                        
+%                         mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_vs_lot .* mask_ycatch_trial.* mask_vs_lot);
+
+                        trialorder = data(mask,:).trial;
+
+                        if ~issorted(trialorder)
+                            [noneed, trialorder] = sort(data(mask,:).trial);
+                        else
+                            trialorder = 1:length(trialorder);
+                        end
+
+
+                        temp_corr = data(mask, :).corr;
+                        new_data.corr(i, :) = temp_corr(trialorder);
+
+                        temp_cho = data(mask, :).cho;
+                        new_data.cho(i, :) = temp_cho(trialorder);
+
+                        new_data.cfcho(i, :) = 3 - new_data.cho(i, :);
+
+                        temp_out = data(mask, :).out;
+                        new_data.out(i, :) = temp_out(trialorder);
+
+                        temp_ev1 = data(mask, :).ev1;                       
+
+                        new_data.ev1(i, :) = temp_ev1(trialorder);
+
+                        temp_catch_trial = data(mask, :).catch_trial;
+                        new_data.ctch(i, :) = temp_catch_trial(trialorder);
+
+%                         new_data.ctch_p1(i, :) = data(mask2, obj.idx.p1);
+% 
+%                         new_data.ctch_p2(i, :) = data(mask2, obj.idx.p2);
+% 
+%                         new_data.ctch_corr(i, :) = data(mask2, obj.idx.corr);
+
+%                         temp_cont1 = data(mask, obj.idx.cont1);
+%                         new_data.cont1(i, :) = temp_cont1(trialorder);
+
+                        temp_ev2 = data(mask,:).ev2;
+                        new_data.ev2(i, :) = temp_ev2(trialorder);
+
+%                         temp_cont2 = data(mask, obj.idx.cont2);
+%                         new_data.cont2(i, :) = temp_cont2(trialorder);
+
+                        temp_p1 = data(mask,:).p1;
+                        new_data.p1(i, :) = temp_p1(trialorder);
+
+                        temp_p2 = data(mask, :).p2;
+                        new_data.p2(i, :) = temp_p2(trialorder);
+
+%                         temp_dist = data(mask,:);
+%                         new_data.dist(i, :) = temp_dist(trialorder)./100;
+
+                        temp_rtime = data(mask, :).rtime;
+                        new_data.rtime(i, :) = temp_rtime(trialorder);
+% 
+                        temp_trial = data(mask,:).trial;
+                        new_data.trial(i, :) = temp_trial(trialorder);
+
+%                         new_data.catch_trial(i, :) = data(mask2, obj.idx.catch_trial);                        
+
+                        i = i + 1;
+
+                    catch_trial e
+                        fprintf(1, '\n There has been an error while treating subject %d \n', i);
+                        fprintf(1,'The identifier was:\n%s',e.identifier);
+                        fprintf(1,'There was an error! The message was:\n%s',e.message);
+                    end
+                end
+
+                structlist(isess) = new_data;
+
+            end
+
+            if length(session) > 1
+                new_data = obj.merge2sess(structlist);
+            end
+
+        end
+
+        function new_data = extract_EE3(obj, exp_num)
+            [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
 
             [data, sub_ids, session, name,nsub] = prepare(obj, exp_num);
             new_data = struct();
