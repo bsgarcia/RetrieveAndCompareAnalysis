@@ -152,24 +152,23 @@ function de = load_data(filenames, folder,  rtime_threshold,...
         before_sub_ids = DataExtractionCSV.exclude_subjects(...
             dd{i}, sub_ids{i}, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, rtime_threshold,...
             allowed_nb_of_rows);
-        
+
         % try to retrieve data and see if there is any error (missing
         % trials etc..)
-%         
-%         [d_test, error_exclude] = ...
-%             DataExtractionCSV.extract_learning_data(...
-%                 dd{i}, before_sub_ids, [0, 1]);
-          error_exclude = [];
-%         % if there is one exclude them
+        
+        error_exclude = ...
+            DataExtractionCSV.extract_learning_data(...
+                dd{i}, before_sub_ids, [0, 1]);
+       
+        % if there is one exclude them
         to_select = 1:length(before_sub_ids);
         to_select(error_exclude) = [];
-%         
+        
         new_d.sub_ids = before_sub_ids(to_select);
         new_d.data = dd{i};
         
         new_d.nsub = length(new_d.sub_ids);
         d = setfield(d, char(f), new_d);
-
         i = i + 1;
     end
     

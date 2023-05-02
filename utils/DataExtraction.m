@@ -132,7 +132,7 @@ classdef DataExtraction < handle
             sums = [];
             i = 1;
             n_complete = 0;
-            possible_eli = [0, 2, -1];
+            possible_eli = [0, -1];
             for id = 1:length(sub_ids)
                 sub = sub_ids(id);
                 sums(id) = sum(data(:, idx.sub) == sub);
@@ -147,18 +147,11 @@ classdef DataExtraction < handle
 
                             mask_sub = data(:, idx.sub) == sub;
                             mask_catch = data(:, idx.catch) == 1;
-                            mask_sess = ismember(data(:, idx.sess), [0, 1]);
+                            mask_sess = ismember(data(:, idx.sess), [0,1]);
                             mask = logical(mask_sub .* mask_sess .* mask_catch .* mask_eli);
                             [noneed, trialorder] = sort(data(mask, idx.trial));
 
-                            if eli == 2
-                                temp_p1 = data(mask, idx.p1);
-                                temp_cho = data(mask, idx.cho);
-                                temp_corr = abs(temp_p1 - temp_cho./100) < PM_corr_threshold;
-
-                            else
-                                temp_corr = data(mask, idx.corr);
-                            end
+                            temp_corr = data(mask, idx.corr);
 
                             corr_catch{i, eli} = temp_corr;
 
@@ -168,14 +161,17 @@ classdef DataExtraction < handle
                         % if LE
                         else
                             mask_sub = data(:, idx.sub) == sub;
-                            mask_sess = ismember(data(:, idx.sess), [0, 1]);
+                            mask_sess = ismember(data(:, idx.sess), [0,1]);
                             mask_eli = data(:, idx.elic) == eli;
                             mask = logical(mask_sub .* mask_sess .* mask_eli);
                             rtime{i, eli} = data(mask, idx.rtime);
 
                         end
                     end
-                    
+                      
+                    if sub == 8526863004
+                    disp('break')
+                    end
                     
                     if (mean(corr_catch{i, 1}) >= ES_catch_threshold) &&...%(mean(corr_catch{i, 2}) >= PM_catch_threshold)...                     
                             (sum(vertcat(rtime{i, :}) > rtime_threshold) < 1) % && (sum(corr1{i, 3}) > 0)
