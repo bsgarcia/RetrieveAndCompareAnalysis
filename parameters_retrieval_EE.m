@@ -238,11 +238,9 @@ function nll = tofit_mle2(params, X, Y)
 end
 
 
-
 function p = logfun(x, midpoint, temp)
     p = 1./(1+exp(temp.*(x-midpoint)));
 end
-
 
 function cho = compute_cho(p_sym, p_lot, midpoints, beta1, decision_rule)
     sym = unique(p_sym);

@@ -35,14 +35,13 @@ filenames = {'exp_1_interleaved_incomplete',...
              'exp_9_incentives'};
 
 %filenames = {'evoutcome'};
-folder = 'data/behavior/';
+folder = 'data/behavior/reformat/';
 
 % exclusion criteria
 rtime_threshold = 90000;
 
 ES_catch_threshold = 1; PM_catch_threshold = 0; PM_corr_threshold = 0;
-% if different from 0 then select the number of best sub
-n_best_sub = 0;
+
 
 allowed_nb_of_rows = [...
     258, 288,... %exp 2, 3
@@ -55,7 +54,6 @@ allowed_nb_of_rows = [...
     583, 611, ... % exp incentivie
     610, 638, % exp ev outcome  
     ];
-
 
 
 %-----------------------------------------------------------------------
@@ -125,7 +123,7 @@ if ~exist('de')
 % Load Data (do cleaning stuff)
 %-------------------------------------------------------------------------
 de = load_data(filenames, folder, rtime_threshold,  ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, ...
-    n_best_sub, allowed_nb_of_rows);
+    allowed_nb_of_rows);
 end
 %end
 show_loaded_data(de.d);
@@ -135,12 +133,12 @@ toc
 % Define functions
 %-------------------------------------------------------------------------
 function de = load_data(filenames, folder,  rtime_threshold,...
-     ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, n_best_sub, allowed_nb_of_rows)
+     ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, allowed_nb_of_rows)
 
     d = struct();
     i = 1;
     for f = filenames
-        [dd{i}, sub_ids{i}, idx] = DataExtraction.get_data(...
+        [dd{i}, sub_ids{i}] = DataExtractionCSV.get_data(...
             sprintf('%s/%s', folder, char(f)));
         i = i + 1;
     end
@@ -151,16 +149,16 @@ function de = load_data(filenames, folder,  rtime_threshold,...
         new_d = getfield(d, char(f));
         disp(sprintf('Treating %s', char(f)));
         % exclude subject based on exclusion criteria
-        before_sub_ids = DataExtraction.exclude_subjects(...
-            dd{i}, sub_ids{i}, idx, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, rtime_threshold,...
-            n_best_sub, allowed_nb_of_rows);
-        
+        before_sub_ids = DataExtractionCSV.exclude_subjects(...
+            dd{i}, sub_ids{i}, ES_catch_threshold, PM_catch_threshold, PM_corr_threshold, rtime_threshold,...
+            allowed_nb_of_rows);
+
         % try to retrieve data and see if there is any error (missing
         % trials etc..)
         
-        [cho, cfcho, out, cfout, corr2, con, p1, p2, rew, rt, ev1, ev2, error_exclude] = ...
-            DataExtraction.extract_learning_data(...
-                dd{i}, before_sub_ids, idx, [0, 1]);
+        error_exclude = ...
+            DataExtractionCSV.extract_learning_data(...
+                dd{i}, before_sub_ids, [0, 1]);
        
         % if there is one exclude them
         to_select = 1:length(before_sub_ids);
@@ -171,11 +169,10 @@ function de = load_data(filenames, folder,  rtime_threshold,...
         
         new_d.nsub = length(new_d.sub_ids);
         d = setfield(d, char(f), new_d);
-
         i = i + 1;
     end
     
-    de = DataExtraction(d, filenames, idx);
+    de = DataExtractionCSV(d, filenames);
     
 end
 
