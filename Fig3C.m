@@ -14,22 +14,25 @@ figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25],...
     'visible', displayfig)
 num = 0;
+fitname_ES = 'data/fit/midpoints_ES_%s_session_%d';
+fitname_EE = 'data/fit/midpoints_EE_%s_session_%d';
 
 for exp_num = selected_exp
  
     num = num + 1;
     
     data = de.extract_EE(exp_num);
+    name = data.name;
     sess = data.sess;
        
     param = load(...
-        sprintf('data/fit/midpoints_ES_exp_%d_%d_mle',...
-        round(exp_num), sess));
+        sprintf(fitname_ES,...
+        name, sess));
     midpoints1 = param.midpoints;
     
     param = load(...
-        sprintf('data/fit/midpoints_EE_exp_%d_%d_mle',...
-        round(exp_num), sess));
+        sprintf(fitname_EE,...
+       name, sess));
     midpoints2 = param.midpoints;
     beta2 = param.beta1;
     

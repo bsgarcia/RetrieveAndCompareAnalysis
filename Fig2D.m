@@ -8,7 +8,7 @@ show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------%
 selected_exp = [1, 2, 3, 4];
 modalities = {'LE', 'ES', 'SP'};
-displayfig = 'off';
+displayfig = 'on';
 colors = [blue;orange;magenta];
 % filenames
 filename = 'Fig2D';
@@ -55,6 +55,7 @@ for exp_num = selected_exp
     sim_params.sess = sess;
     sim_params.exp_name = name;
     sim_params.nsub = nsub;
+
     
     for mod_num = 1:length(modalities)
         
@@ -63,18 +64,21 @@ for exp_num = selected_exp
             
             case 'LE'
                 sim_params.model = 1;
+                sim_params.path = 'data/fit/learning_LE_%s_session_%d';
+
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
                 
             case {'EE', 'ES'}
                
                 param = load(...
-                    sprintf('data/fit/midpoints_%s_exp_%d_%d_mle',...
-                    modalities{mod_num}, round(exp_num), sess));
+                    sprintf('data/fit/midpoints_%s_%s_session_%d',...
+                    modalities{mod_num}, name, sess));
 
                 midpoints(mod_num, :, :) = param.midpoints;
                 
             case 'SP'
                 sim_params.model = 2;
+
                 [midpoints(mod_num, :, :), throw] = get_qvalues(sim_params);
         end
                   
@@ -138,35 +142,3 @@ saveas(gcf, figname);
 % save stats file
 mkdir('data', 'stats');
 writetable(stats_data, stats_filename);
-
-% 
-T = stats_data;
-T(strcmp(T.modality, 'LE'), 'modality') = {'ES'};
-T(strcmp(stats_data.modality, 'ES'), 'modality') = {'LE'};
-
-T.exp_num = nominal(T.exp_num);
-T.modality = nominal(T.modality);
-% cond_ED = strcmp(T.modality, 'ES');
-% cond_LE = strcmp(T.modality, 'LE');
-% cond_PM = strcmp(T.modality, 'PM');
-% 
-%disp('********************************************');
-%disp('FULL');
-%disp('********************************************');
-%fitlme(T, 'slope ~ exp_num*modality + (1|subject)')%, 'CategoricalVar', {'exp_num', 'modality'})
-% disp('********************************************');
-% return
-% disp('********************************************');
-% disp('LE');
-% disp('********************************************');
-% fitlm(T(cond_LE,:), 'slope ~ exp_num', 'CategoricalVar', {'exp_num', 'modality'})
-% disp('********************************************');
-% disp('********************************************');
-% disp('ES');
-% disp('********************************************');
-% M%fitlm(T(cond_ED,:), 'slope ~ exp_num', )
-% disp('********************************************');
-% disp('PM');
-% disp('********************************************');
-% fitlm(T(cond_PM,:), 'slope ~ exp_num')
-% disp('********************************************');

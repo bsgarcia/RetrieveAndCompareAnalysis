@@ -17,6 +17,7 @@ figfolder = 'fig';
 figname = sprintf('%s/%s.svg', figfolder, filename);
 stats_filename = sprintf('data/stats/%s.csv', filename);
 
+fitname = 'data/fit/midpoints_%s_%s_session_%d';
 
 %-------------------------------------------------------------------------%
 % prepare data                                                            %
@@ -40,7 +41,7 @@ for exp_num = selected_exp
     name = de.get_name_from_exp_num(exp_num);
     nsub = de.get_nsub_from_exp_num(exp_num);
     
-    throw = de.extract_ED(exp_num);
+    throw = de.extract_ES(exp_num);
     nsym = length(unique(throw.p1));
     p1 = unique(throw.p1)'.*100;
     
@@ -54,7 +55,7 @@ for exp_num = selected_exp
     sim_params.sess = sess;
     sim_params.exp_name = name;
     sim_params.nsub = nsub;
-    
+
     for mod_num = 1:length(modalities)
         
         % get data depending on chosen modality
@@ -66,8 +67,8 @@ for exp_num = selected_exp
                 
             case {'EE', 'ES'}
                 param = load(...
-                    sprintf('data/fit/midpoints_%s_exp_%d_%d_mle',...
-                    modalities{mod_num}, round(exp_num), sess));
+                    sprintf(fitname,...
+                    modalities{mod_num}, name , sess));
                 
                 midpoints(mod_num, :, :) = param.midpoints;
                 
@@ -129,42 +130,3 @@ saveas(gcf, figname);
 % save stats file
 mkdir('data', 'stats');
 writetable(stats_data, stats_filename);
-
-% 
-% T = stats_data;
-% cond_ED = strcmp(T.modality, 'ED');
-% cond_EE = strcmp(T.modality, 'EE');
-% cond_exp = ismember(T.exp_num, [6.1, 6.2]);
-% cond_exp1 = ismember(T.exp_num, [6.1]);
-% cond_exp2 = ismember(T.exp_num, [6.2]);
-% 
-% disp('********************************************');
-% disp('FULL');
-% disp('********************************************');
-% fitlm(T(cond_exp, :), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
-% 
-% disp('********************************************');
-% disp('EE');
-% disp('********************************************');
-% fitlm(T(logical(cond_exp.*cond_EE), :), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
-% disp('********************************************');
-% disp('ES');
-% disp('********************************************');
-% fitlm(T(logical(cond_exp.*cond_ED),:), 'slope ~ modality*exp_num', 'CategoricalVars', {'exp_num', 'modality'})
-% return
-% disp('********************************************');
-% disp('EE - 6.1/6.2');
-% disp('********************************************');
-% fitlm(T(logical(cond_exp.*cond_EE),:), 'slope ~  exp_num')
-% disp('********************************************');
-% disp('ED - 6.1/6.2');
-% disp('********************************************');
-% fitlm(T(logical(cond_ED.*cond_exp),:), 'slope ~ exp_num')
-% disp('********************************************');
-% disp('ED vs EE - 6.1');
-% disp('********************************************');
-% fitlm(T(logical(cond_exp1),:), 'slope ~ modality')
-% disp('********************************************');
-% disp('ED vs EE - 6.2');
-% disp('********************************************');
-% fitlm(T(logical(cond_exp2),:), 'slope ~ modality')

@@ -36,7 +36,7 @@ function [Q, params] = get_qvalues(sim_params)
             end
             
             if ~isfield(sim_params, 'alpha1')
-                data = load(sprintf('data/fit/%s_learning_%d', ...
+                data = load(sprintf(sim_params.path, ...
                     sim_params.exp_name, sim_params.sess));
                 parameters = data.data('parameters');
 

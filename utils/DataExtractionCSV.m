@@ -747,77 +747,70 @@ classdef DataExtractionCSV < handle
             new_data.name = name;
             new_data.nsub = nsub;
             new_data.exp_num = exp_num;
-
          
             i = 1;
-            for id = 1:length(sub_ids)
-                try
-                    sub = sub_ids(id);
-
-                    mask_eli = data(:, obj.idx.elic) == 2;
-                    mask_sub = data(:, obj.idx.sub) == sub;
-                    mask_catch_trial = (data(:, obj.idx.catch_trial) ~= 1);
-                    mask_ycatch_trial = (data(:, obj.idx.op1) == 0);
-
-                    %mask_vs_lot = ismember(data(:, obj.idx.op2), [0, -1]);
-                    mask_sess = ismember(data(:, obj.idx.sess), session);
-                    mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch_trial);
-                    mask2 = logical(mask_sub .* mask_sess .* mask_eli .* mask_ycatch_trial);
-
-
-                    [noneed, trialorder] = sort(data(mask, obj.idx.trial));
-                    %[noneed, trialorder] = sort(data(mask, obj.idx.trial));
-
-
-                    new_data.ctch_p1(i, :) = data(mask2, obj.idx.p1);
-
-                    new_data.ctch_corr(i, :) = data(mask2, obj.idx.corr);
-                    new_data.ctch_cho(i, :) = data(mask2, obj.idx.cho);
-
-
-                    temp_corr = data(mask, obj.idx.corr);
-                    new_data.corr(i, :) = temp_corr(trialorder);
-
-                    temp_cho = data(mask, obj.idx.cho);
-                    new_data.cho(i, :) = temp_cho(trialorder);
-
-                    temp_out = data(mask, obj.idx.out);
-                    new_data.out(i, :) = temp_out(trialorder);
-
-                    temp_ev1 = data(mask, obj.idx.ev1);
-                    new_data.ev1(i, :) = temp_ev1(trialorder);
-
-                    temp_catch_trial = data(mask, obj.idx.catch_trial);
-                    new_data.ctch(i, :) = temp_catch_trial(trialorder);
-
-                    temp_cont1 = data(mask, obj.idx.cont1);
-                    new_data.cont1(i, :) = temp_cont1(trialorder);
-
-                    temp_ev2 = data(mask, obj.idx.ev2);
-                    new_data.ev2(i, :) = temp_ev2(trialorder);
-
-                    temp_cont2 = data(mask, obj.idx.cont2);
-                    new_data.cont2(i, :) = temp_cont2(trialorder);
-
-                    temp_p1 = data(mask, obj.idx.p1);
-                    new_data.p1(i, :) = temp_p1(trialorder);
-
-                    temp_p2 = data(mask, obj.idx.p2);
-                    new_data.p2(i, :) = temp_p2(trialorder);
-
-                    temp_dist = data(mask, obj.idx.dist);
-                    new_data.dist(i, :) = temp_dist(trialorder)./100;
-
-                    temp_rtime = data(mask, obj.idx.rtime);
-                    new_data.rtime(i, :) = temp_rtime(trialorder);
-
-                    new_data.catch_trial(i, :) = data(mask2, obj.idx.catch_trial);
-
-
-                    i = i + 1;
-                catch_trial
-                    fprintf('There has been an error while treating subject %d \n', i);
-                end
+            for isess = 1:length(session)
+                for id = 1:length(sub_ids)
+                    try
+                        sub = sub_ids(id);
+                        
+                        mask_eli = strcmp(data.phase, 'SP');
+                        mask_sub = data.sub_id == sub;
+    
+                        mask_catch_trial = data.catch_trial == 0;
+    
+                        mask_sess = data.sess ==  session(isess);
+                        mask = logical(mask_sub .* mask_sess .* mask_eli .* mask_catch_trial);
+                        
+                        trialorder = data(mask,:).trial;
+    
+                        if ~issorted(trialorder)
+                            [noneed, trialorder] = sort(data(mask,:).trial);
+                        else
+                            trialorder = 1:length(trialorder);
+                        end
+    
+                        temp_corr = data(mask, :).corr;
+                        new_data.corr(i, :) = temp_corr(trialorder);
+    
+                        temp_cho = data(mask, :).cho;
+                        new_data.cho(i, :) = temp_cho(trialorder);
+    
+                        new_data.cfcho(i, :) = 3 - new_data.cho(i, :);
+    
+                        temp_out = data(mask, :).out;
+                        new_data.out(i, :) = temp_out(trialorder);
+    
+                        temp_ev1 = data(mask, :).ev1;
+    
+                        new_data.ev1(i, :) = temp_ev1(trialorder);
+    
+                        temp_catch_trial = data(mask, :).catch_trial;
+                        new_data.ctch(i, :) = temp_catch_trial(trialorder);
+    
+                  
+                        temp_ev2 = data(mask,:).ev2;
+                        new_data.ev2(i, :) = temp_ev2(trialorder);
+    
+    
+                        temp_p1 = data(mask,:).p1;
+                        new_data.p1(i, :) = temp_p1(trialorder);
+    
+                        temp_p2 = data(mask, :).p2;
+                        new_data.p2(i, :) = temp_p2(trialorder);
+    
+                        temp_rtime = data(mask, :).rtime;
+                        new_data.rtime(i, :) = temp_rtime(trialorder);
+                        %
+                        temp_trial = data(mask,:).trial;
+                        new_data.trial(i, :) = temp_trial(trialorder);
+    
+    
+                        i = i + 1;
+                    catch
+                        fprintf('There has been an error while treating subject %d \n', i);
+                    end
+            end
             end
         end
     end

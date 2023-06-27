@@ -1,8 +1,9 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [9.1];
+selected_exp = [1,2,3,4];
 displayfig = 'on';
+
 
 figure('Renderer', 'painters','Units', 'centimeters',...
     'Position', [0,0,5.3*length(selected_exp), 5.3/1.25], 'visible', displayfig)
@@ -12,6 +13,8 @@ filename = 'Fig2C';
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);
+fitname_LE = 'data/fit/learning_LE_%s_session_%d';
+fitname_ES = 'data/fit/midpoints_ES_%s_session_%d';
 
 for exp_num = selected_exp
     num = num + 1;
@@ -34,13 +37,12 @@ for exp_num = selected_exp
     sim_params.sess = sess;
     sim_params.exp_name = name;
     sim_params.nsub = nsub;
+    sim_params.path = fitname_LE;
                     
     sim_params.model = 1;
     [midpoints1, throw] = get_qvalues(sim_params);
                                 
-    param = load(...
-                    sprintf('data/fit/midpoints_%s_exp_%d_%d_mle',...
-                    'ES', round(exp_num), sess));
+    param = load(sprintf(fitname_ES, name, sess));
                 
     midpoints2 = param.midpoints;
     
