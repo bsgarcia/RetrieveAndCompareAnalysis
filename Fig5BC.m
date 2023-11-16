@@ -10,6 +10,7 @@ displayfig = 'off';
 colors = [orange; green];
 zscored = 0;
 
+displayfig = 'on'
 stats_data = table();
 
 filename1 = 'Fig5B';

@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------
 selected_exp = [6, 7];
 
-stats_filename = 'data/stats/Fig4CD.csv';
+stats_filename = 'data/stats/Fig4CE.csv';
 
 displayfig = 'on';
 %-------------------------------------------------------------------------
@@ -22,7 +22,6 @@ for exp_num = selected_exp
     
     corrED = mean(dED.corr,2)';
     corrEE = mean(dEE.corr,2)';
-    mean(corrED)
     % add ED exp_%num
     CCR{num, 1} = corrED;
     

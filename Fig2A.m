@@ -18,7 +18,6 @@ T_exp = table();
 T_con = table();
 
 % filenames
-
 figfolder = 'fig';
 
 figname = sprintf('%s/%s.svg', figfolder, filename);

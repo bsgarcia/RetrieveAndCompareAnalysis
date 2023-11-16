@@ -1,7 +1,7 @@
 %-------------------------------------------------------------------------
 init;
 %-------------------------------------------------------------------------
-selected_exp = [1,2,3,4];
+selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
 
 
@@ -83,7 +83,7 @@ for exp_num = selected_exp
         ylabel('Estimated p(win) (%)')
     end
    
-    xlabel('E-option p(win) (%)');
+    xlabel('Experiential option p(win) (%)');
     box off
     hold on
     

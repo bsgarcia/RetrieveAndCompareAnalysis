@@ -290,7 +290,7 @@ classdef DataExtractionCSV < handle
 
                         i = i + 1;
 
-                    catch_trial e
+                    catch e
                         fprintf(1, '\n There has been an error while treating subject %d \n', i);
                         fprintf(1,'The identifier was:\n%s',e.identifier);
                         fprintf(1,'There was an error! The message was:\n%s',e.message);
@@ -401,7 +401,7 @@ classdef DataExtractionCSV < handle
 
                         i = i + 1;
 
-                    catch_trial e
+                    catch e
                         fprintf(1, '\n There has been an error while treating subject %d \n', i);
                         fprintf(1,'The identifier was:\n%s',e.identifier);
                         fprintf(1,'There was an error! The message was:\n%s',e.message);
@@ -511,7 +511,7 @@ classdef DataExtractionCSV < handle
 
                         i = i + 1;
 
-                    catch_trial e
+                    catch e
                         fprintf(1, '\n There has been an error while treating subject %d \n', i);
                         fprintf(1,'The identifier was:\n%s',e.identifier);
                         fprintf(1,'There was an error! The message was:\n%s',e.message);
@@ -720,7 +720,7 @@ classdef DataExtractionCSV < handle
 
                         i = i + 1;
 
-                    catch_trial e
+                    catch e
                         fprintf(1, '\n There has been an error while treating subject %d \n', i);
                         fprintf(1,'The identifier was:\n%s',e.identifier);
                         fprintf(1,'There was an error! The message was:\n%s',e.message);

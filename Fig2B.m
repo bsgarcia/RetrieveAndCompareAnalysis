@@ -5,7 +5,7 @@ init;
 %-------------------------------------------------------------------------%
 % parameters of the script                                                %
 %-------------------------------------------------------------------------%
-selected_exp = [1,2,3,4];
+selected_exp = [1, 2, 3, 4];
 displayfig = 'on';
 colors = [orange];
 % filenames
@@ -24,7 +24,6 @@ for exp_num = selected_exp
     num = num + 1;
     
     data = de.extract_ES(exp_num);
-    disp(data)
     nsub = data.nsub;
     p1 = data.p1;
     p2 = data.p2;

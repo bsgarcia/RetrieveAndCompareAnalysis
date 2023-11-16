@@ -16,6 +16,7 @@ figfolder = 'fig';
 figname = sprintf('%s/%s.svg', figfolder, filename);
 stats_filename = sprintf('data/stats/%s.csv', filename);
 
+
 % %  
 % figure('Renderer', 'Painter', 'Units', 'centimeters',...
 %     'Position', [0,0,5.3, 5.3/1.25], 'visible', displayfig)
@@ -49,6 +50,8 @@ for exp_num = selected_exp
         sim_params.exp_num = exp_num;
         sim_params.nsub = nsub;
         sim_params.model = 1;
+        sim_params.path = 'data/fit/learning_LE_%s_session_%d';
+
         
         if length(sess) == 2
             d = de.extract_ES(str2num(sprintf('%d.%d', exp_num, sess(i)+1)));
