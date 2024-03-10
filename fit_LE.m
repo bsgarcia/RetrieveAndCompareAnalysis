@@ -42,7 +42,7 @@ for exp_num = selected_exp
     fit_params.ncond = length(unique(data.con));
     
     save_params.fit_file = sprintf(...
-        '%s%s%s%s%d', fit_folder, 'learning_LE',  data.name,  '_session_', data.sess);
+        '%s%s%s%s%d', fit_folder, 'learning_LE_',  data.name,  '_session_', data.sess);
     
     % fmincon params
     fmincon_params.init_value = {[1, .5], [0, .5, .5],[0, .5]};
