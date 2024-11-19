@@ -161,7 +161,7 @@ classdef DataExtractionCSV < handle
 
         function sess = get_sess_from_exp_num(obj, exp_num)
             if length(exp_num) == 1
-                if (length(num2str(exp_num)) == 1) && (exp_num >= 6)
+                if (length(num2str(exp_num)) == 1) & (exp_num >= 6)
                     sess = [0,1];
                 else
 
@@ -249,8 +249,10 @@ classdef DataExtractionCSV < handle
                         new_data.cfout(i, :) = temp_cfout(trialorder);
 
                         temp_ev1 = data(mask, :).ev1;                       
-
                         new_data.ev1(i, :) = temp_ev1(trialorder);
+
+                        temp_ev2 = data(mask,:).ev2;
+                        new_data.ev2(i, :) = temp_ev2(trialorder);
 
                         temp_catch_trial = data(mask, :).catch_trial;
                         new_data.ctch(i, :) = temp_catch_trial(trialorder);
@@ -261,14 +263,12 @@ classdef DataExtractionCSV < handle
 % 
 %                         new_data.ctch_corr(i, :) = data(mask2, obj.idx.corr);
 
-%                         temp_cont1 = data(mask, obj.idx.cont1);
-%                         new_data.cont1(i, :) = temp_cont1(trialorder);
+                         temp_cont1 = data(mask,:).cont1;
+                         new_data.cont1(i, :) = temp_cont1(trialorder);
 
-                        temp_ev2 = data(mask,:).ev2;
-                        new_data.ev2(i, :) = temp_ev2(trialorder);
-
-%                         temp_cont2 = data(mask, obj.idx.cont2);
-%                         new_data.cont2(i, :) = temp_cont2(trialorder);
+         
+                         temp_cont2 = data(mask,:).cont2;
+                         new_data.cont2(i, :) = temp_cont2(trialorder);
 
                         temp_p1 = data(mask,:).p1;
                         new_data.p1(i, :) = temp_p1(trialorder);
@@ -276,16 +276,14 @@ classdef DataExtractionCSV < handle
                         temp_p2 = data(mask, :).p2;
                         new_data.p2(i, :) = temp_p2(trialorder);
 
-%                         temp_dist = data(mask,:);
-%                         new_data.dist(i, :) = temp_dist(trialorder)./100;
 
                         temp_rtime = data(mask, :).rtime;
                         new_data.rtime(i, :) = temp_rtime(trialorder);
-% 
+
                         temp_trial = data(mask,:).trial;
                         new_data.trial(i, :) = temp_trial(trialorder);
 
-%                         new_data.catch_trial(i, :) = data(mask2, obj.idx.catch_trial);                        
+                        new_data.group(i, :) = data(mask, :).group;
 
 
                         i = i + 1;
@@ -397,7 +395,9 @@ classdef DataExtractionCSV < handle
                         temp_trial = data(mask,:).trial;
                         new_data.trial(i, :) = temp_trial(trialorder);
 
-%                         new_data.catch_trial(i, :) = data(mask2, obj.idx.catch_trial);                        
+                        new_data.group(i, :) = data(mask, :).group;
+
+
 
                         i = i + 1;
 

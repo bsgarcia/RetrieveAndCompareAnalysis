@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2, 9.1, 9.2];
+selected_exp = [1, 2, 3, 4, 5, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2, 9.1, 9.2,10.1, 10.2, 11.1, 11.2, 12.1, 12.2];
 save_name = ['data/fit/', 'midpoints_ES_%s_session_%d'];
 
 displayfig = 'on';
@@ -12,7 +12,7 @@ for exp_num = selected_exp
     
     fprintf('Fitting exp. %s \n', num2str(exp_num));
     sess =  de.get_sess_from_exp_num(exp_num);
-    
+
     data = de.extract_ES(exp_num);
 
     % ---------------------------------------------------------------------
@@ -36,7 +36,6 @@ for exp_num = selected_exp
             end
         end
     end
-
     midpoints = nan(nsub, length(p_sym));
     params = nan(nsub, length(p_sym)+1);
     beta1 = nan(nsub, 1);

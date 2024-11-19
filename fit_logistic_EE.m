@@ -2,7 +2,7 @@
 init;
 show_current_script_name(mfilename('fullpath'));
 %-------------------------------------------------------------------------
-selected_exp = [5, 6.1, 6.2, 7.1 ,7.2, 8.1, 8.2, 9.1, 9.2];
+selected_exp = [5, 6.1, 6.2, 7.1 ,7.2, 8.1, 8.2, 9.1, 9.2, 10.1, 10.2, 11.1, 11.2, 12.1, 12.2];
 save_name = ['data/fit/', 'midpoints_EE_%s_session_%d'];
 displayfig = 'on';
 force = true;
